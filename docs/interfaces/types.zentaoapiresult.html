@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>types | zentao-api</title>
+	<title>ZentaoApiResult | zentao-api</title>
 	<meta name="description" content="Documentation for zentao-api">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -53,83 +53,99 @@
 					<a href="../modules.html">zentao-api</a>
 				</li>
 				<li>
-					<a href="types.html">types</a>
+					<a href="../modules/types.html">types</a>
+				</li>
+				<li>
+					<a href="types.zentaoapiresult.html">ZentaoApiResult</a>
 				</li>
 			</ul>
-			<h1>Module types</h1>
+			<h1>Interface ZentaoApiResult</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>禅道 API 返回结果</p>
+					</div>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">ZentaoApiResult</span>
+					</li>
+				</ul>
+			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Interfaces</h3>
+							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/types.zentaoapiresult.html" class="tsd-kind-icon">Zentao<wbr>Api<wbr>Result</a></li>
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/types.zentaooptions.html" class="tsd-kind-icon">Zentao<wbr>Options</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section ">
-							<h3>Type aliases</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="types.html#zentaorequestmethod" class="tsd-kind-icon">Zentao<wbr>Request<wbr>Method</a></li>
-								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="types.html#zentaorequestparams" class="tsd-kind-icon">Zentao<wbr>Request<wbr>Params</a></li>
-								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="types.html#zentaorequesttype" class="tsd-kind-icon">Zentao<wbr>Request<wbr>Type</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="types.zentaoapiresult.html#msg" class="tsd-kind-icon">msg</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="types.zentaoapiresult.html#result" class="tsd-kind-icon">result</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="types.zentaoapiresult.html#status" class="tsd-kind-icon">status</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Type aliases</h2>
-				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
-					<a name="zentaorequestmethod" class="tsd-anchor"></a>
-					<h3>Zentao<wbr>Request<wbr>Method</h3>
-					<div class="tsd-signature tsd-kind-icon">Zentao<wbr>Request<wbr>Method<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Method</span></div>
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="msg" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> msg</h3>
+					<div class="tsd-signature tsd-kind-icon">msg<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in types.ts:16</li>
+							<li>Defined in <a href="https://github.com/catouse/zentao-api/blob/02c1678/src/types.ts#L33">types.ts:33</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>禅道 API 请求方式</p>
+							<p>服务器返回的描述结果的文本</p>
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
-					<a name="zentaorequestparams" class="tsd-anchor"></a>
-					<h3>Zentao<wbr>Request<wbr>Params</h3>
-					<div class="tsd-signature tsd-kind-icon">Zentao<wbr>Request<wbr>Params<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="result" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> result</h3>
+					<div class="tsd-signature tsd-kind-icon">result<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in types.ts:11</li>
+							<li>Defined in <a href="https://github.com/catouse/zentao-api/blob/02c1678/src/types.ts#L38">types.ts:38</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>禅道请求参数</p>
+							<p>请求结果数据</p>
 						</div>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
-					<a name="zentaorequesttype" class="tsd-anchor"></a>
-					<h3>Zentao<wbr>Request<wbr>Type</h3>
-					<div class="tsd-signature tsd-kind-icon">Zentao<wbr>Request<wbr>Type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;PATH_INFO&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;GET&quot;</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="status" class="tsd-anchor"></a>
+					<h3>status</h3>
+					<div class="tsd-signature tsd-kind-icon">status<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">0</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">1</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in types.ts:6</li>
+							<li>Defined in <a href="https://github.com/catouse/zentao-api/blob/02c1678/src/types.ts#L28">types.ts:28</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>支持的禅道请求方式，影响 API 请求 URL 构建方式</p>
+							<p>状态</p>
 						</div>
+						<dl class="tsd-comment-tags">
+							<dt>remarks</dt>
+							<dd><p>如果为 <code>0</code> 则表示操作请求失败，如果为 <code>1</code>，表示操作请求成功</p>
+							</dd>
+						</dl>
 					</div>
 				</section>
 			</section>
@@ -141,44 +157,59 @@
 						<a href="../modules.html">Exports</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="index.html">index</a>
+						<a href="../modules/index.html">index</a>
 					</li>
 					<li class="current tsd-kind-module">
-						<a href="types.html">types</a>
+						<a href="../modules/types.html">types</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="utils.html">utils</a>
+						<a href="../modules/utils.html">utils</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="zentao.html">zentao</a>
+						<a href="../modules/zentao.html">zentao</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="zentao_config.html">zentao-<wbr>config</a>
+						<a href="../modules/zentao_config.html">zentao-<wbr>config</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="zentao_request_builder.html">zentao-<wbr>request-<wbr>builder</a>
+						<a href="../modules/zentao_request_builder.html">zentao-<wbr>request-<wbr>builder</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="zentao12.html">zentao12</a>
+						<a href="../modules/zentao12.html">zentao12</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface tsd-parent-kind-module">
+						<a href="types.zentaoapiresult.html" class="tsd-kind-icon">Zentao<wbr>Api<wbr>Result</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="types.zentaoapiresult.html#msg" class="tsd-kind-icon">msg</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="types.zentaoapiresult.html#result" class="tsd-kind-icon">result</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="types.zentaoapiresult.html#status" class="tsd-kind-icon">status</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
 					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/types.zentaoapiresult.html" class="tsd-kind-icon">Zentao<wbr>Api<wbr>Result</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/types.zentaooptions.html" class="tsd-kind-icon">Zentao<wbr>Options</a>
+						<a href="types.zentaooptions.html" class="tsd-kind-icon">Zentao<wbr>Options</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
-						<a href="types.html#zentaorequestmethod" class="tsd-kind-icon">Zentao<wbr>Request<wbr>Method</a>
+						<a href="../modules/types.html#zentaorequestmethod" class="tsd-kind-icon">Zentao<wbr>Request<wbr>Method</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
-						<a href="types.html#zentaorequestparams" class="tsd-kind-icon">Zentao<wbr>Request<wbr>Params</a>
+						<a href="../modules/types.html#zentaorequestparams" class="tsd-kind-icon">Zentao<wbr>Request<wbr>Params</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
-						<a href="types.html#zentaorequesttype" class="tsd-kind-icon">Zentao<wbr>Request<wbr>Type</a>
+						<a href="../modules/types.html#zentaorequesttype" class="tsd-kind-icon">Zentao<wbr>Request<wbr>Type</a>
 					</li>
 				</ul>
 			</nav>
@@ -195,6 +226,7 @@
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>

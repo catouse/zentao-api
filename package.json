@@ -35,7 +35,7 @@
     "prepare": "tsdx build",
     "size": "size-limit",
     "analyze": "size-limit --why",
-    "doc": "typedoc --out doc/ --theme default --excludePrivate --excludeProtected --excludeExternals src/"
+    "doc": "typedoc --out docs/ --theme default --excludePrivate --excludeProtected --excludeExternals src/"
   },
   "peerDependencies": {},
   "husky": {
