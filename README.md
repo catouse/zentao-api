@@ -6,7 +6,7 @@
 
 ### 安装
 
-```
+```bash
 npm install --save zentao-api
 ```
 
@@ -57,7 +57,7 @@ if (productCreateResult.status) {
 }
 ```
 
-你可以访问 https://github.com/catouse/zentao-api 来查看所有可用 API 和详细示例。
+你可以访问 <https://catouse.github.io/zentao-api/> 来查看所有可用 API 和详细示例。
 
 ### 禅道 12 常用方法调用
 
@@ -121,7 +121,9 @@ if (productCreateResult.status) {
 * getUserList
 * resolveBug
 
- `Zentao12` 继承自 `Zentao`，所以你仍然可以在 `Zentao12` 上调用 `zentao.m().f()...get()` 链式方法来请求禅道提供的任何 API。
+`Zentao12` 继承自 `Zentao`，所以你仍然可以在 `Zentao12` 上调用 `zentao.m().f()...get()` 链式方法来请求禅道提供的任何 API。
+
+你可以访问 <https://catouse.github.io/zentao-api/> 来查看所有可用 API 和详细示例。
 
 ## 开发
 
@@ -133,7 +135,7 @@ if (productCreateResult.status) {
 
 在开发目录执行 `npm install` 来安装依赖，然后执行如下命令启动开发模式：
 
-```
+```bash
 npm start
 ```
 
@@ -143,7 +145,7 @@ npm start
 
 如果仅仅需要一次构建编译，只需要执行：
 
-```
+```bash
 npm build
 ```
 
@@ -151,7 +153,7 @@ npm build
 
 该项目使用 `jest` 进行测试，执行如下命令即可：
 
-```
+```bash
 npm test
 ```
 
@@ -159,7 +161,7 @@ npm test
 
 该项目使用 [TypeDoc](https://typedoc.org/) 来根据源码中的注视自动生成 API 文档，只需要执行如下命令：
 
-```
+```bash
 npm run doc
 ```
 
@@ -167,13 +169,13 @@ npm run doc
 
 该项目使用 [`size-limit`](https://github.com/ai/size-limit) 来帮助分析包大小，只需要执行如下命令：
 
-```
+```bash
 npm run size
 ```
 
 如果需要通过可视化报告分析包大小，只需要执行：
 
-```
+```bash
 npm run analyze
 ```
 
@@ -181,7 +183,6 @@ npm run analyze
 
 执行：
 
-```
+```bash
 npm run lint
 ```
-
