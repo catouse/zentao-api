@@ -1,5 +1,7 @@
 # [zentao-api](https://github.com/catouse/zentao-api)
 
+[![CI](https://github.com/catouse/zentao-api/actions/workflows/main.yml/badge.svg)](https://github.com/catouse/zentao-api/actions/workflows/main.yml)
+
 禅道 API 调用模块。
 
 ## 使用方法
@@ -32,7 +34,7 @@ const productAllResult = await zentao
 
 // 输出产品列表
 console.log('All products', productAllResult.data.products);
-    
+
 // 调用 product-view 获取产品详细信息
 const productViewResult = await zentao
 		.m('product')
