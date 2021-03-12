@@ -1,4 +1,4 @@
-import { ZentaoRequestType } from './types';
+import {ZentaoRequestType} from './types';
 
 /**
  * 禅道配置存储对象
@@ -87,7 +87,8 @@ export default class ZentaoConfig {
      */
     constructor(config: Record<string, any>) {
         this.version = config['version'];
-        this.requestType = config['requestType'] === 'GET' ? 'GET' : 'PATH_INFO';
+        this.requestType =
+            config['requestType'] === 'GET' ? 'GET' : 'PATH_INFO';
         this.requestFix = config['requestFix'] ?? '-';
         this.moduleVar = config['moduleVar'] ?? 'm';
         this.methodVar = config['methodVar'] ?? 'f';
@@ -97,7 +98,10 @@ export default class ZentaoConfig {
         this.sessionID = config['sessionID'];
         this.random = config['random'];
         this.serverTime = config['serverTime'];
-        this.expiredTime = typeof config['expiredTime'] === 'string' ? Number.parseInt(config['expiredTime'], 10) : config['expiredTime'];
+        this.expiredTime =
+            typeof config['expiredTime'] === 'string'
+                ? Number.parseInt(config['expiredTime'], 10)
+                : config['expiredTime'];
         this._tokenUpdateTime = config['_tokenUpdateTime'];
         this._token = config['_token'];
         this._createTime = Date.now();
@@ -139,6 +143,8 @@ export default class ZentaoConfig {
         if (!this._tokenUpdateTime) {
             return true;
         }
-        return (Date.now() - this._tokenUpdateTime) >= ((this.expiredTime - 30) * 1000);
+        return (
+            Date.now() - this._tokenUpdateTime >= (this.expiredTime - 30) * 1000
+        );
     }
 }

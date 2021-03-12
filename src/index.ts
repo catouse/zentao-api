@@ -1,3 +1,4 @@
-export * as utils from './utils';
-export { default as Zentao } from './zentao';
-export { default as Zentao12 } from './zentao12';
+import * as utils from './utils';
+export {default as Zentao} from './zentao';
+export {default as Zentao12} from './zentao12';
+export {utils};

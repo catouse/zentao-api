@@ -1,5 +1,5 @@
 import querystring from 'querystring';
-import { ZentaoRequestParams } from "./types";
+import {ZentaoRequestParamPair, ZentaoRequestParams} from './types';
 
 /**
  * 创建一个 Date 对象
@@ -7,7 +7,7 @@ import { ZentaoRequestParams } from "./types";
  * @return {Date} 日期时间对象
  * @function
  */
- export const createDate = (date: Date|number|string) => {
+export const createDate = (date: Date | number | string) => {
     if (!date) {
         return new Date();
     }
@@ -50,7 +50,10 @@ import { ZentaoRequestParams } from "./types";
  * @return {string} 日期时间格式化文本
  * @function
  */
- export const formatDate = (date: Date|number|string, format: string = 'yyyy-MM-dd hh:mm') => {
+export const formatDate = (
+    date: Date | number | string,
+    format: string = 'yyyy-MM-dd hh:mm'
+) => {
     date = createDate(date);
 
     const dateInfo: Record<string, any> = {
@@ -61,15 +64,23 @@ import { ZentaoRequestParams } from "./types";
         'm+': date.getMinutes(),
         's+': date.getSeconds(),
         // 'q+': Math.floor((date.getMonth() + 3) / 3),
-        'S+': date.getMilliseconds()
+        'S+': date.getMilliseconds(),
     };
     if (/(y+)/i.test(format)) {
-        format = format.replace(RegExp.$1, (`${date.getFullYear()}`).substr(4 - RegExp.$1.length));
+        format = format.replace(
+            RegExp.$1,
+            `${date.getFullYear()}`.substr(4 - RegExp.$1.length)
+        );
     }
     Object.keys(dateInfo).forEach(k => {
         if (new RegExp(`(${k})`).test(format)) {
             const str = `${dateInfo[k]}`;
-            format = format.replace(RegExp.$1, RegExp.$1.length === 1 ? str : (`00${str}`).substr(str.length + 2 - RegExp.$1.length));
+            format = format.replace(
+                RegExp.$1,
+                RegExp.$1.length === 1
+                    ? str
+                    : `00${str}`.substr(str.length + 2 - RegExp.$1.length)
+            );
         }
     });
     return format;
@@ -86,7 +97,7 @@ import { ZentaoRequestParams } from "./types";
  * formatZentaoUrl('http://demo.zentao.net/index.php');
  * formatZentaoUrl('demo.zentao.net');
  */
- export function formatZentaoUrl(url: string) {
+export function formatZentaoUrl(url: string) {
     if (url.endsWith('/index.php')) {
         url = url.substr(0, url.length - 9);
     } else if (!url.endsWith('/')) {
@@ -138,15 +149,19 @@ export function slimmingObject(object: any, fields: string[]): any {
  * // 下面返回：`[['foo', 'bar'], ['', 'world']]`
  * normalizeRequestParams([['foo', 'bar'], 'bar']);
  */
-export function normalizeRequestParams(params?: ZentaoRequestParams): [string, any][] {
-    let normalizedParams: [string, any][] = [];
+export function normalizeRequestParams(
+    params?: ZentaoRequestParams
+): ZentaoRequestParamPair[] {
+    let normalizedParams: ZentaoRequestParamPair[] = [];
     if (typeof params === 'string') {
         params = querystring.parse(params);
     }
     if (params && typeof params === 'object') {
         if (Array.isArray(params)) {
             for (const param of params) {
-                normalizedParams.push(typeof param === 'string' ? ['', param] : param);
+                normalizedParams.push(
+                    typeof param === 'string' ? ['', param] : param
+                );
             }
         } else if (params as Record<string, any>) {
             for (const key of Object.keys(params).sort()) {
@@ -173,13 +188,18 @@ export function normalizeRequestParams(params?: ZentaoRequestParams): [string, a
  * // 以下返回 `[['foo', ['bar', 'ter']], ['answer', '42'], ['hello', 'world'], ['say', 'hi']]`
  * mergeRequestParams(params1, params2, params3);
  */
-export function mergeRequestParams(params: ZentaoRequestParams, ...otherParams: ZentaoRequestParams[]): [string, any][] {
+export function mergeRequestParams(
+    params: ZentaoRequestParams,
+    ...otherParams: ZentaoRequestParams[]
+): ZentaoRequestParamPair[] {
     const normalizedParams = normalizeRequestParams(params);
     for (const otherParam of otherParams) {
         const otherNormalizedParams = normalizeRequestParams(otherParam);
         for (const param of otherNormalizedParams) {
             if (typeof param[0] === 'string' && param[0].length) {
-                const existsParam = normalizedParams.find(x => x[0] === param[0]);
+                const existsParam = normalizedParams.find(
+                    x => x[0] === param[0]
+                );
                 if (existsParam) {
                     if (Array.isArray(existsParam[1])) {
                         existsParam[1].push(param[1]);

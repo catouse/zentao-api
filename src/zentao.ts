@@ -1,9 +1,16 @@
-import axios, { AxiosResponse } from 'axios';
+import axios, {AxiosResponse} from 'axios';
 import Configstore from 'configstore';
 import kleur from 'kleur';
 import querystring from 'querystring';
-import { ZentaoApiResult, ZentaoOptions, ZentaoRequestMethod, ZentaoRequestParams, ZentaoRequestType } from './types';
-import { formatZentaoUrl, normalizeRequestParams, slimmingObject } from './utils';
+import {
+    ZentaoApiResult,
+    ZentaoOptions,
+    ZentaoRequestMethod,
+    ZentaoRequestParamPair,
+    ZentaoRequestParams,
+    ZentaoRequestType,
+} from './types';
+import {formatZentaoUrl, normalizeRequestParams, slimmingObject} from './utils';
 import ZentaoConfig from './zentao-config';
 import ZentaoRequestBuilder from './zentao-request-builder';
 
@@ -94,22 +101,29 @@ export default class Zentao {
         this._identifier = `${this.account}@${this._url}`;
 
         // Zentao 实例名称
-        this._sessionName = `ZENTAO-API::${options.sessionName ?? this._identifier}`;
+        this._sessionName = `ZENTAO-API::${options.sessionName ??
+            this._identifier}`;
 
         this._userRequestType = options.accessMode;
         this._preserveToken = options.preserveToken ?? true;
 
         if (this._debug) {
-            console.log([
-                `${kleur.yellow('▶︎')} ${kleur.bold().blue(this._sessionName)} ${kleur.yellow('◀︎')}`,
-                `    url: ${kleur.magenta(this.url)}`,
-                `    account: ${kleur.magenta(this.account)}`,
-                `    password: ${kleur.magenta(this.password)}`,
-                `    preserveToken: ${kleur.magenta(`${this._preserveToken}`)}`,
-                `    sessionName: ${kleur.magenta(this._sessionName)}`,
-                `    identifier: ${kleur.magenta(this._identifier)}`,
-                `    requestType: ${kleur.magenta(this.requestType)}`,
-            ].join('\n'));
+            console.log(
+                [
+                    `${kleur.yellow('▶︎')} ${kleur
+                        .bold()
+                        .blue(this._sessionName)} ${kleur.yellow('◀︎')}`,
+                    `    url: ${kleur.magenta(this.url)}`,
+                    `    account: ${kleur.magenta(this.account)}`,
+                    `    password: ${kleur.magenta(this.password)}`,
+                    `    preserveToken: ${kleur.magenta(
+                        `${this._preserveToken}`
+                    )}`,
+                    `    sessionName: ${kleur.magenta(this._sessionName)}`,
+                    `    identifier: ${kleur.magenta(this._identifier)}`,
+                    `    requestType: ${kleur.magenta(this.requestType)}`,
+                ].join('\n')
+            );
         }
 
         // 从本地存储加载禅道配置
@@ -120,10 +134,18 @@ export default class Zentao {
                 this._config = new ZentaoConfig(configFromStore);
 
                 if (this._debug) {
-                    console.log([
-                        kleur.bold(`\n${kleur.gray('➡︎')} ${kleur.bold().blue('Load zentao config from local storage')}`),
-                        `  ${JSON.stringify(configFromStore)}`,
-                    ].join('\n'));
+                    console.log(
+                        [
+                            kleur.bold(
+                                `\n${kleur.gray('➡︎')} ${kleur
+                                    .bold()
+                                    .blue(
+                                        'Load zentao config from local storage'
+                                    )}`
+                            ),
+                            `  ${JSON.stringify(configFromStore)}`,
+                        ].join('\n')
+                    );
                 }
             }
         }
@@ -194,12 +216,15 @@ export default class Zentao {
     async login(): Promise<ZentaoApiResult> {
         await this.fetchConfig();
 
-        const res = await this.m('user').f('login').useConverter((remoteData, result) => {
-            if (remoteData.user) {
-                result.result = remoteData.user;
-            }
-            return result;
-        }).post({account: this.account, password: this.password});
+        const res = await this.m('user')
+            .f('login')
+            .useConverter((remoteData, result) => {
+                if (remoteData.user) {
+                    result.result = remoteData.user;
+                }
+                return result;
+            })
+            .post({account: this.account, password: this.password});
 
         return res;
     }
@@ -232,7 +257,11 @@ export default class Zentao {
      * @param params 请求参数
      * @returns 禅道请求构建实例
      */
-    module(moduleName: string, methodName?: string, params?: ZentaoRequestParams): ZentaoRequestBuilder {
+    module(
+        moduleName: string,
+        methodName?: string,
+        params?: ZentaoRequestParams
+    ): ZentaoRequestBuilder {
         return new ZentaoRequestBuilder(this, moduleName, methodName, params);
     }
 
@@ -244,7 +273,11 @@ export default class Zentao {
      * @returns 禅道请求构建实例
      * @alias module
      */
-    m(moduleName: string, methodName?: string, params?: ZentaoRequestParams): ZentaoRequestBuilder {
+    m(
+        moduleName: string,
+        methodName?: string,
+        params?: ZentaoRequestParams
+    ): ZentaoRequestBuilder {
         return this.module(moduleName, methodName, params);
     }
 
@@ -255,21 +288,46 @@ export default class Zentao {
      * @param options 其他请求选项
      * @returns 请求结果
      */
-    async request(moduleName: string, methodName: string = 'index', options: {params?: ZentaoRequestParams, data?: string | Record<string, any>, name?: string, method?: ZentaoRequestMethod, url?: string, resultConvertor?: (remoteData: any, result: ZentaoApiResult) => ZentaoApiResult, fields?: string[]} = {}): Promise<ZentaoApiResult> {
-        if ((!this._config || this._config?.isTokenExpired) && `${moduleName}/${methodName}`.toLowerCase() !== 'user/login') {
+    async request(
+        moduleName: string,
+        methodName: string = 'index',
+        options: {
+            params?: ZentaoRequestParams;
+            data?: string | Record<string, any>;
+            name?: string;
+            method?: ZentaoRequestMethod;
+            url?: string;
+            resultConvertor?: (
+                remoteData: any,
+                result: ZentaoApiResult
+            ) => ZentaoApiResult;
+            fields?: string[];
+        } = {}
+    ): Promise<ZentaoApiResult> {
+        if (
+            (!this._config || this._config?.isTokenExpired) &&
+            `${moduleName}/${methodName}`.toLowerCase() !== 'user/login'
+        ) {
             await this.login();
         }
 
         if (!this._config) {
-            throw new Error(`Zentao config is empty, makesure to fetch config before request from ${moduleName}-${methodName}.`);
+            throw new Error(
+                `Zentao config is empty, makesure to fetch config before request from ${moduleName}-${methodName}.`
+            );
         }
 
         const params = normalizeRequestParams(options.params);
-        const url = options.url ?? this.createUrl(moduleName, methodName, params);
-        const name = options.name ?? `${moduleName}${methodName[0].toUpperCase()}${methodName.substr(1)}`;
+        const url =
+            options.url ?? this.createUrl(moduleName, methodName, params);
+        const name =
+            options.name ??
+            `${moduleName}${methodName[0].toUpperCase()}${methodName.substr(
+                1
+            )}`;
         const method = options.method ?? 'GET';
         const headers = {
-            'Cookie': this._config.tokenAuth
+            Cookie: this._config.tokenAuth,
         };
 
         let {data} = options;
@@ -300,12 +358,21 @@ export default class Zentao {
             let result: ZentaoApiResult;
             const remoteData = resp.data;
             if (typeof remoteData === 'object' && remoteData !== null) {
-                if (typeof remoteData.data === 'string' && (remoteData.data[0] === '[' || remoteData.data[0] === '{')) {
+                if (
+                    typeof remoteData.data === 'string' &&
+                    (remoteData.data[0] === '[' || remoteData.data[0] === '{')
+                ) {
                     remoteData.data = JSON.parse(remoteData.data);
                 }
 
-                const success = remoteData.status === 'success' || remoteData.result === 'success';
-                result = {status: success ? 1 : 0, msg: remoteData.message ?? (success ? 'success' : 'error'), result: remoteData.data ?? remoteData.result};
+                const success =
+                    remoteData.status === 'success' ||
+                    remoteData.result === 'success';
+                result = {
+                    status: success ? 1 : 0,
+                    msg: remoteData.message ?? (success ? 'success' : 'error'),
+                    result: remoteData.data ?? remoteData.result,
+                };
             } else {
                 result = {status: 0, msg: 'error', result: resp.data};
             }
@@ -314,15 +381,27 @@ export default class Zentao {
                 result = options.resultConvertor(remoteData, result);
             }
 
-            if (options.fields && typeof result.result === 'object' && result.result) {
+            if (
+                options.fields &&
+                typeof result.result === 'object' &&
+                result.result
+            ) {
                 if (Array.isArray(result.result)) {
-                    result.result = result.result.map((x) => slimmingObject(x, options.fields!));
+                    result.result = result.result.map(x =>
+                        slimmingObject(x, options.fields!)
+                    );
                 } else {
-                    result.result = slimmingObject(result.result, options.fields!)
+                    result.result = slimmingObject(
+                        result.result,
+                        options.fields!
+                    );
                 }
             }
 
-            if (`${moduleName}/${methodName}` === 'user/login' && result.status === 1) {
+            if (
+                `${moduleName}/${methodName}` === 'user/login' &&
+                result.status === 1
+            ) {
                 this._config?.renewToken();
                 if (this._preserveToken) {
                     this._store?.set('config', this._config);
@@ -344,14 +423,20 @@ export default class Zentao {
      * @param params 其他参数
      * @returns 请求地址
      */
-    createUrl(moduleName: string, methodName: string = 'index', params?: [string, any][]): string {
+    createUrl(
+        moduleName: string,
+        methodName: string = 'index',
+        params?: ZentaoRequestParamPair[]
+    ): string {
         const config = this._config;
         if (!config) {
-            throw new Error('Zentao config is empty, makesure fetch config before call others api.');
+            throw new Error(
+                'Zentao config is empty, makesure fetch config before call others api.'
+            );
         }
 
         const urlParts: string[] = [this.url];
-        if (this.requestType == 'PATH_INFO') {
+        if (this.requestType === 'PATH_INFO') {
             urlParts.push(moduleName, config.requestFix, methodName);
             if (params) {
                 for (const paramPair of params) {
@@ -360,10 +445,14 @@ export default class Zentao {
             }
             urlParts.push('.json');
         } else {
-            urlParts.push(`?${config.moduleVar}=${moduleName}&${config.methodVar}=${methodName}`);
+            urlParts.push(
+                `?${config.moduleVar}=${moduleName}&${config.methodVar}=${methodName}`
+            );
             if (params) {
                 for (const paramPair of params) {
-                    urlParts.push(`&${paramPair[0]}=${encodeURIComponent(paramPair[1])}`);
+                    urlParts.push(
+                        `&${paramPair[0]}=${encodeURIComponent(paramPair[1])}`
+                    );
                 }
             }
             urlParts.push(`&${config.viewVar}=json`);
@@ -377,7 +466,19 @@ export default class Zentao {
      * @param atrributes 日志属性对象
      * @param others 其他日志内容
      */
-    protected _log(name: string, atrributes: {url?: string, params?: [string, any][], data?: string | Record<string, any>, method?: string, resp?: AxiosResponse, result?: ZentaoApiResult, error?: any}, ...others: any[]) {
+    protected _log(
+        name: string,
+        atrributes: {
+            url?: string;
+            params?: ZentaoRequestParamPair[];
+            data?: string | Record<string, any>;
+            method?: string;
+            resp?: AxiosResponse;
+            result?: ZentaoApiResult;
+            error?: any;
+        },
+        ...others: any[]
+    ) {
         if (!this._debug) {
             return;
         }
@@ -389,15 +490,32 @@ export default class Zentao {
         const url = (resp ? resp.config.url : atrributes.url) ?? '';
         const method = (resp ? resp.config.method : atrributes.method) ?? 'GET';
 
-        logLines.push(kleur.bold(`${kleur.gray('➡︎')} ${kleur[success ? 'green' : 'red']().inverse(` ${name} ${success ? '✓' : '𐄂'} `)}`));
+        logLines.push(
+            kleur.bold(
+                `${kleur.gray('➡︎')} ${kleur[
+                    success ? 'green' : 'red'
+                ]().inverse(` ${name} ${success ? '✓' : '𐄂'} `)}`
+            )
+        );
 
-        logLines.push(`\n  ${kleur.bold().blue(method.toUpperCase())} ${kleur.blue().underline(url)}`);
-        logLines.push(`    status: ${kleur[status === 200 ? 'green' : 'red'](`● ${status}`)} ${kleur.gray(resp?.statusText ?? '')}`);
+        logLines.push(
+            `\n  ${kleur
+                .bold()
+                .blue(method.toUpperCase())} ${kleur.blue().underline(url)}`
+        );
+        logLines.push(
+            `    status: ${kleur[status === 200 ? 'green' : 'red'](
+                `● ${status}`
+            )} ${kleur.gray(resp?.statusText ?? '')}`
+        );
 
         if (atrributes.params) {
             logLines.push(`\n  ${kleur.bold().blue('Request Parameters')}`);
             for (const pair of atrributes.params) {
-                const pairValue = typeof pair[1] === 'string' ? pair[1] : JSON.stringify(pair[1]);
+                const pairValue =
+                    typeof pair[1] === 'string'
+                        ? pair[1]
+                        : JSON.stringify(pair[1]);
                 logLines.push(`    ${pair[0]}: ${kleur.magenta(pairValue)}`);
             }
         }
@@ -406,7 +524,10 @@ export default class Zentao {
             logLines.push(`\n  ${kleur.bold().blue('Request Headers')}`);
             const headers = resp.config.headers;
             for (const key of Object.keys(headers)) {
-                const value = typeof headers[key] === 'string' ? headers[key] : JSON.stringify(headers[key]);
+                const value =
+                    typeof headers[key] === 'string'
+                        ? headers[key]
+                        : JSON.stringify(headers[key]);
                 logLines.push(`    ${key}: ${kleur.magenta(value)}`);
             }
         }
@@ -418,27 +539,50 @@ export default class Zentao {
                 data = querystring.parse(data);
             }
             for (const key of Object.keys(data)) {
-                const value = typeof data[key] === 'string' ? data[key] : JSON.stringify(data[key]);
+                const value =
+                    typeof data[key] === 'string'
+                        ? data[key]
+                        : JSON.stringify(data[key]);
                 logLines.push(`    ${key}: ${kleur.magenta(value)}`);
             }
         }
 
         if (result) {
             logLines.push(`\n  ${kleur.bold().cyan('Response Data')}`);
-            logLines.push(`    status: ${kleur[result.status === 1 ? 'green' : 'red'](result.status)},`);
+            logLines.push(
+                `    status: ${kleur[result.status === 1 ? 'green' : 'red'](
+                    result.status
+                )},`
+            );
             if (result.msg !== undefined) {
-                logLines.push(`    msg: ${kleur[result.status === 1 ? 'green' : 'red'](typeof result.msg === 'string' ? result.msg : JSON.stringify(result.msg))},`);
+                logLines.push(
+                    `    msg: ${kleur[result.status === 1 ? 'green' : 'red'](
+                        typeof result.msg === 'string'
+                            ? result.msg
+                            : JSON.stringify(result.msg)
+                    )},`
+                );
             }
             if (result.result !== undefined) {
-                logLines.push(`    result: ${kleur.magenta(JSON.stringify(result.result))}`);
+                logLines.push(
+                    `    result: ${kleur.magenta(
+                        JSON.stringify(result.result)
+                    )}`
+                );
             }
         }
         if (resp && (!result || !success || !result.result)) {
             logLines.push(`\n  ${kleur.bold().cyan('Response Text')}`);
-            logLines.push(`    ${typeof resp.data === 'string' ? resp.data : JSON.stringify(resp.data)}`);
+            logLines.push(
+                `    ${
+                    typeof resp.data === 'string'
+                        ? resp.data
+                        : JSON.stringify(resp.data)
+                }`
+            );
         }
 
-        if(atrributes.error) {
+        if (atrributes.error) {
             logLines.push(`\n  ${kleur.bold().red('Error')}`);
             logLines.push(`    ${kleur.red(atrributes.error)}`);
         }

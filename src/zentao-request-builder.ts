@@ -1,7 +1,7 @@
-import { Method } from "axios";
-import { ZentaoApiResult, ZentaoRequestParams } from "./types";
-import { mergeRequestParams } from "./utils";
-import Zentao from "./zentao";
+import {Method} from 'axios';
+import {ZentaoApiResult, ZentaoRequestParams} from './types';
+import {mergeRequestParams} from './utils';
+import Zentao from './zentao';
 
 /**
  * 禅道请求构建类
@@ -22,7 +22,10 @@ export default class ZentaoRequestBuilder {
     _params?: ZentaoRequestParams;
     _data?: string | Record<string, any>;
     _fields?: string[];
-    _resultConvertor?: (remoteData: any, result: ZentaoApiResult) => ZentaoApiResult;
+    _resultConvertor?: (
+        remoteData: any,
+        result: ZentaoApiResult
+    ) => ZentaoApiResult;
     _url?: string;
     _name?: string;
 
@@ -33,7 +36,12 @@ export default class ZentaoRequestBuilder {
      * @param methodName 模块名
      * @param params 请求参数
      */
-    constructor(zentao: Zentao, moduleName: string, methodName?: string, params?: ZentaoRequestParams) {
+    constructor(
+        zentao: Zentao,
+        moduleName: string,
+        methodName?: string,
+        params?: ZentaoRequestParams
+    ) {
         this.zentao = zentao;
         this.moduleName = moduleName;
         this._methodName = methodName ?? 'index';
@@ -50,14 +58,14 @@ export default class ZentaoRequestBuilder {
     /**
      * 获取请求参数
      */
-    get params()  {
+    get params() {
         return this._params;
     }
 
     /**
      * 获取请求数据
      */
-     get data() {
+    get data() {
         return this._data;
     }
 
@@ -95,7 +103,7 @@ export default class ZentaoRequestBuilder {
      * @returns 禅道请求构建实例自身
      */
     method(name: string): ZentaoRequestBuilder {
-        this._methodName = name
+        this._methodName = name;
         return this;
     }
 
@@ -148,7 +156,9 @@ export default class ZentaoRequestBuilder {
      * @param converter 结果转换函数
      * @returns 禅道请求构建实例自身
      */
-    useConverter(converter: (remoteData: any, result: ZentaoApiResult) => ZentaoApiResult): ZentaoRequestBuilder {
+    useConverter(
+        converter: (remoteData: any, result: ZentaoApiResult) => ZentaoApiResult
+    ): ZentaoRequestBuilder {
         this._resultConvertor = converter;
         return this;
     }
@@ -158,7 +168,9 @@ export default class ZentaoRequestBuilder {
      * @param fields 设置仅返回的属性名称列表
      * @returns 禅道请求构建实例自身
      */
-    filterFields(...fields: Array<string | string[] | undefined>): ZentaoRequestBuilder {
+    filterFields(
+        ...fields: Array<string | string[] | undefined>
+    ): ZentaoRequestBuilder {
         this._fields = fields.flat().filter(x => x !== undefined) as string[];
         return this;
     }

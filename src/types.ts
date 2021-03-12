@@ -1,4 +1,4 @@
-import { Method } from "axios";
+import {Method} from 'axios';
 
 /**
  * 支持的禅道请求方式，影响 API 请求 URL 构建方式
@@ -6,9 +6,18 @@ import { Method } from "axios";
 export type ZentaoRequestType = 'PATH_INFO' | 'GET';
 
 /**
+ * 禅道请求参数键值对
+ */
+export type ZentaoRequestParamPair = any[]; // [name: string, value: string]
+
+/**
  * 禅道请求参数
  */
-export type ZentaoRequestParams = [string, any][] | string[] | string | Record<string, any>;
+export type ZentaoRequestParams =
+    | Array<ZentaoRequestParamPair>
+    | string[]
+    | string
+    | Record<string, any>;
 
 /**
  * 禅道 API 请求方式
@@ -25,17 +34,17 @@ export interface ZentaoApiResult {
      * @remarks
      * 如果为 `0` 则表示操作请求失败，如果为 `1`，表示操作请求成功
      */
-    status: 0 | 1,
+    status: 0 | 1;
 
     /**
      * 服务器返回的描述结果的文本
      */
-    msg?: any,
+    msg?: any;
 
     /**
      * 请求结果数据
      */
-    result?: any
+    result?: any;
 }
 
 /**

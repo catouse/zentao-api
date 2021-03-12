@@ -1,6 +1,6 @@
 import md5 from 'md5';
-import { ZentaoApiResult } from './types';
-import { formatDate } from './utils';
+import {ZentaoApiResult} from './types';
+import {formatDate} from './utils';
 import Zentao from './zentao';
 
 /**
@@ -31,8 +31,13 @@ export default class ZentaoApi extends Zentao {
      * const res = await zentao.call('getProductList', {status: 'noclosed'});
      * ```
      */
-     call(apiName: Exclude<keyof ZentaoApi, 'call' | keyof Zentao>, params?: Record<string, any>): Promise<ZentaoApiResult> {
-        const func = this[apiName] as (params?: Record<string, any>) => Promise<ZentaoApiResult>;
+    call(
+        apiName: Exclude<keyof ZentaoApi, 'call' | keyof Zentao>,
+        params?: Record<string, any>
+    ): Promise<ZentaoApiResult> {
+        const func = this[apiName] as (
+            params?: Record<string, any>
+        ) => Promise<ZentaoApiResult>;
         if (!func || typeof func !== 'function') {
             throw new Error(`Api method named "${apiName}" undefined.`);
         }
@@ -56,10 +61,20 @@ export default class ZentaoApi extends Zentao {
      * }
      * ```
      */
-    getDeptList(params?: {deptID?: number, extraFields?: string[]}): Promise<ZentaoApiResult> {
+    getDeptList(params?: {
+        deptID?: number;
+        extraFields?: string[];
+    }): Promise<ZentaoApiResult> {
         return this.module('dept', 'browse')
             .withParams([['deptID', params?.deptID ?? 0]])
-            .filterFields('title', 'deptID', 'parentDepts', 'sons', 'tree', params?.extraFields)
+            .filterFields(
+                'title',
+                'deptID',
+                'parentDepts',
+                'sons',
+                'tree',
+                params?.extraFields
+            )
             .get();
     }
 
@@ -80,7 +95,10 @@ export default class ZentaoApi extends Zentao {
      *     console.log('部门添加成功');
      * }
      */
-    async addDept(params: {parentDeptID?: number, depts: string[]}): Promise<ZentaoApiResult> {
+    async addDept(params: {
+        parentDeptID?: number;
+        depts: string[];
+    }): Promise<ZentaoApiResult> {
         const res = await this.request('dept', 'manageChild', {
             name: 'addDept',
             method: 'POST',
@@ -92,7 +110,7 @@ export default class ZentaoApi extends Zentao {
                     result.result = null;
                 }
                 return result;
-            }
+            },
         });
         return res;
     }
@@ -114,7 +132,14 @@ export default class ZentaoApi extends Zentao {
      * }
      * ```
      */
-    async getUserList(params?: {deptID?: number, orderBy?: string, recTotal?: number, recPerPage?: number, pageID?: number, extraFields?: string[]}): Promise<ZentaoApiResult> {
+    async getUserList(params?: {
+        deptID?: number;
+        orderBy?: string;
+        recTotal?: number;
+        recPerPage?: number;
+        pageID?: number;
+        extraFields?: string[];
+    }): Promise<ZentaoApiResult> {
         const res = await this.request('company', 'browse', {
             name: 'getUserList',
             params: [
@@ -125,7 +150,7 @@ export default class ZentaoApi extends Zentao {
                 ['recPerPage', params?.recPerPage ?? 20],
                 ['pageID', params?.pageID ?? 1],
             ],
-            fields: ['title', 'users', ...(params?.extraFields ?? [])]
+            fields: ['title', 'users', ...(params?.extraFields ?? [])],
         });
         return res;
     }
@@ -144,10 +169,18 @@ export default class ZentaoApi extends Zentao {
      * const result = await zentao.getUserCreateParams();
      * ```
      */
-    async getUserCreateParams(params?: {extraFields?: string[]}): Promise<ZentaoApiResult> {
+    async getUserCreateParams(params?: {
+        extraFields?: string[];
+    }): Promise<ZentaoApiResult> {
         const res = await this.request('user', 'create', {
             name: 'getUserCreateParams',
-            fields: ['title', 'depts', 'groupList', 'roleGroup', ...(params?.extraFields ?? [])]
+            fields: [
+                'title',
+                'depts',
+                'groupList',
+                'roleGroup',
+                ...(params?.extraFields ?? []),
+            ],
         });
         return res;
     }
@@ -179,9 +212,22 @@ export default class ZentaoApi extends Zentao {
      * }
      * ```
      */
-    async addUser(params: {account: string, password: string, realname: string, dept?: number, join?: string, role?: string, group?: number, email?: string, commiter?: string, gender?: 'm'|'f'}): Promise<ZentaoApiResult> {
+    async addUser(params: {
+        account: string;
+        password: string;
+        realname: string;
+        dept?: number;
+        join?: string;
+        role?: string;
+        group?: number;
+        email?: string;
+        commiter?: string;
+        gender?: 'm' | 'f';
+    }): Promise<ZentaoApiResult> {
         // Get the random number required for encryption.
-        const paramsRes = await this.getUserCreateParams({extraFields: ['rand']});
+        const paramsRes = await this.getUserCreateParams({
+            extraFields: ['rand'],
+        });
         const rand = paramsRes.result.rand;
 
         const password = md5(`${params.password}${rand}`);
@@ -197,7 +243,7 @@ export default class ZentaoApi extends Zentao {
             email: params.email,
             commiter: params.commiter,
             passwordStrength: 1,
-            verifyPassword: md5(`${md5(this.password)}${rand}`)
+            verifyPassword: md5(`${md5(this.password)}${rand}`),
         };
         if (params.gender) {
             data.gender = params.gender;
@@ -213,7 +259,7 @@ export default class ZentaoApi extends Zentao {
                     result.result = null;
                 }
                 return result;
-            }
+            },
         });
         return res;
     }
@@ -234,7 +280,16 @@ export default class ZentaoApi extends Zentao {
      * }
      * ```
      */
-    async getProductList(params?: {productID?: number, line?: number, status?: 'noclosed'|'closed'|'involved'|'all', orderBy?: string, recTotal?: number, recPerPage?: number, pageID?: number, extraFields?: string[]}): Promise<ZentaoApiResult> {
+    async getProductList(params?: {
+        productID?: number;
+        line?: number;
+        status?: 'noclosed' | 'closed' | 'involved' | 'all';
+        orderBy?: string;
+        recTotal?: number;
+        recPerPage?: number;
+        pageID?: number;
+        extraFields?: string[];
+    }): Promise<ZentaoApiResult> {
         const res = await this.request('product', 'all', {
             name: 'getProductList',
             params: [
@@ -246,7 +301,12 @@ export default class ZentaoApi extends Zentao {
                 ['recPerPage', params?.recPerPage ?? 10],
                 ['pageID', params?.pageID ?? 1],
             ],
-            fields: ['title', 'products', 'productStats', ...(params?.extraFields ?? [])]
+            fields: [
+                'title',
+                'products',
+                'productStats',
+                ...(params?.extraFields ?? []),
+            ],
         });
         return res;
     }
@@ -267,13 +327,21 @@ export default class ZentaoApi extends Zentao {
      * }
      * ```
      */
-    async getProduct(params: {productID: number, extraFields?: string[]}): Promise<ZentaoApiResult> {
+    async getProduct(params: {
+        productID: number;
+        extraFields?: string[];
+    }): Promise<ZentaoApiResult> {
         const res = await this.request('product', 'view', {
             name: 'getProduct',
-            params: [
-                ['productID', params.productID],
+            params: [['productID', params.productID]],
+            fields: [
+                'title',
+                'products',
+                'product',
+                'branches',
+                'dynamics',
+                ...(params?.extraFields ?? []),
             ],
-            fields: ['title', 'products', 'product', 'branches', 'dynamics', ...(params?.extraFields ?? [])]
         });
         return res;
     }
@@ -292,10 +360,21 @@ export default class ZentaoApi extends Zentao {
      * const result = await zentao.getProductCreateParams();
      * ```
      */
-    async getProductCreateParams(params?: {extraFields?: string[]}): Promise<ZentaoApiResult> {
+    async getProductCreateParams(params?: {
+        extraFields?: string[];
+    }): Promise<ZentaoApiResult> {
         const res = await this.request('product', 'create', {
             name: 'getProductCreateParams',
-            fields: ['title', 'products', 'lines', 'poUsers', 'qdUsers', 'rdUsers', 'groups', ...(params?.extraFields ?? [])]
+            fields: [
+                'title',
+                'products',
+                'lines',
+                'poUsers',
+                'qdUsers',
+                'rdUsers',
+                'groups',
+                ...(params?.extraFields ?? []),
+            ],
         });
         return res;
     }
@@ -327,7 +406,18 @@ export default class ZentaoApi extends Zentao {
      * }
      * ```
      */
-     async addProduct(params: {name: string, code: string, line?: number, PO?: string, QD?: string, RD?: string, type?: 'normal'|'branch'|'platform', desc?: string, acl?: 'open'|'custom'|'private', whitelist?: number[]}): Promise<ZentaoApiResult> {
+    async addProduct(params: {
+        name: string;
+        code: string;
+        line?: number;
+        PO?: string;
+        QD?: string;
+        RD?: string;
+        type?: 'normal' | 'branch' | 'platform';
+        desc?: string;
+        acl?: 'open' | 'custom' | 'private';
+        whitelist?: number[];
+    }): Promise<ZentaoApiResult> {
         const res = await this.request('product', 'create', {
             name: 'addProduct',
             method: 'POST',
@@ -342,7 +432,7 @@ export default class ZentaoApi extends Zentao {
                 desc: params.desc,
                 acl: params.acl ?? 'open',
                 whitelist: params.whitelist,
-            }
+            },
         });
         return res;
     }
@@ -363,7 +453,16 @@ export default class ZentaoApi extends Zentao {
      * }
      * ```
      */
-    async getProjectList(params?: {status?: 'undone'|'wait'|'doing'|'suspended'|'closed'|'all', projectID?: number, orderBy?: string, productID?: number, recTotal?: number, recPerPage?: number, pageID?: number, extraFields?: string[]}): Promise<ZentaoApiResult> {
+    async getProjectList(params?: {
+        status?: 'undone' | 'wait' | 'doing' | 'suspended' | 'closed' | 'all';
+        projectID?: number;
+        orderBy?: string;
+        productID?: number;
+        recTotal?: number;
+        recPerPage?: number;
+        pageID?: number;
+        extraFields?: string[];
+    }): Promise<ZentaoApiResult> {
         const res = await this.request('project', 'all', {
             name: 'getProjectList',
             params: [
@@ -375,7 +474,14 @@ export default class ZentaoApi extends Zentao {
                 ['recPerPage', params?.recPerPage ?? 10],
                 ['pageID', params?.pageID ?? 1],
             ],
-            fields: ['title', 'projects', 'projectStats', 'teamMembers', 'users', ...(params?.extraFields ?? [])]
+            fields: [
+                'title',
+                'projects',
+                'projectStats',
+                'teamMembers',
+                'users',
+                ...(params?.extraFields ?? []),
+            ],
         });
         return res;
     }
@@ -396,13 +502,21 @@ export default class ZentaoApi extends Zentao {
      * }
      * ```
      */
-     async getProject(params: {projectID: number, extraFields?: string[]}): Promise<ZentaoApiResult> {
+    async getProject(params: {
+        projectID: number;
+        extraFields?: string[];
+    }): Promise<ZentaoApiResult> {
         const res = await this.request('product', 'view', {
             name: 'getProduct',
-            params: [
-                ['projectID', params.projectID],
+            params: [['projectID', params.projectID]],
+            fields: [
+                'title',
+                'products',
+                'project',
+                'teamMembers',
+                'dynamics',
+                ...(params?.extraFields ?? []),
             ],
-            fields: ['title', 'products', 'project', 'teamMembers', 'dynamics', ...(params?.extraFields ?? [])]
         });
         return res;
     }
@@ -421,10 +535,18 @@ export default class ZentaoApi extends Zentao {
      * const result = await zentao.getProjectCreateParams();
      * ```
      */
-     async getProjectCreateParams(params?: {extraFields?: string[]}): Promise<ZentaoApiResult> {
+    async getProjectCreateParams(params?: {
+        extraFields?: string[];
+    }): Promise<ZentaoApiResult> {
         const res = await this.request('project', 'create', {
             name: 'getProjectCreateParams',
-            fields: ['title', 'projects', 'groups', 'allProducts', ...(params?.extraFields ?? [])]
+            fields: [
+                'title',
+                'projects',
+                'groups',
+                'allProducts',
+                ...(params?.extraFields ?? []),
+            ],
         });
         return res;
     }
@@ -458,7 +580,20 @@ export default class ZentaoApi extends Zentao {
      * }
      * ```
      */
-     async addProject(params: {name: string, code: string, begin: string, end: string, days?: number, team?: string, type?: 'sprint'|'waterfall'|'ops', desc?: string, acl?: 'open'|'custom'|'private', whitelist?: number[], products?: number[], plans?: number[]}): Promise<ZentaoApiResult> {
+    async addProject(params: {
+        name: string;
+        code: string;
+        begin: string;
+        end: string;
+        days?: number;
+        team?: string;
+        type?: 'sprint' | 'waterfall' | 'ops';
+        desc?: string;
+        acl?: 'open' | 'custom' | 'private';
+        whitelist?: number[];
+        products?: number[];
+        plans?: number[];
+    }): Promise<ZentaoApiResult> {
         const res = await this.request('project', 'create', {
             name: 'addProject',
             method: 'POST',
@@ -476,7 +611,7 @@ export default class ZentaoApi extends Zentao {
                 products: params.products ?? [0],
                 plans: params.plans ?? [0],
                 status: 'wait',
-            }
+            },
         });
         return res;
     }
@@ -497,7 +632,29 @@ export default class ZentaoApi extends Zentao {
      * }
      * ```
      */
-     async getTaskList(params: {projectID: number, status?: 'unclosed'|'assignedtome'|'myinvolved'|'delayed'|'needconfirm'|'wait'|'doing'|'undone'|'finishedbyme'|'done'|'closed'|'cancel'|'all', param?: number, orderBy?: string, recTotal?: number, recPerPage?: number, pageID?: number, extraFields?: string[]}): Promise<ZentaoApiResult> {
+    async getTaskList(params: {
+        projectID: number;
+        status?:
+            | 'unclosed'
+            | 'assignedtome'
+            | 'myinvolved'
+            | 'delayed'
+            | 'needconfirm'
+            | 'wait'
+            | 'doing'
+            | 'undone'
+            | 'finishedbyme'
+            | 'done'
+            | 'closed'
+            | 'cancel'
+            | 'all';
+        param?: number;
+        orderBy?: string;
+        recTotal?: number;
+        recPerPage?: number;
+        pageID?: number;
+        extraFields?: string[];
+    }): Promise<ZentaoApiResult> {
         const res = await this.request('project', 'task', {
             name: 'getTaskList',
             params: [
@@ -509,7 +666,14 @@ export default class ZentaoApi extends Zentao {
                 ['recPerPage', params?.recPerPage ?? 20],
                 ['pageID', params?.pageID ?? 1],
             ],
-            fields: ['title', 'projects', 'project', 'products', 'tasks', ...(params?.extraFields ?? [])]
+            fields: [
+                'title',
+                'projects',
+                'project',
+                'products',
+                'tasks',
+                ...(params?.extraFields ?? []),
+            ],
         });
         return res;
     }
@@ -530,13 +694,20 @@ export default class ZentaoApi extends Zentao {
      * }
      * ```
      */
-     async getTask(params: {taskID: number, extraFields?: string[]}): Promise<ZentaoApiResult> {
+    async getTask(params: {
+        taskID: number;
+        extraFields?: string[];
+    }): Promise<ZentaoApiResult> {
         const res = await this.request('task', 'view', {
             name: 'getProduct',
-            params: [
-                ['taskID', params.taskID],
+            params: [['taskID', params.taskID]],
+            fields: [
+                'title',
+                'task',
+                'project',
+                'product',
+                ...(params?.extraFields ?? []),
             ],
-            fields: ['title', 'task', 'project', 'product', ...(params?.extraFields ?? [])]
         });
         return res;
     }
@@ -555,10 +726,20 @@ export default class ZentaoApi extends Zentao {
      * const result = await zentao.getTaskCreateParams();
      * ```
      */
-     async getTaskCreateParams(params?: {extraFields?: string[]}): Promise<ZentaoApiResult> {
+    async getTaskCreateParams(params?: {
+        extraFields?: string[];
+    }): Promise<ZentaoApiResult> {
         const res = await this.request('task', 'create', {
             name: 'getTaskCreateParams',
-            fields: ['title', 'projects', 'users', 'stories', 'moduleOptionMenu', 'project', ...(params?.extraFields ?? [])]
+            fields: [
+                'title',
+                'projects',
+                'users',
+                'stories',
+                'moduleOptionMenu',
+                'project',
+                ...(params?.extraFields ?? []),
+            ],
         });
         return res;
     }
@@ -592,7 +773,28 @@ export default class ZentaoApi extends Zentao {
      * }
      * ```
      */
-     async addTask(params: {project: number, name: string, type?: 'design'|'devel'|'test'|'study'|'discuss'|'ui'|'affair'|'misc', module?: number, color?: string, pri?: number, estimate?: number, desc?: string, estStarted?: string, deadline?: string, assignedTo?: string[], mailto?: string[]}): Promise<ZentaoApiResult> {
+    async addTask(params: {
+        project: number;
+        name: string;
+        type?:
+            | 'design'
+            | 'devel'
+            | 'test'
+            | 'study'
+            | 'discuss'
+            | 'ui'
+            | 'affair'
+            | 'misc';
+        module?: number;
+        color?: string;
+        pri?: number;
+        estimate?: number;
+        desc?: string;
+        estStarted?: string;
+        deadline?: string;
+        assignedTo?: string[];
+        mailto?: string[];
+    }): Promise<ZentaoApiResult> {
         const res = await this.request('task', 'create', {
             name: 'addTask',
             method: 'POST',
@@ -609,7 +811,7 @@ export default class ZentaoApi extends Zentao {
                 deadline: params.deadline,
                 assignedTo: params.assignedTo ?? [''],
                 mailto: params.mailto ?? [''],
-            }
+            },
         });
         return res;
     }
@@ -628,11 +830,21 @@ export default class ZentaoApi extends Zentao {
      * const result = await zentao.getTaskFinishParams({taskID: 1});
      * ```
      */
-     async getTaskFinishParams(params: {taskID: number, extraFields?: string[]}): Promise<ZentaoApiResult> {
+    async getTaskFinishParams(params: {
+        taskID: number;
+        extraFields?: string[];
+    }): Promise<ZentaoApiResult> {
         const res = await this.request('task', 'finish', {
             name: 'getTaskFinishParams',
             params: [['taskID', params.taskID]],
-            fields: ['title', 'users', 'task', 'project', 'actions', ...(params?.extraFields ?? [])]
+            fields: [
+                'title',
+                'users',
+                'task',
+                'project',
+                'actions',
+                ...(params?.extraFields ?? []),
+            ],
         });
         return res;
     }
@@ -653,10 +865,20 @@ export default class ZentaoApi extends Zentao {
      * }
      * ```
      */
-     async finishTask(params: {taskID: number, currentConsumed: number, consumed?: number, assignedTo?: string, finishedDate?: string, comment?: string}): Promise<ZentaoApiResult> {
+    async finishTask(params: {
+        taskID: number;
+        currentConsumed: number;
+        consumed?: number;
+        assignedTo?: string;
+        finishedDate?: string;
+        comment?: string;
+    }): Promise<ZentaoApiResult> {
         let consumed = params.consumed;
         if (consumed === undefined) {
-            const paramsRes = await this.getTaskFinishParams({taskID: params.taskID, extraFields: ['task']});
+            const paramsRes = await this.getTaskFinishParams({
+                taskID: params.taskID,
+                extraFields: ['task'],
+            });
             consumed = paramsRes.result.task.consumed;
         }
 
@@ -668,10 +890,11 @@ export default class ZentaoApi extends Zentao {
                 currentConsumed: params.currentConsumed,
                 consumed,
                 assignedTo: params.assignedTo,
-                finishedDate: params.finishedDate ?? formatDate(new Date(), 'yyyy-MM-dd'),
+                finishedDate:
+                    params.finishedDate ?? formatDate(new Date(), 'yyyy-MM-dd'),
                 comment: params.comment,
                 status: 'done',
-            }
+            },
         });
         return res;
     }
@@ -692,7 +915,29 @@ export default class ZentaoApi extends Zentao {
      * }
      * ```
      */
-     async getBugList(params: {productID: number, branch?: number, browseType?: 'all'|'unclosed'|'openedbyme'|'assigntome'|'resolvedbyme'|'toclosed'|'unresolved'|'unconfirmed'|'longlifebugs'|'postponedbugs'|'overduebugs'|'needconfirm', param?: number, orderBy?: string, recTotal?: number, recPerPage?: number, pageID?: number, extraFields?: string[]}): Promise<ZentaoApiResult> {
+    async getBugList(params: {
+        productID: number;
+        branch?: number;
+        browseType?:
+            | 'all'
+            | 'unclosed'
+            | 'openedbyme'
+            | 'assigntome'
+            | 'resolvedbyme'
+            | 'toclosed'
+            | 'unresolved'
+            | 'unconfirmed'
+            | 'longlifebugs'
+            | 'postponedbugs'
+            | 'overduebugs'
+            | 'needconfirm';
+        param?: number;
+        orderBy?: string;
+        recTotal?: number;
+        recPerPage?: number;
+        pageID?: number;
+        extraFields?: string[];
+    }): Promise<ZentaoApiResult> {
         const res = await this.request('bug', 'browse', {
             name: 'getTaskList',
             params: [
@@ -705,7 +950,18 @@ export default class ZentaoApi extends Zentao {
                 ['recPerPage', params?.recPerPage ?? 20],
                 ['pageID', params?.pageID ?? 1],
             ],
-            fields: ['title', 'products', 'productID', 'productName', 'product', 'moduleName', 'modules', 'browseType', 'bugs', ...(params?.extraFields ?? [])]
+            fields: [
+                'title',
+                'products',
+                'productID',
+                'productName',
+                'product',
+                'moduleName',
+                'modules',
+                'browseType',
+                'bugs',
+                ...(params?.extraFields ?? []),
+            ],
         });
         return res;
     }
@@ -725,13 +981,19 @@ export default class ZentaoApi extends Zentao {
      * }
      * ```
      */
-     async getBug(params: {bugID: number, extraFields?: string[]}): Promise<ZentaoApiResult> {
+    async getBug(params: {
+        bugID: number;
+        extraFields?: string[];
+    }): Promise<ZentaoApiResult> {
         const res = await this.request('bug', 'view', {
             name: 'getBug',
-            params: [
-                ['bugID', params.bugID],
+            params: [['bugID', params.bugID]],
+            fields: [
+                'title',
+                'bug',
+                'productName',
+                ...(params?.extraFields ?? []),
             ],
-            fields: ['title', 'bug', 'productName', ...(params?.extraFields ?? [])]
         });
         return res;
     }
@@ -750,11 +1012,24 @@ export default class ZentaoApi extends Zentao {
      * const result = await zentao.getBugCreateParams();
      * ```
      */
-     async getBugCreateParams(params: {productID: number, extraFields?: string[]}): Promise<ZentaoApiResult> {
+    async getBugCreateParams(params: {
+        productID: number;
+        extraFields?: string[];
+    }): Promise<ZentaoApiResult> {
         const res = await this.request('bug', 'create', {
             name: 'getBugCreateParams',
             params: [['productID', params.productID]],
-            fields: ['title', 'productID', 'productName', 'projects', 'moduleOptionMenu', 'users', 'stories', 'builds', ...(params?.extraFields ?? [])]
+            fields: [
+                'title',
+                'productID',
+                'productName',
+                'projects',
+                'moduleOptionMenu',
+                'users',
+                'stories',
+                'builds',
+                ...(params?.extraFields ?? []),
+            ],
         });
         return res;
     }
@@ -794,25 +1069,76 @@ export default class ZentaoApi extends Zentao {
      * }
      * ```
      */
-     async addBug(params: {
-         product: number,
-         title: string,
-         module?: number,
-         project?: number,
-         openedBuild?: any[],
-         assignedTo?: string,
-         deadline?: string,
-         type?: 'codeerror'|'config'|'install'|'security'|'performance'|'standard'|'automation'|'designdefect'|'others',
-         os?: 'all'|'windows'|'win10'|'win8'|'win7'|'vista'|'winxp'|'win2012'|'win2008'|'win2003'|'win2000'|'android'|'ios'|'wp8'|'wp7'|'symbian'|'linux'|'freebsd'|'osx'|'unix'|'others',
-         browser?: 'all'|'ie'|'ie11'|'ie10'|'ie9'|'ie8'|'ie7'|'ie6'|'chrome'|'firefox'|'firefox4'|'firefox3'|'firefox2'|'opera'|'oprea11'|'oprea10'|'opera'|'safari'|'maxthon'|'uc'|'other',
-         color?: string,
-         severity?: number,
-         pri?: number,
-         steps?: string,
-         story?: number,
-         task?: number,
-         keywords?: string,
-         mailto?: string[],
+    async addBug(params: {
+        product: number;
+        title: string;
+        module?: number;
+        project?: number;
+        openedBuild?: any[];
+        assignedTo?: string;
+        deadline?: string;
+        type?:
+            | 'codeerror'
+            | 'config'
+            | 'install'
+            | 'security'
+            | 'performance'
+            | 'standard'
+            | 'automation'
+            | 'designdefect'
+            | 'others';
+        os?:
+            | 'all'
+            | 'windows'
+            | 'win10'
+            | 'win8'
+            | 'win7'
+            | 'vista'
+            | 'winxp'
+            | 'win2012'
+            | 'win2008'
+            | 'win2003'
+            | 'win2000'
+            | 'android'
+            | 'ios'
+            | 'wp8'
+            | 'wp7'
+            | 'symbian'
+            | 'linux'
+            | 'freebsd'
+            | 'osx'
+            | 'unix'
+            | 'others';
+        browser?:
+            | 'all'
+            | 'ie'
+            | 'ie11'
+            | 'ie10'
+            | 'ie9'
+            | 'ie8'
+            | 'ie7'
+            | 'ie6'
+            | 'chrome'
+            | 'firefox'
+            | 'firefox4'
+            | 'firefox3'
+            | 'firefox2'
+            | 'opera'
+            | 'oprea11'
+            | 'oprea10'
+            | 'opera'
+            | 'safari'
+            | 'maxthon'
+            | 'uc'
+            | 'other';
+        color?: string;
+        severity?: number;
+        pri?: number;
+        steps?: string;
+        story?: number;
+        task?: number;
+        keywords?: string;
+        mailto?: string[];
     }): Promise<ZentaoApiResult> {
         const res = await this.request('bug', 'create', {
             name: 'addBug',
@@ -837,7 +1163,7 @@ export default class ZentaoApi extends Zentao {
                 task: params.task ?? 0,
                 keywords: params.keywords,
                 mailto: params.mailto,
-            }
+            },
         });
         return res;
     }
@@ -856,11 +1182,22 @@ export default class ZentaoApi extends Zentao {
      * const result = await zentao.getBugResolveParams({bugID: 1});
      * ```
      */
-     async getBugResolveParams(params: {bugID: number, extraFields?: string[]}): Promise<ZentaoApiResult> {
+    async getBugResolveParams(params: {
+        bugID: number;
+        extraFields?: string[];
+    }): Promise<ZentaoApiResult> {
         const res = await this.request('bug', 'resolve', {
             name: 'getBugResolveParams',
             params: [['bugID', params.bugID]],
-            fields: ['title', 'products', 'bug', 'users', 'builds', 'actions', ...(params?.extraFields ?? [])]
+            fields: [
+                'title',
+                'products',
+                'bug',
+                'users',
+                'builds',
+                'actions',
+                ...(params?.extraFields ?? []),
+            ],
         });
         return res;
     }
@@ -881,22 +1218,31 @@ export default class ZentaoApi extends Zentao {
      * }
      * ```
      */
-     async resolveBug(params: {
-        bugID: number,
-        resolution?: 'bydesign'|'duplicate'|'external'|'fixed'|'notrepro'|'postponed'|'willnotfix',
-        resolvedBuild?: string,
-        resolvedDate?: string,
-        assignedTo?: string,
-        comment?: string,
-        buildProject?: number,
-        buildName?: string,
-        createBuild?: 0|1,
-        duplicateBug?: number,
+    async resolveBug(params: {
+        bugID: number;
+        resolution?:
+            | 'bydesign'
+            | 'duplicate'
+            | 'external'
+            | 'fixed'
+            | 'notrepro'
+            | 'postponed'
+            | 'willnotfix';
+        resolvedBuild?: string;
+        resolvedDate?: string;
+        assignedTo?: string;
+        comment?: string;
+        buildProject?: number;
+        buildName?: string;
+        createBuild?: 0 | 1;
+        duplicateBug?: number;
     }): Promise<ZentaoApiResult> {
         const data: Record<string, any> = {
             resolution: params.resolution ?? 'fixed',
             resolvedBuild: params.resolvedBuild ?? 'trunk',
-            resolvedDate: params.resolvedDate ?? formatDate(new Date(), 'yyyy-MM-dd hh:mm:ss'),
+            resolvedDate:
+                params.resolvedDate ??
+                formatDate(new Date(), 'yyyy-MM-dd hh:mm:ss'),
             assignedTo: params.assignedTo,
             comment: params.comment,
             duplicateBug: params.duplicateBug,
@@ -919,7 +1265,7 @@ export default class ZentaoApi extends Zentao {
                     result.result = null;
                 }
                 return result;
-            }
+            },
         });
         return res;
     }
