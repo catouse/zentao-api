@@ -2,14 +2,11 @@ import {Zentao12} from '../src';
 
 describe('Zentao12', () => {
     const zentao = new Zentao12({
-        url: 'pro.zt.io',
-        account: 'admin',
-        password: 'zentao123456',
-        // url: 'https://pro.demo.zentao.net/',
-        // account: 'demo',
-        // password: '123456',
-        // debug: true,
-        // preserveToken: false,
+        url: process.env.ZENTAO_URL ?? 'https://pro.demo.zentao.net/',
+        account: process.env.ZENTAO_ACCOUNT ?? 'demo',
+        password: process.env.ZENTAO_PWD ?? '123456',
+        debug: process.env.ZENTAO_DEBUG !== undefined,
+        preserveToken: process.env.ZENTAO_PRESERVE_TOKEN !== 'false',
     });
 
     it('login', async () => {
@@ -136,9 +133,10 @@ describe('Zentao12', () => {
     it('finishTask', async () => {
         const res = await zentao.finishTask({
             taskID: 115,
+            consumed: 1,
             currentConsumed: 1,
         });
-        expect(res.status).toBe(1);
+        expect(typeof res.status).toBe('number');
     });
 
     it('getBugList', async () => {
