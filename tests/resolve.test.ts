@@ -138,6 +138,44 @@ describe('resolveModuleCommand', () => {
     });
   });
 
+  test('preserves explicit object values from data for array schema fields', () => {
+    defineModules({
+      name: 'iteration',
+      actions: [
+        {
+          name: 'create',
+          type: 'create',
+          method: 'post',
+          path: '/iterations',
+          resultType: 'object',
+          requestBody: {
+            type: 'object',
+            schema: {
+              type: 'object',
+              required: ['name'],
+              properties: {
+                name: { type: 'string' },
+                plans: { type: 'array', items: { type: 'string' } },
+              },
+            },
+          },
+        },
+      ],
+    });
+
+    const command = resolveModuleCommand(getModule('iteration'), 'create', {
+      data: {
+        name: 'iteration 1',
+        plans: { '1': [2] },
+      },
+    });
+
+    expect(command.data).toEqual({
+      name: 'iteration 1',
+      plans: { '1': [2] },
+    });
+  });
+
   test('throws when required request body fields are missing', () => {
     defineModules({
       name: 'requiredform',

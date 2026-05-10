@@ -50,6 +50,10 @@ function parseData(value: unknown): Record<string, unknown> | undefined {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : undefined;
 }
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
 /** 按 OpenAPI schema 的基础类型对参数做轻量转换。 */
 function coerceValue(value: unknown, type?: string): unknown {
   if (value === undefined) return undefined;
@@ -139,13 +143,18 @@ export function resolveModuleCommand(
     const required = new Set(schema.required ?? []);
     for (const [key, property] of Object.entries(schema.properties ?? {})) {
       // body 字段优先级：params.data 中的字段 > 平铺 params 字段 > schema 默认值。
+      const hasDataValue = Object.prototype.hasOwnProperty.call(data, key);
       let value = data[key] ?? params[key] ?? property.defaultValue;
       if (value === undefined && (property.required || required.has(key))) {
         throw new ZentaoError('E_MISSING_PARAM', { param: key });
       }
       value = coerceValue(value, property.type);
       if (property.type === 'array' && value !== undefined && !Array.isArray(value)) {
-        value = typeof value === 'string' ? value.split(',') : [value];
+        if (typeof value === 'string') {
+          value = value.split(',');
+        } else if (!hasDataValue || !isPlainObject(value)) {
+          value = [value];
+        }
       }
       if (value !== undefined) {
         data[key] = value;
