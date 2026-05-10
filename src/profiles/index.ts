@@ -217,22 +217,20 @@ export async function deleteProfile(profileKey: string): Promise<boolean> {
   return true;
 }
 
-/** 切换当前使用的 profile，并刷新最后使用时间。 */
-export async function switchProfile(profileKey: string): Promise<ZentaoProfileRecord> {
+/** 切换当前使用的 profile，并刷新最后使用时间；不传 key 时使用当前 profile。 */
+export async function switchProfile(profileKey?: string): Promise<ZentaoProfileRecord> {
   const store = await readStore();
-  const profile = findProfile(store, profileKey);
+  const key = profileKey ?? store.currentProfile;
+  if (!key) {
+    throw new ZentaoError('E_NO_PROFILE');
+  }
+  const profile = findProfile(store, key);
   if (!profile) {
-    throw new ZentaoError('E_PROFILE_NOT_FOUND', { profileKey });
+    throw new ZentaoError('E_PROFILE_NOT_FOUND', { profileKey: key });
   }
 
   profile.lastUsedTime = nowString();
-  store.currentProfile = profileKey;
+  store.currentProfile = key;
   await writeStore(store);
   return toRecord(profile);
 }
-
-/** @deprecated Use {@link getProfile}. Kept for the typo in the original plan. */
-export const getProfle = getProfile;
-
-/** @deprecated Use {@link addProfile}. Kept for the typo in the original plan. */
-export const addProfle = addProfile;
