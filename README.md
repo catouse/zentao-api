@@ -1,14 +1,14 @@
 # zentao-api
 
-`zentao-api` is a small JavaScript/TypeScript SDK for ZenTao API v2. It works in Node.js 18+, browser bundlers, and CDN/script-tag usage.
+`zentao-api` 是一个面向禅道 API v2 的轻量 JavaScript/TypeScript SDK，可用于 Node.js 18+、浏览器打包工具以及 CDN/script 标签场景。
 
-## Install
+## 安装
 
 ```sh
 npm install zentao-api
 ```
 
-## Client
+## 客户端
 
 ```ts
 import { ZentaoClient } from 'zentao-api';
@@ -21,16 +21,16 @@ const client = new ZentaoClient({
 const products = await client.get('/products');
 ```
 
-`baseUrl` is the ZenTao site root. The SDK appends `/api.php/v2` internally.
+`baseUrl` 是禅道站点根地址。SDK 会在内部追加 `/api.php/v2`。
 
-If you do not have a token yet:
+如果还没有 token：
 
 ```ts
 const client = new ZentaoClient('https://zentao.example.com');
 const token = await client.login('admin', 'password');
 ```
 
-## Global Client And Module Request
+## 全局客户端与模块请求
 
 ```ts
 import { ZentaoClient, request, setGlobalOptions } from 'zentao-api';
@@ -45,15 +45,15 @@ setGlobalOptions({ recPerPage: '50' });
 const result = await request('product-list', {});
 ```
 
-Per-call options override global options:
+单次调用的选项会覆盖全局选项：
 
 ```ts
 const result = await request('bug-list', { product: 1 }, { limit: '10' });
 ```
 
-## Extending Modules
+## 扩展模块
 
-Generated module definitions come from `scripts/update-registry.ts`. You can override modules or add/replace actions before calling `request()`.
+生成的模块定义来自 `scripts/update-registry.ts`。你可以在调用 `request()` 前覆盖模块，或新增、替换动作。
 
 ```ts
 import { defineModuleActions, defineModules } from 'zentao-api';
@@ -77,12 +77,12 @@ defineModuleActions('bug', {
   type: 'action',
   method: 'PUT',
   path: '/bugs/{bugID}/archive',
-  pathParams: { bugID: 'Bug ID' },
+  pathParams: { bugID: 1 },
   resultType: 'text',
 });
 ```
 
-Node.js can load side-effect extension files from a directory:
+Node.js 环境可以从目录加载扩展文件，这些文件会通过副作用注册模块定义：
 
 ```ts
 import { loadModuleDefinitionsFromDirectory } from 'zentao-api/node';
@@ -90,17 +90,17 @@ import { loadModuleDefinitionsFromDirectory } from 'zentao-api/node';
 await loadModuleDefinitionsFromDirectory('./zentao-modules');
 ```
 
-Directory loading supports `.js`, `.mjs`, and `.cjs` files sorted by filename. TypeScript extension files should be compiled first.
+目录加载支持 `.js`、`.mjs` 和 `.cjs` 文件，并会按文件名排序。TypeScript 扩展文件需要先编译。
 
-## Browser
+## 浏览器
 
-Bundlers can import the package normally:
+浏览器打包工具可以正常导入这个包：
 
 ```ts
 import { ZentaoClient } from 'zentao-api';
 ```
 
-For script tags, use the browser bundle and read `window.ZentaoAPI`:
+如果使用 script 标签，请使用浏览器构建包，并从 `window.ZentaoAPI` 读取 API：
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/zentao-api@1.0.0/dist/browser/zentao-api.global.js"></script>
@@ -109,6 +109,6 @@ For script tags, use the browser bundle and read `window.ZentaoAPI`:
 </script>
 ```
 
-Direct browser requests require the ZenTao server to allow CORS. Browser code also exposes tokens to the frontend, so use a backend proxy when that is not acceptable.
+浏览器直接请求要求禅道服务器允许 CORS。浏览器代码也会把 token 暴露给前端；如果这不可接受，请使用后端代理。
 
-The `insecure` TLS option is Node-only and throws in browser runtimes.
+`insecure` TLS 选项仅适用于 Node.js，在浏览器运行时会抛出错误。
