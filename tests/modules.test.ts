@@ -98,7 +98,7 @@ describe('module registry', () => {
 });
 
 describe('high-level request', () => {
-  test('uses global client and global recPerPage with module-action name', async () => {
+  test('uses global client and global recPerPage with moduleName/methodName', async () => {
     let receivedUrl = '';
     const server = createMockServer((req) => {
       receivedUrl = req.url;
@@ -113,7 +113,7 @@ describe('high-level request', () => {
       ZentaoClient.init({ baseUrl: server.url.toString(), token: 'tok' });
       setGlobalOptions({ recPerPage: '50' });
 
-      const response = await request('product-list', {});
+      const response = await request('product/list', {});
 
       expect(new URL(receivedUrl).searchParams.get('recPerPage')).toBe('50');
       expect(response).toEqual({
@@ -140,7 +140,7 @@ describe('high-level request', () => {
       const client = new ZentaoClient({ baseUrl: server.url.toString() });
       setGlobalOptions({ client, recPerPage: '20', limit: '3' });
 
-      const response = await request('product-list', {}, { recPerPage: '10', limit: '2' });
+      const response = await request('product/list', {}, { recPerPage: '10', limit: '2' });
 
       expect(new URL(receivedUrl).searchParams.get('recPerPage')).toBe('10');
       expect(response.data).toEqual([{ id: 1 }, { id: 2 }]);
@@ -164,7 +164,7 @@ describe('high-level request', () => {
       const client = new ZentaoClient({ baseUrl: server.url.toString() });
       setGlobalOptions({ client });
 
-      const response = await request('product-update', { id: 9, name: '产品', acl: 'open' });
+      const response = await request('product/update', { id: 9, name: '产品', acl: 'open' });
 
       expect(requests).toEqual([
         {

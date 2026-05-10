@@ -4,9 +4,9 @@ import type { RequestOptions, ResponseData } from '../types/index.js';
 import { getModule } from '../modules/registry.js';
 import { extractPager, extractResult, resolveModuleCommand } from '../modules/resolve.js';
 
-/** 将 `module-action` 形式的请求名拆成模块名和动作名。 */
-function splitRequestName(name: `${string}-${string}`): { moduleName: string; actionName: string } {
-  const index = name.indexOf('-');
+/** 将 `moduleName/methodName` 形式的请求名拆成模块名和动作名。 */
+function splitRequestName(name: `${string}/${string}`): { moduleName: string; actionName: string } {
+  const index = name.indexOf('/');
   if (index <= 0 || index === name.length - 1) {
     throw new ZentaoError('E_INVALID_REQUEST_NAME');
   }
@@ -49,7 +49,7 @@ function normalizeResponse(command: ReturnType<typeof resolveModuleCommand>, raw
  * 选项优先级为：本次调用 options > 全局 options > 客户端默认值。
  */
 export async function request(
-  name: `${string}-${string}`,
+  name: `${string}/${string}`,
   params: Record<string, unknown> = {},
   options: RequestOptions = {},
 ): Promise<ResponseData> {

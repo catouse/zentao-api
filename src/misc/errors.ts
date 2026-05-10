@@ -11,7 +11,7 @@ export const ERRORS = {
   E_INVALID_MODULE_DEFINITION: 'Invalid module definition.',
   E_INVALID_ACTION_DEFINITION: 'Invalid module action definition.',
   E_MISSING_PARAM: 'Missing required parameter: {param}',
-  E_INVALID_REQUEST_NAME: 'Request name must use the form "module-action".',
+  E_INVALID_REQUEST_NAME: 'Request name must use the form "moduleName/methodName".',
   E_EXTENSION_LOAD_FAILED: 'Failed to load module definitions from directory: {message}',
 } as const;
 

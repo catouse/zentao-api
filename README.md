@@ -42,13 +42,13 @@ ZentaoClient.init({
 
 setGlobalOptions({ recPerPage: '50' });
 
-const result = await request('product-list', {});
+const result = await request('product/list', {});
 ```
 
 单次调用的选项会覆盖全局选项：
 
 ```ts
-const result = await request('bug-list', { product: 1 }, { limit: '10' });
+const result = await request('bug/list', { product: 1 }, { limit: '10' });
 ```
 
 ## 扩展模块
