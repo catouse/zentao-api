@@ -15,6 +15,7 @@ function readPackageJson(): {
   exports: Record<string, unknown>;
   main: string;
   types: string;
+  version: string;
 } {
   return JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
 }
@@ -33,12 +34,19 @@ for (const file of requiredFiles) {
 const api = await import(pathToFileURL(join(root, packageJson.main)).href);
 assert(typeof api.ZentaoClient === 'function', 'Package main does not export ZentaoClient.');
 assert(typeof api.request === 'function', 'Package main does not export request.');
+assert(api.VERSION === packageJson.version, 'Package main VERSION does not match package.json.');
+assert(
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(api.BUILD),
+  'Package main BUILD is not an ISO timestamp.',
+);
 
 const client = new api.ZentaoClient('https://zentao.example.com/api.php/v2');
 assert(client.baseUrl === 'https://zentao.example.com/api.php/v2', 'Package main client normalizes baseUrl incorrectly.');
 
 const browserApi = await import(pathToFileURL(join(root, 'dist/browser.js')).href);
 assert(typeof browserApi.ZentaoClient === 'function', 'Browser module entry does not export ZentaoClient.');
+assert(browserApi.VERSION === api.VERSION, 'Browser module VERSION does not match package main.');
+assert(browserApi.BUILD === api.BUILD, 'Browser module BUILD does not match package main.');
 
 const packOutput = execFileSync('npm', ['pack', '--dry-run', '--json'], {
   cwd: root,

@@ -5,8 +5,10 @@ import { join } from 'node:path';
 import vm from 'node:vm';
 
 describe('browser bundle', () => {
-  test('exposes window.ZentaoAPI and rejects insecure requests in browser runtime', async () => {
+  test('exposes window.ZentaoAPI with build info and rejects insecure requests in browser runtime', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'zentao-api-browser-'));
+    const injectedVersion = '1.2.3-test';
+    const injectedBuild = '2026-05-10T01:02:03.000Z';
 
     try {
       const result = await Bun.build({
@@ -15,6 +17,10 @@ describe('browser bundle', () => {
         target: 'browser',
         format: 'iife',
         globalName: 'ZentaoAPI',
+        define: {
+          __ZENTAO_API_BUILD__: JSON.stringify(injectedBuild),
+          __ZENTAO_API_VERSION__: JSON.stringify(injectedVersion),
+        },
       } as any);
 
       expect(result.success).toBe(true);
@@ -36,6 +42,10 @@ describe('browser bundle', () => {
       vm.runInContext(code, context);
 
       const api = (context as any).ZentaoAPI ?? (context as any).window.ZentaoAPI;
+      expect((context as any).window.ZentaoAPI.VERSION).toBe(injectedVersion);
+      expect((context as any).window.ZentaoAPI.BUILD).toBe(injectedBuild);
+      expect(api.VERSION).toBe(injectedVersion);
+      expect(api.BUILD).toBe(injectedBuild);
       expect(api.ZentaoClient).toBeFunction();
       const client = new api.ZentaoClient('https://zentao.example.com');
 

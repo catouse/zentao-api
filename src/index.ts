@@ -9,6 +9,7 @@ export {
   getModuleAction,
 } from './modules/registry.js';
 export { request } from './request/index.js';
+export { BUILD, VERSION } from './version.js';
 export type {
   ApiListResponse,
   ApiResponse,

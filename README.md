@@ -136,6 +136,7 @@ import { ZentaoClient } from 'zentao-api';
 ```html
 <script src="https://cdn.jsdelivr.net/npm/zentao-api@1.0.0/dist/browser/zentao-api.global.js"></script>
 <script>
+  console.log(window.ZentaoAPI.VERSION, window.ZentaoAPI.BUILD);
   const client = new window.ZentaoAPI.ZentaoClient('https://zentao.example.com');
 </script>
 ```
