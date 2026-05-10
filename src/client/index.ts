@@ -1,21 +1,18 @@
 import { ZentaoError } from '../misc/errors.js';
 import { assertInsecureSupported, withInsecureTls } from '../misc/environment.js';
 import { getGlobalOptions, setGlobalOptions } from '../misc/global-options.js';
+import { addProfile, getProfile, switchProfile } from '../profiles/index.js';
+import { normalizeSiteUrl } from '../utils/index.js';
 import type {
   ClientRequestOptions,
   HttpMethod,
   LoginResponse,
+  ServerConfig,
   ZentaoClientOptions,
+  ZentaoProfileConfig,
 } from '../types/index.js';
 
 const DEFAULT_TIMEOUT = 10000;
-
-/** 将用户传入的站点根地址规范化，兼容误传入 `/api.php/v2` 的场景。 */
-function normalizeSiteUrl(baseUrl: string): string {
-  const trimmed = baseUrl.trim().replace(/\/+$/, '');
-  if (!trimmed) throw new ZentaoError('E_INVALID_BASE_URL');
-  return trimmed.replace(/\/api\.php\/v2$/i, '');
-}
 
 /** 拼接 API 路径与查询参数，跳过值为 `undefined` 的查询项。 */
 function buildUrl(baseUrl: string, path: string, query?: ClientRequestOptions['query']): string {
@@ -39,6 +36,10 @@ async function parseResponse(response: Response): Promise<unknown> {
   } catch {
     return text;
   }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
 
 /** 禅道 API 客户端，负责 Token 注入、请求超时、TLS 选项和响应解析。 */
@@ -151,6 +152,23 @@ export class ZentaoClient {
       throw new ZentaoError('E_LOGIN_FAILED');
     }
     this.token = response.token;
+    const globals = getGlobalOptions();
+    if (globals.persistProfiles) {
+      const config: ZentaoProfileConfig = {};
+      const timeout = this.timeout ?? globals.timeout;
+      const insecure = this.insecure ?? globals.insecure;
+      if (timeout !== undefined) config.timeout = timeout;
+      if (insecure !== undefined) config.insecure = insecure;
+
+      await addProfile({
+        server: this.siteUrl,
+        account,
+        token: response.token,
+        user: isRecord(response.user) ? response.user : undefined,
+        serverConfig: isRecord(response.serverConfig) ? response.serverConfig as ServerConfig : undefined,
+        config: Object.keys(config).length > 0 ? config : undefined,
+      });
+    }
     return response.token;
   }
 
@@ -164,6 +182,25 @@ export class ZentaoClient {
     const client = new ZentaoClient(options);
     setGlobalOptions({ client });
     return client;
+  }
+
+  /** 根据本地持久化 profile 创建客户端；不传 key 时使用当前 profile。 */
+  static async fromProfile(profileKey?: string): Promise<ZentaoClient> {
+    const profile = await getProfile(profileKey);
+    if (!profile) {
+      if (profileKey) {
+        throw new ZentaoError('E_PROFILE_NOT_FOUND', { profileKey });
+      }
+      throw new ZentaoError('E_NO_PROFILE');
+    }
+
+    const activeProfile = await switchProfile(profile.key);
+    return new ZentaoClient({
+      baseUrl: activeProfile.server,
+      token: activeProfile.token,
+      timeout: typeof activeProfile.config?.timeout === 'number' ? activeProfile.config.timeout : undefined,
+      insecure: typeof activeProfile.config?.insecure === 'boolean' ? activeProfile.config.insecure : undefined,
+    });
   }
 }
 

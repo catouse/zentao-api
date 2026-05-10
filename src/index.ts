@@ -2,6 +2,17 @@ export { ZentaoClient } from './client/index.js';
 export { ERRORS, ZentaoError, type ErrorCode } from './misc/errors.js';
 export { getGlobalOptions, setGlobalOptions } from './misc/global-options.js';
 export {
+  ZENTAO_PROFILES_STORAGE_KEY,
+  addProfile,
+  addProfle,
+  deleteProfile,
+  getAllProfiles,
+  getProfile,
+  getProfileKey,
+  getProfle,
+  switchProfile,
+} from './profiles/index.js';
+export {
   defineModuleActions,
   defineModules,
   type DefineModulesOptions,
@@ -37,5 +48,9 @@ export type {
   ResolvedModuleCommand,
   ResponseData,
   ServerConfig,
+  ZentaoProfile,
+  ZentaoProfileConfig,
+  ZentaoProfileRecord,
+  ZentaoProfilesStore,
   ZentaoClientOptions,
 } from './types/index.js';

@@ -9,6 +9,8 @@ describe('browser bundle', () => {
     const dir = mkdtempSync(join(tmpdir(), 'zentao-api-browser-'));
     const injectedVersion = '1.2.3-test';
     const injectedBuild = '2026-05-10T01:02:03.000Z';
+    const storage = new Map<string, string>();
+    let receivedToken: string | undefined;
 
     try {
       const result = await Bun.build({
@@ -34,9 +36,24 @@ describe('browser bundle', () => {
         clearTimeout,
         URL,
         URLSearchParams,
+        AbortController,
         Headers,
         Response,
-        fetch: () => Promise.resolve(Response.json({ status: 'success' })),
+        localStorage: {
+          getItem: (key: string) => storage.get(key) ?? null,
+          setItem: (key: string, value: string) => storage.set(key, value),
+          removeItem: (key: string) => storage.delete(key),
+          clear: () => storage.clear(),
+          key: (index: number) => Array.from(storage.keys())[index] ?? null,
+          get length() {
+            return storage.size;
+          },
+        },
+        fetch: (_url: string, init?: RequestInit) => {
+          const headers = init?.headers as Record<string, string> | undefined;
+          receivedToken = headers?.Token;
+          return Promise.resolve(Response.json({ status: 'success' }));
+        },
       });
 
       vm.runInContext(code, context);
@@ -50,6 +67,21 @@ describe('browser bundle', () => {
       const client = new api.ZentaoClient('https://zentao.example.com');
 
       await expect(client.request('/products', { insecure: true })).rejects.toThrow('insecure');
+
+      await api.addProfile({
+        server: 'https://zentao.example.com/',
+        account: 'admin',
+        token: 'browser-token',
+      });
+      expect(storage.get(api.ZENTAO_PROFILES_STORAGE_KEY)).toContain('admin@https://zentao.example.com');
+      await expect(api.getProfile()).resolves.toEqual(expect.objectContaining({
+        key: 'admin@https://zentao.example.com',
+        token: 'browser-token',
+      }));
+
+      const profileClient = await api.ZentaoClient.fromProfile();
+      await profileClient.get('/products');
+      expect(receivedToken).toBe('browser-token');
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
