@@ -59,6 +59,18 @@ const result = await request('bug/list', { product: 1 }, { limit: '10' });
 bun run test:real
 ```
 
+如果需要保留本轮测试创建出的临时数据以便手动检查：
+
+```sh
+bun run test:real -- --keep-test-data
+```
+
+也可以用环境变量开启同样的行为：
+
+```sh
+ZENTAO_KEEP_TEST_DATA=true bun run test:real
+```
+
 测试会优先读取 `.env.local`，如果不存在则读取 `env.local`。支持的变量：
 
 ```ini
@@ -68,11 +80,15 @@ ZENTAO_PASSWORD=password
 # 或直接提供 Token
 ZENTAO_TOKEN=your-token
 # 可选
+ZENTAO_REVIEWER=admin
+ZENTAO_KEEP_TEST_DATA=false
 ZENTAO_TIMEOUT=30000
 ZENTAO_INSECURE=false
 ```
 
-运行时会先创建一个名称带 `zentao-api-real-` 前缀的临时产品，随后针对这个产品验证产品详情、列表和更新接口，最后在清理阶段删除该临时产品。
+`ZENTAO_REVIEWER` 用于启用了需求评审规则的环境；未设置时会复用 `ZENTAO_ACCOUNT`。
+
+运行时会先打印脱敏后的环境信息，然后创建一个名称带 `zentao-api-real-` 前缀的临时产品。后续每个 API 步骤都会打印步骤名、接口名和关键结果。测试会围绕这个产品执行一条可回收的真实写入流程：验证产品详情/列表/更新，创建并查询 3 个需求，创建/更新/查询产品计划并把需求关联到计划，创建/更新项目和执行，基于需求创建 3 个任务并验证任务列表、详情、优先级修改、启动、完成和删除，再创建 3 个 Bug 并验证列表、详情、描述修改和解决。默认清理阶段会按任务、Bug、执行、项目、需求、计划、产品的逆序尽量删除所有临时数据；传入 `--keep-test-data` 时会跳过最终清理并打印保留数据的关键 ID。
 
 ## 扩展模块
 
