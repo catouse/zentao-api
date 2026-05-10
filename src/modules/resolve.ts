@@ -1,6 +1,6 @@
 import { ZentaoError } from '../misc/errors.js';
 import type { ListPagerInfo, ModuleAction, ModuleDefinition, ResolvedModuleCommand } from '../types/index.js';
-import { getNestedValue } from '../utils/index.js';
+import { getNestedValue, isRecord } from '../utils/index.js';
 import { getModuleAction } from './registry.js';
 
 const SCOPE_MAP: Record<string, string> = {
@@ -48,10 +48,6 @@ function parseData(value: unknown): Record<string, unknown> | undefined {
     }
   }
   return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : undefined;
-}
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
 
 /** 按 OpenAPI schema 的基础类型对参数做轻量转换。 */
@@ -152,7 +148,7 @@ export function resolveModuleCommand(
       if (property.type === 'array' && value !== undefined && !Array.isArray(value)) {
         if (typeof value === 'string') {
           value = value.split(',');
-        } else if (!hasDataValue || !isPlainObject(value)) {
+        } else if (!hasDataValue || !isRecord(value)) {
           value = [value];
         }
       }

@@ -1,8 +1,8 @@
 import { ZentaoError } from '../misc/errors.js';
 import { assertInsecureSupported, withInsecureTls } from '../misc/environment.js';
 import { getGlobalOptions, setGlobalOptions } from '../misc/global-options.js';
-import { addProfile, getProfile, switchProfile } from '../profiles/index.js';
-import { normalizeSiteUrl } from '../utils/index.js';
+import { addProfile, switchProfile } from '../profiles/index.js';
+import { isRecord, normalizeSiteUrl } from '../utils/index.js';
 import type {
   ClientRequestOptions,
   HttpMethod,
@@ -38,9 +38,6 @@ async function parseResponse(response: Response): Promise<unknown> {
   }
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
-}
 
 /** 禅道 API 客户端，负责 Token 注入、请求超时、TLS 选项和响应解析。 */
 export class ZentaoClient {
@@ -186,15 +183,9 @@ export class ZentaoClient {
 
   /** 根据本地持久化 profile 创建客户端；不传 key 时使用当前 profile。 */
   static async fromProfile(profileKey?: string): Promise<ZentaoClient> {
-    const profile = await getProfile(profileKey);
-    if (!profile) {
-      if (profileKey) {
-        throw new ZentaoError('E_PROFILE_NOT_FOUND', { profileKey });
-      }
-      throw new ZentaoError('E_NO_PROFILE');
-    }
-
-    const activeProfile = await switchProfile(profile.key);
+    // switchProfile 会在内部读取存储、校验 key 并刷新 lastUsedTime 后写回，
+    // 若 key 不存在会抛出 E_PROFILE_NOT_FOUND；不传 key 时由 switchCurrentProfile 处理。
+    const activeProfile = await switchProfile(profileKey);
     return new ZentaoClient({
       baseUrl: activeProfile.server,
       token: activeProfile.token,
