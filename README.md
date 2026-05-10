@@ -82,15 +82,7 @@ defineModuleActions('bug', {
 });
 ```
 
-Node.js 环境可以从目录加载扩展文件，这些文件会通过副作用注册模块定义：
-
-```ts
-import { loadModuleDefinitionsFromDirectory } from 'zentao-api/node';
-
-await loadModuleDefinitionsFromDirectory('./zentao-modules');
-```
-
-目录加载支持 `.js`、`.mjs` 和 `.cjs` 文件，并会按文件名排序。TypeScript 扩展文件需要先编译。
+如果扩展定义拆分在多个文件中，请在应用启动入口中显式导入这些文件，确保它们在调用 `request()` 前完成注册。
 
 ## 浏览器
 
