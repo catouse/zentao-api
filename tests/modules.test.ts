@@ -68,7 +68,7 @@ describe('module registry', () => {
     expect(getModuleAction('product', 'archive').path).toBe('/products/{productID}/archive');
   });
 
-  test('defineModules replaces same-name generated modules when relace is true', () => {
+  test('defineModules replaces same-name generated modules when replace is true', () => {
     const replacement: ModuleDefinition = {
       name: 'product',
       display: 'Custom Product',
@@ -84,7 +84,7 @@ describe('module registry', () => {
       ],
     };
 
-    defineModules(replacement, { relace: true });
+    defineModules(replacement, { replace: true });
 
     expect(getModule('product').display).toBe('Custom Product');
     expect(getModuleAction('product', 'list').path).toBe('/custom-products');

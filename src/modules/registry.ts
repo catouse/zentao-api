@@ -8,7 +8,7 @@ export const MODULES = BUILTIN_MODULES;
 
 export interface DefineModulesOptions {
   /** 同名模块是否整体替换；默认合并模块定义和动作。 */
-  relace?: boolean;
+  replace?: boolean;
 }
 
 // 运行时注册表使用内置定义的浅克隆，避免用户扩展污染生成文件导出的常量。
@@ -73,7 +73,7 @@ function validateAction(action: ModuleAction): void {
   }
 }
 
-/** 定义或扩展模块；同名模块默认合并动作，`relace` 为真时整体替换，未知模块追加。 */
+/** 定义或扩展模块；同名模块默认合并动作，`replace` 为真时整体替换，未知模块追加。 */
 export function defineModules(input: ModuleDefinition | ModuleDefinition[], options: DefineModulesOptions = {}): void {
   for (const module of asArray(input)) {
     validateModule(module);
@@ -81,7 +81,7 @@ export function defineModules(input: ModuleDefinition | ModuleDefinition[], opti
     const index = modules.findIndex((item) => item.name.toLowerCase() === key);
     const next = { ...module, actions: cloneActions(module.actions) };
     if (index >= 0) {
-      modules[index] = options.relace ? next : mergeModule(modules[index], module);
+      modules[index] = options.replace ? next : mergeModule(modules[index], module);
     } else {
       modules.push(next);
     }
