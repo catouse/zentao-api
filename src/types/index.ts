@@ -184,6 +184,16 @@ export type ModuleActionResultRender = (
   action: ModuleAction,
 ) => string;
 
+/** 从原始响应中提取分页字段时使用的字段映射。 */
+export interface ModuleActionPagerGetterMap {
+  /** 当前页码字段名。 */
+  pageID: string;
+  /** 每页记录数字段名。 */
+  recPerPage: string;
+  /** 总记录数字段名。 */
+  recTotal: string;
+}
+
 /** 禅道模块中的单个 API 动作定义。 */
 export interface ModuleAction {
   /** 动作名称，例如 `list`、`get`、`close`。 */
@@ -207,7 +217,7 @@ export interface ModuleAction {
   /** 结果形态。 */
   resultType: ModuleActionResultType;
   /** 从原始响应中提取分页信息的位置或函数。 */
-  pagerGetter?: string | Record<keyof ListPagerInfo, string> | ((data: unknown, params: Record<string, unknown>) => ListPagerInfo);
+  pagerGetter?: string | ModuleActionPagerGetterMap | ((data: unknown, params: Record<string, unknown>) => ListPagerInfo);
   /** 从原始响应中提取业务数据的位置或函数。 */
   resultGetter?: string | Record<string, string> | ((data: unknown, params: Record<string, unknown>) => unknown);
   /** 供上层应用使用的渲染配置。 */

@@ -47,7 +47,7 @@ describe('ZentaoClient', () => {
 
       expect(response).toEqual({ status: 'success', value: 1 });
       expect(receivedMethod).toBe('GET');
-      expect(receivedToken).toBe('test-token');
+      expect(receivedToken ?? '').toBe('test-token');
       expect(new URL(receivedUrl).pathname).toBe('/api.php/v2/products');
       expect(new URL(receivedUrl).searchParams.get('pageID')).toBe('2');
     } finally {

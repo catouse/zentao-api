@@ -20,6 +20,7 @@ export type {
   ModuleAction,
   ModuleActionMethod,
   ModuleActionName,
+  ModuleActionPagerGetterMap,
   ModuleActionParam,
   ModuleActionParamOption,
   ModuleActionRequestBody,
