@@ -6,15 +6,51 @@ import { BUILTIN_MODULES } from './generated.js';
 export { BUILTIN_MODULES };
 export const MODULES = BUILTIN_MODULES;
 
+export interface DefineModulesOptions {
+  /** 同名模块是否整体替换；默认合并模块定义和动作。 */
+  relace?: boolean;
+}
+
 // 运行时注册表使用内置定义的浅克隆，避免用户扩展污染生成文件导出的常量。
 let modules = cloneModules(BUILTIN_MODULES);
 let moduleMap = buildModuleMap(modules);
 
+function cloneActions(source: readonly ModuleAction[]): ModuleAction[] {
+  return source.map((action) => ({ ...action }));
+}
+
 function cloneModules(source: readonly ModuleDefinition[]): ModuleDefinition[] {
   return source.map((module) => ({
     ...module,
-    actions: module.actions.map((action) => ({ ...action })),
+    actions: cloneActions(module.actions),
   }));
+}
+
+function findActionIndex(source: readonly ModuleAction[], actionName: string): number {
+  const key = actionName.toLowerCase();
+  return source.findIndex((action) => String(action.name).toLowerCase() === key);
+}
+
+function mergeActions(base: readonly ModuleAction[], extension: readonly ModuleAction[]): ModuleAction[] {
+  const next = cloneActions(base);
+  for (const action of extension) {
+    const index = findActionIndex(next, String(action.name));
+    const clone = { ...action };
+    if (index >= 0) {
+      next[index] = clone;
+    } else {
+      next.push(clone);
+    }
+  }
+  return next;
+}
+
+function mergeModule(base: ModuleDefinition, extension: ModuleDefinition): ModuleDefinition {
+  return {
+    ...base,
+    ...extension,
+    actions: mergeActions(base.actions, extension.actions),
+  };
 }
 
 function buildModuleMap(source: readonly ModuleDefinition[]): Map<string, ModuleDefinition> {
@@ -37,16 +73,15 @@ function validateAction(action: ModuleAction): void {
   }
 }
 
-/** 定义或覆盖模块；同名模块整体替换，未知模块追加。 */
-export function defineModules(input: ModuleDefinition | ModuleDefinition[]): void {
+/** 定义或扩展模块；同名模块默认合并动作，`relace` 为真时整体替换，未知模块追加。 */
+export function defineModules(input: ModuleDefinition | ModuleDefinition[], options: DefineModulesOptions = {}): void {
   for (const module of asArray(input)) {
     validateModule(module);
     const key = module.name.toLowerCase();
     const index = modules.findIndex((item) => item.name.toLowerCase() === key);
-    const next = { ...module, actions: module.actions.map((action) => ({ ...action })) };
-    // 同名模块采用整体替换，便于用户完整覆盖生成定义。
+    const next = { ...module, actions: cloneActions(module.actions) };
     if (index >= 0) {
-      modules[index] = next;
+      modules[index] = options.relace ? next : mergeModule(modules[index], module);
     } else {
       modules.push(next);
     }
@@ -63,8 +98,7 @@ export function defineModuleActions(moduleName: string, input: ModuleAction | Mo
 
   for (const action of asArray(input)) {
     validateAction(action);
-    const key = String(action.name).toLowerCase();
-    const index = module.actions.findIndex((item) => String(item.name).toLowerCase() === key);
+    const index = findActionIndex(module.actions, String(action.name));
     const next = { ...action };
     // 同名动作替换，未知动作追加；不做深度合并，避免 schema/数组字段出现隐式规则。
     if (index >= 0) {

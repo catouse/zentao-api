@@ -53,7 +53,7 @@ const result = await request('bug/list', { product: 1 }, { limit: '10' });
 
 ## 扩展模块
 
-生成的模块定义来自 `scripts/update-registry.ts`。你可以在调用 `request()` 前覆盖模块，或新增、替换动作。
+生成的模块定义来自 `scripts/update-registry.ts`。你可以在调用 `request()` 前扩展模块，或新增、替换动作。同名模块默认合并定义：同名动作会替换，未知动作会追加；需要整体替换模块时传入 `{ relace: true }`。
 
 ```ts
 import { defineModuleActions, defineModules } from 'zentao-api';

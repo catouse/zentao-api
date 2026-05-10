@@ -36,7 +36,39 @@ describe('module registry', () => {
     expect(getModuleAction('product', 'list').path).toBe('/products');
   });
 
-  test('defineModules replaces same-name generated modules', () => {
+  test('defineModules merges same-name generated modules by default', () => {
+    const extension: ModuleDefinition = {
+      name: 'product',
+      display: 'Custom Product',
+      actions: [
+        {
+          name: 'list',
+          type: 'list',
+          method: 'GET',
+          path: '/custom-products',
+          resultType: 'list',
+          resultGetter: 'items',
+        },
+        {
+          name: 'archive',
+          type: 'action',
+          method: 'PUT',
+          path: '/products/{productID}/archive',
+          pathParams: { productID: 'Product ID' },
+          resultType: 'text',
+        },
+      ],
+    };
+
+    defineModules(extension);
+
+    expect(getModule('product').display).toBe('Custom Product');
+    expect(getModuleAction('product', 'list').path).toBe('/custom-products');
+    expect(getModuleAction('product', 'create').path).toBe('/products');
+    expect(getModuleAction('product', 'archive').path).toBe('/products/{productID}/archive');
+  });
+
+  test('defineModules replaces same-name generated modules when relace is true', () => {
     const replacement: ModuleDefinition = {
       name: 'product',
       display: 'Custom Product',
@@ -52,10 +84,11 @@ describe('module registry', () => {
       ],
     };
 
-    defineModules(replacement);
+    defineModules(replacement, { relace: true });
 
     expect(getModule('product').display).toBe('Custom Product');
     expect(getModuleAction('product', 'list').path).toBe('/custom-products');
+    expect(() => getModuleAction('product', 'create')).toThrow('action');
   });
 
   test('defineModuleActions appends new actions and replaces same-name actions', () => {

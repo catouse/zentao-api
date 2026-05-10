@@ -4,6 +4,7 @@ export { getGlobalOptions, setGlobalOptions } from './misc/global-options.js';
 export {
   defineModuleActions,
   defineModules,
+  type DefineModulesOptions,
   getModule,
   getModuleAction,
 } from './modules/registry.js';
