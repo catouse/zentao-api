@@ -51,6 +51,29 @@ const result = await request('product/list', {});
 const result = await request('bug/list', { product: 1 }, { limit: '10' });
 ```
 
+## 真实环境测试
+
+真实环境测试不会包含在默认 `bun test` 或 `bun run check` 中，需要显式运行：
+
+```sh
+bun run test:real
+```
+
+测试会优先读取 `.env.local`，如果不存在则读取 `env.local`。支持的变量：
+
+```ini
+ZENTAO_URL=https://zentao.example.com
+ZENTAO_ACCOUNT=admin
+ZENTAO_PASSWORD=password
+# 或直接提供 Token
+ZENTAO_TOKEN=your-token
+# 可选
+ZENTAO_TIMEOUT=30000
+ZENTAO_INSECURE=false
+```
+
+运行时会先创建一个名称带 `zentao-api-real-` 前缀的临时产品，随后针对这个产品验证产品详情、列表和更新接口，最后在清理阶段删除该临时产品。
+
 ## 扩展模块
 
 生成的模块定义来自 `scripts/update-registry.ts`。你可以在调用 `request()` 前扩展模块，或新增、替换动作。同名模块默认合并定义：同名动作会替换，未知动作会追加；需要整体替换模块时传入 `{ relace: true }`。
