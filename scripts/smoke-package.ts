@@ -1,0 +1,59 @@
+import { execFileSync } from 'node:child_process';
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+
+function assert(condition: unknown, message: string): asserts condition {
+  if (!condition) {
+    throw new Error(message);
+  }
+}
+
+function readPackageJson(): {
+  exports: Record<string, unknown>;
+  main: string;
+  types: string;
+} {
+  return JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+}
+
+const packageJson = readPackageJson();
+const requiredFiles = [
+  packageJson.main,
+  packageJson.types,
+  './dist/browser/zentao-api.global.js',
+];
+
+for (const file of requiredFiles) {
+  assert(existsSync(join(root, file)), `Missing package artifact: ${file}`);
+}
+
+const api = await import(pathToFileURL(join(root, packageJson.main)).href);
+assert(typeof api.ZentaoClient === 'function', 'Package main does not export ZentaoClient.');
+assert(typeof api.request === 'function', 'Package main does not export request.');
+
+const client = new api.ZentaoClient('https://zentao.example.com/api.php/v2');
+assert(client.baseUrl === 'https://zentao.example.com/api.php/v2', 'Package main client normalizes baseUrl incorrectly.');
+
+const browserApi = await import(pathToFileURL(join(root, 'dist/browser.js')).href);
+assert(typeof browserApi.ZentaoClient === 'function', 'Browser module entry does not export ZentaoClient.');
+
+const packOutput = execFileSync('npm', ['pack', '--dry-run', '--json'], {
+  cwd: root,
+  encoding: 'utf8',
+});
+const [pack] = JSON.parse(packOutput) as Array<{ files: Array<{ path: string }> }>;
+const packedFiles = new Set(pack.files.map((file) => file.path));
+
+for (const file of ['dist/index.js', 'dist/index.d.ts', 'dist/browser/zentao-api.global.js', 'README.md', 'LICENSE']) {
+  assert(packedFiles.has(file), `Packed tarball is missing ${file}.`);
+}
+
+for (const file of packedFiles) {
+  assert(!file.startsWith('src/'), `Packed tarball should not include source file ${file}.`);
+  assert(!file.startsWith('tests/'), `Packed tarball should not include test file ${file}.`);
+}
+
+console.log('✅ Package smoke test passed.');

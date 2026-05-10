@@ -10,4 +10,23 @@ describe('package exports', () => {
 
     expect(Object.hasOwn(packageJson.exports, './node')).toBe(false);
   });
+
+  test('defines a complete local and publish verification gate', () => {
+    const packageJson = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as {
+      scripts: Record<string, string>;
+    };
+
+    expect(packageJson.scripts).toEqual(expect.objectContaining({
+      check: expect.stringContaining('typecheck:tests'),
+      'registry:check': 'bun run scripts/update-registry.ts --check',
+      'smoke:node': 'node scripts/smoke-node.mjs',
+      'smoke:package': 'bun run scripts/smoke-package.ts',
+      'test:coverage': 'bun test --coverage',
+      'typecheck:tests': 'tsc -p tsconfig.test.json --noEmit',
+    }));
+    expect(packageJson.scripts.check).toContain('registry:check');
+    expect(packageJson.scripts.check).toContain('smoke:node');
+    expect(packageJson.scripts.check).toContain('smoke:package');
+    expect(packageJson.scripts.prepublishOnly).toBe('bun run check');
+  });
 });

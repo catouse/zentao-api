@@ -421,7 +421,14 @@ function parseScopedListPath(path: string): ScopedListInfo | null {
 // Main conversion
 // ---------------------------------------------------------------------------
 
-function main() {
+interface RegistryBuildResult {
+    output: string;
+    outputPath: string;
+    moduleCount: number;
+    operationCount: number;
+}
+
+function buildRegistry(): RegistryBuildResult {
     const openapiPath = resolve(ROOT, 'data/zentao-openapi.json');
     const outputPath = resolve(ROOT, 'src/modules/generated.ts');
 
@@ -629,9 +636,12 @@ function main() {
     output += modules.join(',\n\n');
     output += `\n];\n`;
 
-    writeFileSync(outputPath, output, 'utf-8');
-    console.log(`✅ Generated ${outputPath}`);
-    console.log(`   ${tagOrder.length} modules, ${tagOrder.map(t => tagOps.get(t)!.length).reduce((a, b) => a + b, 0)} operations`);
+    return {
+        output,
+        outputPath,
+        moduleCount: tagOrder.length,
+        operationCount: tagOrder.map(t => tagOps.get(t)!.length).reduce((a, b) => a + b, 0),
+    };
 }
 
 // ---------------------------------------------------------------------------
@@ -667,6 +677,26 @@ function indentJson(obj: unknown, baseIndent: number): string {
     const indent = ' '.repeat(baseIndent);
     const lines = json.split('\n');
     return lines.map((line, i) => i === 0 ? line : indent + line).join('\n');
+}
+
+function main() {
+    const result = buildRegistry();
+
+    if (process.argv.includes('--check')) {
+        const current = readFileSync(result.outputPath, 'utf-8');
+        if (current !== result.output) {
+            console.error('Generated module registry is out of date.');
+            console.error('Run: bun run scripts/update-registry.ts');
+            process.exit(1);
+        }
+        console.log(`✅ Registry is up to date: ${result.outputPath}`);
+        console.log(`   ${result.moduleCount} modules, ${result.operationCount} operations`);
+        return;
+    }
+
+    writeFileSync(result.outputPath, result.output, 'utf-8');
+    console.log(`✅ Generated ${result.outputPath}`);
+    console.log(`   ${result.moduleCount} modules, ${result.operationCount} operations`);
 }
 
 main();
