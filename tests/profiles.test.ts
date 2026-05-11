@@ -62,7 +62,7 @@ describe('persistent profiles', () => {
       account: 'admin',
       token: 'token-1',
       user: { id: 1, realname: 'Admin' },
-      config: { timeout: 5000, htmlToMarkdown: true },
+      config: { timeout: 5000 },
     });
 
     expect(profile.key).toBe('admin@https://zentao.example.com');

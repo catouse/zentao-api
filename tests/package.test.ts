@@ -30,6 +30,16 @@ describe('package exports', () => {
     expect(packageJson.scripts.prepublishOnly).toBe('bun run check');
   });
 
+  test('keeps Turndown out of package dependencies', () => {
+    const packageJson = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+
+    expect(packageJson.dependencies ?? {}).not.toHaveProperty('turndown');
+    expect(packageJson.devDependencies ?? {}).not.toHaveProperty('@types/turndown');
+  });
+
   test('prevents partial build artifacts when type checking fails', () => {
     const tsconfig = JSON.parse(readFileSync(join(process.cwd(), 'tsconfig.json'), 'utf8')) as {
       compilerOptions: Record<string, unknown>;

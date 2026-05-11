@@ -139,8 +139,6 @@ export interface ZentaoProfileConfig {
   defaultRecPerPage?: number;
   /** 是否跳过 TLS 证书验证；仅 Node.js 运行时支持。 */
   insecure?: boolean;
-  /** 是否将对象属性中的 HTML 转换为 Markdown。 */
-  htmlToMarkdown?: boolean;
   /** 请求超时时间，单位毫秒。 */
   timeout?: number;
   /** 是否在批量操作出错时停止执行后续操作。 */
