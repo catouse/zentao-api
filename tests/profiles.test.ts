@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { mkdtempSync, rmSync, readFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, readFileSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -89,6 +89,8 @@ describe('persistent profiles', () => {
       }),
     ]);
     expect(stored.profiles[0].key).toBeUndefined();
+    expect(statSync(join(tempHome, '.config/zentao')).mode & 0o777).toBe(0o700);
+    expect(statSync(join(tempHome, '.config/zentao/zentao.json')).mode & 0o777).toBe(0o600);
   });
 
   test('switches and deletes the current profile', async () => {

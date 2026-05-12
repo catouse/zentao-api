@@ -131,8 +131,19 @@ async function writeStore(store: ZentaoProfilesStore): Promise<void> {
     const fs = await importNodeModule<NodeFs>('node:fs/promises');
     const path = await importNodeModule<NodePath>('node:path');
     const file = await getProfileFilePath();
-    await fs.mkdir(path.dirname(file), { recursive: true });
-    await fs.writeFile(file, text, 'utf8');
+    const dir = path.dirname(file);
+    const tempFile = path.join(dir, `.zentao.${Date.now()}.${Math.random().toString(36).slice(2)}.tmp`);
+
+    await fs.mkdir(dir, { recursive: true, mode: 0o700 });
+    await fs.chmod(dir, 0o700).catch(() => undefined);
+    try {
+      await fs.writeFile(tempFile, text, { encoding: 'utf8', mode: 0o600 });
+      await fs.rename(tempFile, file);
+      await fs.chmod(file, 0o600).catch(() => undefined);
+    } catch (error) {
+      await fs.rm(tempFile, { force: true }).catch(() => undefined);
+      throw error;
+    }
     return;
   }
 
