@@ -9,7 +9,20 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
 export function normalizeSiteUrl(baseUrl: string): string {
   const trimmed = baseUrl.trim().replace(/\/+$/, '');
   if (!trimmed) throw new ZentaoError('E_INVALID_BASE_URL');
-  return trimmed.replace(/\/api\.php\/v2$/i, '');
+
+  const siteUrl = trimmed.replace(/\/api\.php\/v2$/i, '');
+  let parsed: URL;
+  try {
+    parsed = new URL(siteUrl);
+  } catch {
+    throw new ZentaoError('E_INVALID_BASE_URL');
+  }
+
+  if (!['http:', 'https:'].includes(parsed.protocol) || parsed.search || parsed.hash) {
+    throw new ZentaoError('E_INVALID_BASE_URL');
+  }
+
+  return parsed.toString().replace(/\/+$/, '');
 }
 
 export function getNestedValue(obj: unknown, path: string): unknown {

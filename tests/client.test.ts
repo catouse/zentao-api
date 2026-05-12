@@ -30,6 +30,12 @@ describe('ZentaoClient', () => {
     expect(client.baseUrl).toBe('https://zentao.example.com/api.php/v2');
   });
 
+  test('rejects invalid base URLs early', () => {
+    expect(() => new ZentaoClient({ baseUrl: 'zentao.example.com' })).toThrow('Invalid ZenTao baseUrl');
+    expect(() => new ZentaoClient({ baseUrl: 'ftp://zentao.example.com' })).toThrow('Invalid ZenTao baseUrl');
+    expect(() => new ZentaoClient({ baseUrl: 'https://zentao.example.com?token=bad' })).toThrow('Invalid ZenTao baseUrl');
+  });
+
   test('request defaults to GET and attaches token when present', async () => {
     let receivedMethod = '';
     let receivedToken: string | null = null;
