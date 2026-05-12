@@ -503,15 +503,15 @@ function buildRegistry(): RegistryBuildResult {
 
             let body = ``;
             body += `                name: 'list',\n`;
-            body += `                display: '${listDisplay}',\n`;
+            body += `                display: '${escapeStr(listDisplay)}',\n`;
             body += `                type: 'list',\n`;
             body += `                method: 'get',\n`;
-            body += `                path: '/{scope}/{scopeID}/${first.childResource}',\n`;
+            body += `                path: '${escapeStr(`/{scope}/{scopeID}/${first.childResource}`)}',\n`;
             body += `                resultType: 'list',\n`;
             body += `                pagerGetter: 'pager',\n`;
-            if (resultGetter) body += `                resultGetter: '${resultGetter}',\n`;
+            if (resultGetter) body += `                resultGetter: '${escapeStr(resultGetter)}',\n`;
             body += `                pathParams: {\n`;
-            body += `                    scope: {description: '${display}范围', options: [${scopeOptions.map(o => `{value: '${o.value}', label: '${o.label}'}`).join(', ')}]},\n`;
+            body += `                    scope: {description: '${escapeStr(`${display}范围`)}', options: [${scopeOptions.map(o => `{value: '${escapeStr(o.value)}', label: '${escapeStr(o.label)}'}`).join(', ')}]},\n`;
             body += `                    scopeID: '范围ID',\n`;
             body += `                },\n`;
             if (params) {
@@ -554,24 +554,24 @@ function buildRegistry(): RegistryBuildResult {
             const render = (actionType === 'delete' || actionType === 'action') ? 'action' : undefined;
 
             let body = ``;
-            body += `                name: '${actionName}',\n`;
+            body += `                name: '${escapeStr(actionName)}',\n`;
             body += `                display: '${escapeStr(summary)}',\n`;
             body += `                type: '${actionType}',\n`;
             body += `                method: '${actionMethod}',\n`;
-            body += `                path: '${bracePath}',\n`;
+            body += `                path: '${escapeStr(bracePath)}',\n`;
             body += `                resultType: '${resultType}',\n`;
 
             if (actionType === 'list') {
                 body += `                pagerGetter: 'pager',\n`;
             }
             if (resultGetter) {
-                body += `                resultGetter: '${resultGetter}',\n`;
+                body += `                resultGetter: '${escapeStr(resultGetter)}',\n`;
             }
 
             if (relevantPathParams.length > 0) {
                 body += `                pathParams: {\n`;
                 for (const pp of relevantPathParams) {
-                    body += `                    ${pp}: '${paramDescription(pp)}',\n`;
+                    body += `                    ${pp}: '${escapeStr(paramDescription(pp))}',\n`;
                 }
                 body += `                },\n`;
             }
@@ -604,9 +604,9 @@ function buildRegistry(): RegistryBuildResult {
 
         let moduleStr = `    /* ${display}模块 */\n`;
         moduleStr += `    {\n`;
-        moduleStr += `        name: '${tagName}',\n`;
-        moduleStr += `        display: '${display}',\n`;
-        moduleStr += `        description: '${moduleDesc}',\n`;
+        moduleStr += `        name: '${escapeStr(tagName)}',\n`;
+        moduleStr += `        display: '${escapeStr(display)}',\n`;
+        moduleStr += `        description: '${escapeStr(moduleDesc)}',\n`;
         moduleStr += `        actions: [\n`;
         for (let i = 0; i < actionBodies.length; i++) {
             if (i === 0) {
