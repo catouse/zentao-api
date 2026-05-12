@@ -78,9 +78,7 @@ export class ZentaoClient {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeout);
 
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
+    const headers: Record<string, string> = {};
     if (this.token) {
       headers.Token = this.token;
     }
@@ -91,7 +89,8 @@ export class ZentaoClient {
       signal: controller.signal,
     };
     // GET 请求不携带 body，避免浏览器和部分代理拒绝请求。
-    if (options.body && method !== 'GET') {
+    if (options.body !== undefined && method !== 'GET') {
+      headers['Content-Type'] = 'application/json';
       init.body = JSON.stringify(options.body);
     }
 

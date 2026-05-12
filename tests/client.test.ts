@@ -39,10 +39,12 @@ describe('ZentaoClient', () => {
   test('request defaults to GET and attaches token when present', async () => {
     let receivedMethod = '';
     let receivedToken: string | null = null;
+    let receivedContentType: string | null = null;
     let receivedUrl = '';
     const server = createMockServer((req) => {
       receivedMethod = req.method;
       receivedToken = req.headers.get('Token');
+      receivedContentType = req.headers.get('Content-Type');
       receivedUrl = req.url;
       return Response.json({ status: 'success', value: 1 });
     });
@@ -54,6 +56,7 @@ describe('ZentaoClient', () => {
       expect(response).toEqual({ status: 'success', value: 1 });
       expect(receivedMethod).toBe('GET');
       expect(receivedToken ?? '').toBe('test-token');
+      expect(receivedContentType).toBeNull();
       expect(new URL(receivedUrl).pathname).toBe('/api.php/v2/products');
       expect(new URL(receivedUrl).searchParams.get('pageID')).toBe('2');
     } finally {
@@ -89,6 +92,28 @@ describe('ZentaoClient', () => {
       await client.get('/products');
 
       expect(tokens).toEqual(['login-token']);
+    } finally {
+      server.stop();
+    }
+  });
+
+  test('POST requests send JSON content type when a body is present', async () => {
+    let receivedContentType: string | null = null;
+    let receivedBody: unknown;
+    const server = createMockServer(async (req) => {
+      receivedContentType = req.headers.get('Content-Type');
+      receivedBody = await req.json();
+      return Response.json({ status: 'success' });
+    });
+
+    try {
+      const client = new ZentaoClient(server.url.toString());
+
+      await client.post('/products', {});
+
+      expect(receivedContentType).not.toBeNull();
+      expect(receivedContentType ?? '').toContain('application/json');
+      expect(receivedBody).toEqual({});
     } finally {
       server.stop();
     }
