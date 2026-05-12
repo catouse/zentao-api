@@ -64,11 +64,11 @@ export default defineConfig({
       label: '本页目录',
     },
     editLink: {
-      pattern: 'https://github.com/catouse/zentao-api/edit/main/docs/:path',
+      pattern: 'https://github.com/easysoft/zentao-api/edit/main/docs/:path',
       text: '在 GitHub 上编辑此页',
     },
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/catouse/zentao-api' },
+      { icon: 'github', link: 'https://github.com/easysoft/zentao-api' },
     ],
     footer: {
       message: 'Released under the MIT License.',
