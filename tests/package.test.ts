@@ -49,8 +49,16 @@ describe('package exports', () => {
   });
 
   test('package smoke test verifies the configured browser export target', () => {
+    const packageJson = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as {
+      exports: Record<string, unknown>;
+    };
     const smokePackageScript = readFileSync(join(process.cwd(), 'scripts/smoke-package.ts'), 'utf8');
 
-    expect(smokePackageScript).toContain("packageJson.exports['./browser']");
+    expect(packageJson.exports['./browser']).toEqual(expect.objectContaining({
+      import: './dist/browser.js',
+      types: './dist/browser.d.ts',
+    }));
+    expect(packageJson.exports['./browser/global']).toBe('./dist/browser/zentao-api.global.js');
+    expect(smokePackageScript).toContain('resolveExportTargets');
   });
 });

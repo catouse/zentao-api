@@ -22,16 +22,28 @@ function readPackageJson(): {
 
 const packageJson = readPackageJson();
 const browserExport = packageJson.exports['./browser'];
-assert(typeof browserExport === 'string', 'package.json must define a string ./browser export.');
+const browserGlobalExport = packageJson.exports['./browser/global'];
+assert(typeof browserGlobalExport === 'string', 'package.json must define a string ./browser/global export.');
+
+function resolveExportTargets(value: unknown): string[] {
+  if (typeof value === 'string') return [value];
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return [];
+  return Object.values(value).filter((item): item is string => typeof item === 'string');
+}
 
 function toPackedPath(file: string): string {
   return file.replace(/^\.\//, '');
 }
 
+const browserExportTargets = resolveExportTargets(browserExport);
+assert(browserExportTargets.includes('./dist/browser.js'), 'package.json ./browser import target must be dist/browser.js.');
+assert(browserExportTargets.includes('./dist/browser.d.ts'), 'package.json ./browser types target must be dist/browser.d.ts.');
+
 const requiredFiles = [
   packageJson.main,
   packageJson.types,
-  browserExport,
+  browserGlobalExport,
+  ...browserExportTargets,
 ];
 
 for (const file of requiredFiles) {
@@ -55,6 +67,10 @@ assert(typeof browserApi.ZentaoClient === 'function', 'Browser module entry does
 assert(browserApi.VERSION === api.VERSION, 'Browser module VERSION does not match package main.');
 assert(browserApi.BUILD === api.BUILD, 'Browser module BUILD does not match package main.');
 
+const browserSubpathApi = await import('zentao-api/browser');
+assert(typeof browserSubpathApi.ZentaoClient === 'function', 'Package ./browser subpath does not export ZentaoClient.');
+assert(browserSubpathApi.VERSION === api.VERSION, 'Package ./browser VERSION does not match package main.');
+
 const packOutput = execFileSync('npm', ['pack', '--dry-run', '--json'], {
   cwd: root,
   encoding: 'utf8',
@@ -65,7 +81,8 @@ const packedFiles = new Set(pack.files.map((file) => file.path));
 for (const file of [
   toPackedPath(packageJson.main),
   toPackedPath(packageJson.types),
-  toPackedPath(browserExport),
+  toPackedPath(browserGlobalExport),
+  ...browserExportTargets.map(toPackedPath),
   'README.md',
   'LICENSE',
 ]) {

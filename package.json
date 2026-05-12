@@ -23,7 +23,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./browser": "./dist/browser/zentao-api.global.js",
+    "./browser": {
+      "types": "./dist/browser.d.ts",
+      "import": "./dist/browser.js"
+    },
+    "./browser/global": "./dist/browser/zentao-api.global.js",
     "./package.json": "./package.json"
   },
   "files": [
