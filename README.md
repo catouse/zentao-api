@@ -154,7 +154,7 @@ defineModuleActions('bug', {
   type: 'action',
   method: 'PUT',
   path: '/bugs/{bugID}/archive',
-  pathParams: { bugID: 1 },
+  pathParams: { bugID: 'Bug ID' },
   resultType: 'text',
 });
 ```
