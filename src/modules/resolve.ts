@@ -52,7 +52,7 @@ function parseData(value: unknown): Record<string, unknown> | undefined {
 
 /** 按 OpenAPI schema 的基础类型对参数做轻量转换。 */
 function coerceValue(value: unknown, type?: string): unknown {
-  if (value === undefined) return undefined;
+  if (value === undefined || value === null) return value;
   if (type === 'number' || type === 'integer') {
     const numberValue = Number(value);
     return Number.isNaN(numberValue) ? value : numberValue;
@@ -150,12 +150,13 @@ export function resolveModuleCommand(
     for (const [key, property] of Object.entries(schema.properties ?? {})) {
       // body 字段优先级：params.data 中的字段 > 平铺 params 字段 > schema 默认值。
       const hasDataValue = Object.prototype.hasOwnProperty.call(data, key);
-      let value = data[key] ?? params[key] ?? property.defaultValue;
+      const hasParamValue = Object.prototype.hasOwnProperty.call(params, key);
+      let value = hasDataValue ? data[key] : hasParamValue ? params[key] : property.defaultValue;
       if (value === undefined && (property.required || required.has(key))) {
         throw new ZentaoError('E_MISSING_PARAM', { param: key });
       }
       value = coerceValue(value, property.type);
-      if (property.type === 'array' && value !== undefined && !Array.isArray(value)) {
+      if (property.type === 'array' && value !== undefined && value !== null && !Array.isArray(value)) {
         if (typeof value === 'string') {
           value = value.split(',');
         } else if (!hasDataValue || !isRecord(value)) {

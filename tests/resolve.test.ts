@@ -214,6 +214,48 @@ describe('resolveModuleCommand', () => {
     });
   });
 
+  test('preserves explicit null values from data and flat params', () => {
+    defineModules({
+      name: 'nullableform',
+      actions: [
+        {
+          name: 'update',
+          type: 'update',
+          method: 'put',
+          path: '/nullable-forms/{nullableformID}',
+          pathParams: { nullableformID: 'Nullable form ID' },
+          resultType: 'object',
+          requestBody: {
+            type: 'object',
+            schema: {
+              type: 'object',
+              properties: {
+                title: { type: 'string', defaultValue: 'default title' },
+                estimate: { type: 'integer', defaultValue: 3 },
+                reviewers: { type: 'array' },
+              },
+            },
+          },
+        },
+      ],
+    });
+
+    const command = resolveModuleCommand(getModule('nullableform'), 'update', {
+      id: 1,
+      data: {
+        title: null,
+        reviewers: null,
+      },
+      estimate: null,
+    });
+
+    expect(command.data).toEqual({
+      title: null,
+      estimate: null,
+      reviewers: null,
+    });
+  });
+
   test('throws when required request body fields are missing', () => {
     defineModules({
       name: 'requiredform',
