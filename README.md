@@ -265,16 +265,6 @@ zentao-api/
 bun run check
 ```
 
-### 提交规范
-
-使用英文，前缀格式：`*|+|- <type>: <message>`
-
-- `*` — 修改 (change)
-- `+` — 新增 (add)
-- `-` — 移除 (remove)
-
-不使用 emoji。
-
 ## 许可证 / License
 
 [MIT](./LICENSE)
