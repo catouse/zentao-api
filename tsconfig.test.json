@@ -4,7 +4,10 @@
     "declaration": false,
     "noEmit": true,
     "rootDir": ".",
-    "types": ["node", "bun"]
+    "types": ["node", "bun"],
+    // 测试与脚本由 Bun 直接执行，沿用 Bundler 解析，避免在测试源里到处补 `.js` 后缀。
+    "module": "ESNext",
+    "moduleResolution": "Bundler"
   },
   "include": ["src/**/*.ts", "tests/**/*.ts", "scripts/**/*.ts"],
   "exclude": ["dist", "node_modules"]

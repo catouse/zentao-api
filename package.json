@@ -18,9 +18,14 @@
   ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "sideEffects": [
+    "./dist/browser-global.js",
+    "./dist/browser/zentao-api.global.js"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "browser": "./dist/browser.js",
       "import": "./dist/index.js"
     },
     "./browser": {

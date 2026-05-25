@@ -14,7 +14,7 @@ describe('browser bundle', () => {
 
     try {
       const result = await Bun.build({
-        entrypoints: ['src/browser.ts'],
+        entrypoints: ['src/browser-global.ts'],
         outdir: dir,
         target: 'browser',
         format: 'iife',
@@ -27,7 +27,7 @@ describe('browser bundle', () => {
 
       expect(result.success).toBe(true);
 
-      const code = readFileSync(join(dir, 'browser.js'), 'utf8');
+      const code = readFileSync(join(dir, 'browser-global.js'), 'utf8');
       const context = vm.createContext({
         window: {},
         self: {},

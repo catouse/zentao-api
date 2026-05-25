@@ -58,7 +58,7 @@ const buildInfo = await readBuildInfo();
 await injectNodeBuildInfo(buildInfo);
 
 const result = await Bun.build({
-  entrypoints: ['src/browser.ts'],
+  entrypoints: ['src/browser-global.ts'],
   outdir: 'dist/browser',
   target: 'browser',
   format: 'iife',
@@ -77,4 +77,4 @@ if (!result.success) {
   process.exit(1);
 }
 
-await rename(join('dist/browser', 'browser.js'), join('dist/browser', 'zentao-api.global.js'));
+await rename(join('dist/browser', 'browser-global.js'), join('dist/browser', 'zentao-api.global.js'));
