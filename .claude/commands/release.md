@@ -87,10 +87,27 @@ node -e "console.log(require('./package.json').version)"
 - 每条变更描述用中文撰写，简洁清晰，突出对用户的影响
 - 参考 `CHANGES.md` 中已有条目的表述风格保持一致
 
-### 第五步：提交变更
+### 第五步：重新生成文档网站
+
+VitePress 站点中 `docs/reference/` 由 TSDoc 通过 typedoc 生成，`docs/zentao-api/` 由模块注册表生成；两者必须与即将发布的代码、版本号保持一致。
 
 ```bash
-git add CHANGES.md package.json
+bun run docs:generate
+bun run docs:build
+```
+
+要求：
+
+- `docs:generate` 必须成功，且生成结果与提交的源码匹配
+- `docs:build` 必须成功，没有死链或构建错误
+- 检查 `docs/reference/variables/VERSION.md` 中的版本号与新版本号一致；如不一致说明 `VERSION` 常量没有跟随 `package.json` 更新，先排查源码再继续
+
+若生成过程产生了 `docs/` 下的变更，必须一并纳入下一步的发布提交，不要单独提交。
+
+### 第六步：提交变更
+
+```bash
+git add CHANGES.md package.json docs
 git commit -m "* release v<新版本号>"
 ```
 
