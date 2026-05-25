@@ -26,6 +26,8 @@ export interface GlobalOptions {
   insecure?: boolean;
   /** 是否在登录成功后把账号、Token 和配置持久化为本地 profile。 */
   persistProfiles?: boolean;
+  /** 当禅道服务端返回 `{ status: "fail" }` 时是否抛出 `E_API_FAILED`，默认 false。 */
+  throwOnFail?: boolean;
 }
 
 /** SDK 支持的 HTTP 方法。 */
@@ -36,7 +38,7 @@ export interface ClientRequestOptions {
   /** HTTP 方法，默认 `GET`。 */
   method?: HttpMethod;
   /** JSON 请求体；`GET` 请求会忽略该字段。 */
-  body?: Record<string, unknown>;
+  body?: unknown;
   /** URL 查询参数；`undefined` 值会被跳过。 */
   query?: Record<string, string | number | boolean | undefined>;
   /** 单次请求超时时间，优先级高于全局和客户端默认值。 */
@@ -57,16 +59,21 @@ export interface RequestOptions {
   timeout?: number;
   /** 本次调用 TLS 跳过证书验证选项；仅 Node.js 运行时支持。 */
   insecure?: boolean;
+  /**
+   * 当禅道服务端返回 `{ status: "fail" }` 时是否抛出 `E_API_FAILED`。
+   * 不传时回落到全局 `throwOnFail`，默认 false（保留原始失败响应）。
+   */
+  throwOnFail?: boolean;
 }
 
 /** 高阶 `request()` 归一化后的返回数据。 */
-export interface ResponseData {
+export interface ResponseData<T = unknown> {
   /** 禅道服务端状态；非标准响应会按成功响应包装到 `data`。 */
   status: 'success' | 'fail';
   /** 禅道服务端返回的消息。 */
   message?: string;
   /** 根据模块动作 `resultGetter` 提取后的业务数据。 */
-  data?: any;
+  data?: T;
   /** 统一分页信息。 */
   pager?: {
     /** 总记录数。 */

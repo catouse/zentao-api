@@ -27,6 +27,7 @@ afterEach(() => {
     limit: undefined,
     timeout: undefined,
     insecure: undefined,
+    throwOnFail: undefined,
   });
 });
 
@@ -224,6 +225,30 @@ describe('high-level request', () => {
         },
       ]);
       expect(response.status).toBe('success');
+    } finally {
+      server.stop();
+    }
+  });
+
+  test('returns ZenTao fail responses by default, throws E_API_FAILED when throwOnFail is set', async () => {
+    const server = createMockServer(() => Response.json({ status: 'fail', message: '权限不足' }));
+
+    try {
+      const client = new ZentaoClient({ baseUrl: server.url.toString() });
+      setGlobalOptions({ client });
+
+      const response = await request('product/list', {});
+      expect(response.status).toBe('fail');
+      expect(response.message).toBe('权限不足');
+
+      await expect(request('product/list', {}, { throwOnFail: true })).rejects.toMatchObject({
+        code: 'E_API_FAILED',
+      });
+
+      setGlobalOptions({ throwOnFail: true });
+      await expect(request('product/list', {})).rejects.toMatchObject({
+        code: 'E_API_FAILED',
+      });
     } finally {
       server.stop();
     }

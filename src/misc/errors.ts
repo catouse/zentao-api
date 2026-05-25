@@ -18,6 +18,7 @@ export const ERRORS = {
   E_MISSING_PARAM: 'Missing required parameter: {param}',
   E_INVALID_PARAM: 'Invalid value for parameter {param}: {value}',
   E_INVALID_REQUEST_NAME: 'Request name must use the form "moduleName/methodName".',
+  E_API_FAILED: 'ZenTao API returned failure: {message}',
 } as const;
 
 export type ErrorCode = keyof typeof ERRORS;
