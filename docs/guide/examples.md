@@ -86,3 +86,34 @@ const bugs = await request(
 
 console.log(bugs.data);
 ```
+
+## 把服务端失败响应转为异常
+
+`request()` 默认按原样返回 `{ status: "fail" }` 响应；启用 `throwOnFail` 后会抛出 `E_API_FAILED`。
+
+```ts
+import { request, ZentaoError } from 'zentao-api';
+
+try {
+  await request('bug/resolve', { bugID: 1001, resolution: 'fixed' }, { throwOnFail: true });
+} catch (error) {
+  if (error instanceof ZentaoError && error.code === 'E_API_FAILED') {
+    console.error(error.message);
+    console.error(error.details); // 原始归一化响应
+  }
+}
+```
+
+## 收窄响应数据类型
+
+`request<T>()` 的泛型参数会落到 `ResponseData<T>.data`，可在调用点直接收窄业务字段类型。
+
+```ts
+interface ProductSummary {
+  id: number;
+  name: string;
+}
+
+const result = await request<ProductSummary[]>('product/list', {});
+result.data?.forEach((product) => console.log(product.name));
+```

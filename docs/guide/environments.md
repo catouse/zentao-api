@@ -44,7 +44,7 @@ const products = await request('product/list');
 
 ## 浏览器打包工具
 
-在 Vite、Webpack、Rspack 等浏览器打包工具中，从包根导入即可。
+在 Vite、Webpack、Rspack 等浏览器打包工具中，从包根导入即可，打包工具会自动选用浏览器入口。
 
 ```ts
 import { ZentaoClient } from 'zentao-api';
@@ -55,11 +55,17 @@ const client = new ZentaoClient({
 });
 ```
 
+如果需要显式选用浏览器入口（例如在 SSR 工程里强制走浏览器代码路径），可以使用 `zentao-api/browser` 子路径，它带有同样的 TypeScript 类型定义。
+
+```ts
+import { ZentaoClient } from 'zentao-api/browser';
+```
+
 浏览器直接请求禅道服务端时，服务端必须允许 CORS。浏览器代码也会暴露 token；如果 token 不能暴露给前端，请通过后端代理转发请求。
 
 ## CDN/script 标签
 
-浏览器构建包会把 API 暴露到 `window.ZentaoAPI`。
+UMD 构建包会把 API 暴露到 `window.ZentaoAPI`，对应包导出子路径 `./browser/global`。
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/zentao-api@latest/dist/browser/zentao-api.global.js"></script>

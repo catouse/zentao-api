@@ -2,7 +2,11 @@
 
 # Class: ZentaoError
 
-SDK 统一错误类型，所有可预期错误都会携带稳定错误码。
+SDK 统一错误类型。
+
+所有可预期错误（参数缺失、HTTP/网络/超时、登录失败、profile 异常等）都通过
+`ZentaoError` 抛出并携带稳定 [ErrorCode](../type-aliases/ErrorCode.md)，方便调用方按 `code` 区分处理。
+错误消息默认来自 [ERRORS](../variables/ERRORS.md) 中的模板，并支持占位符替换。
 
 ## Extends
 
@@ -14,15 +18,15 @@ SDK 统一错误类型，所有可预期错误都会携带稳定错误码。
 
 > **new ZentaoError**(`code`, `replacements?`, `details?`): `ZentaoError`
 
-根据错误码和占位符替换值创建错误。
+构造 SDK 错误实例。
 
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `code` | `"E_INVALID_BASE_URL"` \| `"E_NO_GLOBAL_CLIENT"` \| `"E_HTTP_ERROR"` \| `"E_NETWORK_ERROR"` \| `"E_TIMEOUT"` \| `"E_INSECURE_BROWSER"` \| `"E_LOGIN_FAILED"` \| `"E_INVALID_PROFILE"` \| `"E_NO_PROFILE"` \| `"E_PROFILE_NOT_FOUND"` \| `"E_PROFILE_STORAGE_INVALID"` \| `"E_PROFILE_STORAGE_UNAVAILABLE"` \| `"E_INVALID_MODULE"` \| `"E_INVALID_ACTION"` \| `"E_INVALID_MODULE_DEFINITION"` \| `"E_INVALID_ACTION_DEFINITION"` \| `"E_MISSING_PARAM"` \| `"E_INVALID_REQUEST_NAME"` |
-| `replacements?` | `Record`\<`string`, `string` \| `number`\> |
-| `details?` | `unknown` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `code` | `"E_INVALID_BASE_URL"` \| `"E_NO_GLOBAL_CLIENT"` \| `"E_HTTP_ERROR"` \| `"E_NETWORK_ERROR"` \| `"E_TIMEOUT"` \| `"E_INSECURE_BROWSER"` \| `"E_LOGIN_FAILED"` \| `"E_INVALID_PROFILE"` \| `"E_NO_PROFILE"` \| `"E_PROFILE_NOT_FOUND"` \| `"E_PROFILE_STORAGE_INVALID"` \| `"E_PROFILE_STORAGE_UNAVAILABLE"` \| `"E_INVALID_MODULE"` \| `"E_INVALID_ACTION"` \| `"E_INVALID_MODULE_DEFINITION"` \| `"E_INVALID_ACTION_DEFINITION"` \| `"E_MISSING_PARAM"` \| `"E_INVALID_PARAM"` \| `"E_INVALID_REQUEST_NAME"` \| `"E_API_FAILED"` | 错误码，必须是 [ERRORS](../variables/ERRORS.md) 中已声明的 key。 |
+| `replacements?` | `Record`\<`string`, `string` \| `number`\> | 可选的占位符替换值；遍历后会把 `{key}` 替换为字符串化的值。 |
+| `details?` | `unknown` | 可选的附加上下文（HTTP 响应详情、原始异常等），保存到 [details](#constructorzentaoerror)。 |
 
 #### Returns
 
@@ -37,8 +41,8 @@ SDK 统一错误类型，所有可预期错误都会携带稳定错误码。
 | Property | Modifier | Type | Description | Inherited from |
 | ------ | ------ | ------ | ------ | ------ |
 | <a id="property-cause"></a> `cause?` | `public` | `unknown` | - | `Error.cause` |
-| <a id="property-code"></a> `code` | `readonly` | `"E_INVALID_BASE_URL"` \| `"E_NO_GLOBAL_CLIENT"` \| `"E_HTTP_ERROR"` \| `"E_NETWORK_ERROR"` \| `"E_TIMEOUT"` \| `"E_INSECURE_BROWSER"` \| `"E_LOGIN_FAILED"` \| `"E_INVALID_PROFILE"` \| `"E_NO_PROFILE"` \| `"E_PROFILE_NOT_FOUND"` \| `"E_PROFILE_STORAGE_INVALID"` \| `"E_PROFILE_STORAGE_UNAVAILABLE"` \| `"E_INVALID_MODULE"` \| `"E_INVALID_ACTION"` \| `"E_INVALID_MODULE_DEFINITION"` \| `"E_INVALID_ACTION_DEFINITION"` \| `"E_MISSING_PARAM"` \| `"E_INVALID_REQUEST_NAME"` | 错误码，对应 [ERRORS](../variables/ERRORS.md) 的 key。 | - |
-| <a id="property-details"></a> `details?` | `readonly` | `unknown` | 附加上下文，例如 HTTP 响应详情或原始异常。 | - |
+| <a id="property-code"></a> `code` | `readonly` | `"E_INVALID_BASE_URL"` \| `"E_NO_GLOBAL_CLIENT"` \| `"E_HTTP_ERROR"` \| `"E_NETWORK_ERROR"` \| `"E_TIMEOUT"` \| `"E_INSECURE_BROWSER"` \| `"E_LOGIN_FAILED"` \| `"E_INVALID_PROFILE"` \| `"E_NO_PROFILE"` \| `"E_PROFILE_NOT_FOUND"` \| `"E_PROFILE_STORAGE_INVALID"` \| `"E_PROFILE_STORAGE_UNAVAILABLE"` \| `"E_INVALID_MODULE"` \| `"E_INVALID_ACTION"` \| `"E_INVALID_MODULE_DEFINITION"` \| `"E_INVALID_ACTION_DEFINITION"` \| `"E_MISSING_PARAM"` \| `"E_INVALID_PARAM"` \| `"E_INVALID_REQUEST_NAME"` \| `"E_API_FAILED"` | 错误码，对应 [ERRORS](../variables/ERRORS.md) 的 key；用于稳定地区分错误类型。 | - |
+| <a id="property-details"></a> `details?` | `readonly` | `unknown` | 附加上下文，例如 HTTP 响应详情、原始异常或失败的禅道响应原文。 | - |
 | <a id="property-message"></a> `message` | `public` | `string` | - | `Error.message` |
 | <a id="property-name"></a> `name` | `public` | `string` | - | `Error.name` |
 | <a id="property-stack"></a> `stack?` | `public` | `string` | - | `Error.stack` |

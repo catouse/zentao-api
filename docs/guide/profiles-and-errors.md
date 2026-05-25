@@ -67,7 +67,23 @@ try {
 }
 ```
 
-禅道服务端返回 `{ status: "fail" }` 时，SDK 不会抛出异常，会按响应内容返回。只有传输层错误、超时、无效模块或缺少必填参数等 SDK 可预期错误会抛出 `ZentaoError`。
+禅道服务端返回 `{ status: "fail" }` 时，SDK 默认不会抛出异常，会按响应内容返回。只有传输层错误、超时、无效模块或缺少必填参数等 SDK 可预期错误会抛出 `ZentaoError`。
+
+## 把服务端失败响应转为异常
+
+如果业务希望在禅道返回 `{ status: "fail" }` 时直接走异常分支，可以打开 `throwOnFail`。
+
+```ts
+import { request, setGlobalOptions } from 'zentao-api';
+
+// 单次调用启用
+await request('product/list', {}, { throwOnFail: true });
+
+// 全局启用，所有 request() 调用默认抛错
+setGlobalOptions({ throwOnFail: true });
+```
+
+启用后失败响应会抛出 `ZentaoError`，错误码为 `E_API_FAILED`，原始归一化响应通过 `error.details` 暴露。
 
 ## 常见错误码
 
@@ -78,6 +94,10 @@ try {
 | `E_NETWORK_ERROR` | 网络请求失败。 |
 | `E_TIMEOUT` | 请求超时。 |
 | `E_INSECURE_BROWSER` | 浏览器运行时使用了 `insecure`。 |
+| `E_INVALID_BASE_URL` | `baseUrl` 不是合法的 http/https URL，或带有查询/锚点。 |
 | `E_INVALID_MODULE` | 模块不存在。 |
 | `E_INVALID_ACTION` | 模块动作不存在。 |
+| `E_INVALID_REQUEST_NAME` | `request()` 名称不是 `module/action` 形式。 |
 | `E_MISSING_PARAM` | 缺少必填路径参数或请求体字段。 |
+| `E_INVALID_PARAM` | 参数值不合法，例如布尔字段传入了无法识别的取值。 |
+| `E_API_FAILED` | 启用 `throwOnFail` 时禅道返回 `{ status: "fail" }`。 |

@@ -4,8 +4,8 @@
 
 | Class | Description |
 | ------ | ------ |
-| [ZentaoClient](classes/ZentaoClient.md) | 禅道 API 客户端，负责 Token 注入、请求超时、TLS 选项和响应解析。 |
-| [ZentaoError](classes/ZentaoError.md) | SDK 统一错误类型，所有可预期错误都会携带稳定错误码。 |
+| [ZentaoClient](classes/ZentaoClient.md) | 禅道 API 客户端，封装一次次原始 HTTP 调用。 |
+| [ZentaoError](classes/ZentaoError.md) | SDK 统一错误类型。 |
 
 ## Interfaces
 
@@ -14,7 +14,7 @@
 | [ApiListResponse](interfaces/ApiListResponse.md) | 禅道 API 列表响应结构。 |
 | [ApiResponse](interfaces/ApiResponse.md) | 禅道 API 通用响应结构，允许携带任意业务字段。 |
 | [ClientRequestOptions](interfaces/ClientRequestOptions.md) | `ZentaoClient.request()` 的单次请求选项。 |
-| [DefineModulesOptions](interfaces/DefineModulesOptions.md) | - |
+| [DefineModulesOptions](interfaces/DefineModulesOptions.md) | [defineModules](functions/defineModules.md) 的选项。 |
 | [GlobalOptions](interfaces/GlobalOptions.md) | SDK 进程级全局默认选项，供高阶 [request](functions/request.md) 调用复用。 |
 | [LoginResponse](interfaces/LoginResponse.md) | 登录接口响应结构。 |
 | [ModuleAction](interfaces/ModuleAction.md) | 禅道模块中的单个 API 动作定义。 |
@@ -38,7 +38,7 @@
 
 | Type Alias | Description |
 | ------ | ------ |
-| [ErrorCode](type-aliases/ErrorCode.md) | - |
+| [ErrorCode](type-aliases/ErrorCode.md) | SDK 已知错误码，对应 [ERRORS](variables/ERRORS.md) 的 key。 |
 | [HttpMethod](type-aliases/HttpMethod.md) | SDK 支持的 HTTP 方法。 |
 | [ListPagerInfo](type-aliases/ListPagerInfo.md) | 列表分页信息别名。 |
 | [ModuleActionMethod](type-aliases/ModuleActionMethod.md) | 模块动作使用的 HTTP 方法；兼容生成定义中的小写方法。 |
@@ -54,25 +54,25 @@
 
 | Variable | Description |
 | ------ | ------ |
-| [BUILD](variables/BUILD.md) | - |
-| [ERRORS](variables/ERRORS.md) | - |
-| [VERSION](variables/VERSION.md) | - |
-| [ZENTAO\_PROFILES\_STORAGE\_KEY](variables/ZENTAO_PROFILES_STORAGE_KEY.md) | - |
+| [BUILD](variables/BUILD.md) | 构建标识，由构建脚本通过 `__ZENTAO_API_BUILD__` 注入。 |
+| [ERRORS](variables/ERRORS.md) | SDK 已知错误码到默认消息的映射表。 |
+| [VERSION](variables/VERSION.md) | SDK 版本号，由构建脚本通过 `__ZENTAO_API_VERSION__` 注入。 |
+| [ZENTAO\_PROFILES\_STORAGE\_KEY](variables/ZENTAO_PROFILES_STORAGE_KEY.md) | 浏览器环境下用于在 `localStorage` 中保存 profile 数据的 key。 |
 
 ## Functions
 
 | Function | Description |
 | ------ | ------ |
 | [addProfile](functions/addProfile.md) | 添加或覆盖一个本地 profile，并把它设置为当前使用的 profile。 |
-| [defineModuleActions](functions/defineModuleActions.md) | 为已存在模块定义或覆盖动作；同名动作替换，未知动作追加。 |
-| [defineModules](functions/defineModules.md) | 定义或扩展模块；同名模块默认合并动作，`replace` 为真时整体替换，未知模块追加。 |
-| [deleteProfile](functions/deleteProfile.md) | 删除指定 profile；返回是否实际删除了记录。 |
-| [getAllProfiles](functions/getAllProfiles.md) | 列出所有保存的本地 profile。 |
-| [getGlobalOptions](functions/getGlobalOptions.md) | 获取当前全局选项快照；返回副本，避免调用方直接改写内部状态。 |
-| [getModule](functions/getModule.md) | 获取模块定义；模块不存在时抛出 [ZentaoError](classes/ZentaoError.md)。 |
-| [getModuleAction](functions/getModuleAction.md) | 获取指定模块动作；`ls` 会作为 `list` 的别名处理。 |
-| [getProfile](functions/getProfile.md) | 获取指定 profile；不传 key 时返回上次使用的 profile。 |
-| [getProfileKey](functions/getProfileKey.md) | 根据 profile 的账号和禅道地址生成稳定 key。 |
+| [defineModuleActions](functions/defineModuleActions.md) | 为已存在的模块追加或覆盖动作。 |
+| [defineModules](functions/defineModules.md) | 注册或扩展模块定义。 |
+| [deleteProfile](functions/deleteProfile.md) | 删除指定 profile。 |
+| [getAllProfiles](functions/getAllProfiles.md) | 列出本地保存的所有 profile。 |
+| [getGlobalOptions](functions/getGlobalOptions.md) | 获取当前全局选项的快照。 |
+| [getModule](functions/getModule.md) | 获取模块定义。 |
+| [getModuleAction](functions/getModuleAction.md) | 获取指定模块下的某个动作。 |
+| [getProfile](functions/getProfile.md) | 获取指定 profile。 |
+| [getProfileKey](functions/getProfileKey.md) | 根据 profile 的账号和禅道站点地址生成稳定 key。 |
 | [request](functions/request.md) | 按模块动作名请求禅道 API。 |
-| [setGlobalOptions](functions/setGlobalOptions.md) | 合并设置全局选项；传入 `undefined` 可清空对应字段。 |
-| [switchProfile](functions/switchProfile.md) | 切换当前使用的 profile，并刷新最后使用时间；不传 key 时使用当前 profile。 |
+| [setGlobalOptions](functions/setGlobalOptions.md) | 以浅合并的方式更新全局选项。 |
+| [switchProfile](functions/switchProfile.md) | 切换当前使用的 profile，并刷新其 `lastUsedTime`。 |

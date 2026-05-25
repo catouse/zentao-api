@@ -1,14 +1,20 @@
 [zentao-api](../index.md) / ResponseData
 
-# Interface: ResponseData
+# Interface: ResponseData\<T\>
 
 高阶 `request()` 归一化后的返回数据。
+
+## Type Parameters
+
+| Type Parameter | Default type |
+| ------ | ------ |
+| `T` | `unknown` |
 
 ## Properties
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| <a id="property-data"></a> `data?` | `any` | 根据模块动作 `resultGetter` 提取后的业务数据。 |
+| <a id="property-data"></a> `data?` | `T` | 根据模块动作 `resultGetter` 提取后的业务数据。 |
 | <a id="property-message"></a> `message?` | `string` | 禅道服务端返回的消息。 |
 | <a id="property-pager"></a> `pager?` | `object` | 统一分页信息。 |
 | `pager.page` | `number` | 当前页码。 |

@@ -48,10 +48,21 @@ setGlobalOptions({
   recPerPage: '50',
   limit: '20',
   timeout: 30_000,
+  throwOnFail: false,
 });
 
 const bugs = await request('bug/list', { productID: 1 });
 ```
+
+| 选项 | 类型 | 说明 |
+| --- | --- | --- |
+| `client` | `ZentaoClient` | 高阶 `request()` 使用的默认客户端，由 `ZentaoClient.init()` 自动写入。 |
+| `recPerPage` | `string` | 默认每页记录数，映射到模块动作的 `recPerPage` 参数。 |
+| `limit` | `string` | 限制 SDK 归一化后 `data` 的数量，不改变服务端页大小。 |
+| `timeout` | `number` | 默认请求超时时间，毫秒。 |
+| `insecure` | `boolean` | 跳过 TLS 证书验证，仅 Node.js 支持。 |
+| `persistProfiles` | `boolean` | 登录成功后是否把账号、Token 写入本地 profile。 |
+| `throwOnFail` | `boolean` | 当禅道返回 `{ status: "fail" }` 时是否抛出 `E_API_FAILED`，默认 `false`。 |
 
 单次调用传入的 options 优先级高于全局选项。
 
@@ -59,7 +70,7 @@ const bugs = await request('bug/list', { productID: 1 });
 const bugs = await request(
   'bug/list',
   { productID: 1 },
-  { recPerPage: '10', limit: '5' },
+  { recPerPage: '10', limit: '5', throwOnFail: true },
 );
 ```
 

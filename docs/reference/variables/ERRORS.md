@@ -4,10 +4,16 @@
 
 > `const` **ERRORS**: `object`
 
+SDK 已知错误码到默认消息的映射表。
+
+每条消息允许带 `{key}` 占位符，由 [ZentaoError](../classes/ZentaoError.md) 构造时使用 `replacements`
+进行字面量替换。此对象使用 `as const`，可直接作为类型来源约束错误码。
+
 ## Type Declaration
 
 | Name | Type | Default value |
 | ------ | ------ | ------ |
+| <a id="property-e_api_failed"></a> `E_API_FAILED` | `"ZenTao API returned failure: {message}"` | `'ZenTao API returned failure: {message}'` |
 | <a id="property-e_http_error"></a> `E_HTTP_ERROR` | `"HTTP request failed: {status} {statusText}"` | `'HTTP request failed: {status} {statusText}'` |
 | <a id="property-e_insecure_browser"></a> `E_INSECURE_BROWSER` | `"The insecure option is only supported in Node.js runtimes."` | `'The insecure option is only supported in Node.js runtimes.'` |
 | <a id="property-e_invalid_action"></a> `E_INVALID_ACTION` | `"Unknown action: {module}-{action}"` | `'Unknown action: {module}-{action}'` |
@@ -15,6 +21,7 @@
 | <a id="property-e_invalid_base_url"></a> `E_INVALID_BASE_URL` | `"Invalid ZenTao baseUrl."` | `'Invalid ZenTao baseUrl.'` |
 | <a id="property-e_invalid_module"></a> `E_INVALID_MODULE` | `"Unknown module: {module}"` | `'Unknown module: {module}'` |
 | <a id="property-e_invalid_module_definition"></a> `E_INVALID_MODULE_DEFINITION` | `"Invalid module definition."` | `'Invalid module definition.'` |
+| <a id="property-e_invalid_param"></a> `E_INVALID_PARAM` | `"Invalid value for parameter {param}: {value}"` | `'Invalid value for parameter {param}: {value}'` |
 | <a id="property-e_invalid_profile"></a> `E_INVALID_PROFILE` | `"Invalid ZenTao profile."` | `'Invalid ZenTao profile.'` |
 | <a id="property-e_invalid_request_name"></a> `E_INVALID_REQUEST_NAME` | "Request name must use the form \"moduleName/methodName\"." | `'Request name must use the form "moduleName/methodName".'` |
 | <a id="property-e_login_failed"></a> `E_LOGIN_FAILED` | `"ZenTao login failed."` | `'ZenTao login failed.'` |

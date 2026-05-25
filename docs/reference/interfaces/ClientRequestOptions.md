@@ -8,7 +8,7 @@
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| <a id="property-body"></a> `body?` | `Record`\<`string`, `unknown`\> | JSON 请求体；`GET` 请求会忽略该字段。 |
+| <a id="property-body"></a> `body?` | `unknown` | JSON 请求体；`GET` 请求会忽略该字段。 |
 | <a id="property-insecure"></a> `insecure?` | `boolean` | 单次请求 TLS 跳过证书验证选项；仅 Node.js 运行时支持。 |
 | <a id="property-method"></a> `method?` | [`HttpMethod`](../type-aliases/HttpMethod.md) | HTTP 方法，默认 `GET`。 |
 | <a id="property-query"></a> `query?` | `Record`\<`string`, `string` \| `number` \| `boolean` \| `undefined`\> | URL 查询参数；`undefined` 值会被跳过。 |
