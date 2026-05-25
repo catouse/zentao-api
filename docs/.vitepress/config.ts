@@ -4,6 +4,10 @@ import { resolve } from 'node:path';
 import { defineConfig } from 'vitepress';
 
 const docsRoot = fileURLToPath(new URL('../', import.meta.url));
+const packageJson = JSON.parse(
+  readFileSync(resolve(docsRoot, '..', 'package.json'), 'utf8'),
+) as { version: string };
+const pkgVersion = packageJson.version;
 
 function readSidebar(relativePath: string, fallback: unknown[]) {
   const path = resolve(docsRoot, relativePath);
@@ -39,6 +43,13 @@ export default defineConfig({
       { text: 'Guide', link: '/guide/', activeMatch: '/guide/' },
       { text: 'Reference', link: '/reference/', activeMatch: '/reference/' },
       { text: 'ZenTao API', link: '/zentao-api/', activeMatch: '/zentao-api/' },
+      {
+        text: `v${pkgVersion}`,
+        items: [
+          { text: 'Changelog', link: 'https://github.com/easysoft/zentao-api/blob/main/CHANGES.md' },
+          { text: 'Releases', link: 'https://github.com/easysoft/zentao-api/releases' },
+        ],
+      },
     ],
     sidebar: {
       '/guide/': [
