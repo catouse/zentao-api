@@ -1,16 +1,15 @@
 import { ZentaoError } from './errors.js';
 
-type NodeHttp = typeof import('node:http');
-type NodeHttps = typeof import('node:https');
-
 /** 判断当前运行时是否为 Node.js。 */
 export function isNodeRuntime(): boolean {
   return typeof process !== 'undefined' && Boolean(process.versions?.node);
 }
 
-async function importNodeModule<T>(specifier: string): Promise<T> {
-  const dynamicImport = new Function('specifier', 'return import(specifier)') as (specifier: string) => Promise<T>;
-  return dynamicImport(specifier);
+// 通过函数参数间接化 `import(specifier)`，让打包器无法在静态分析阶段把
+// `node:*` 拉进浏览器 bundle；同时不依赖 `new Function`/`eval`，
+// 在严格 CSP 下也能正常加载。
+function importNodeModule<T>(specifier: string): Promise<T> {
+  return import(specifier) as Promise<T>;
 }
 
 function toNodeRequestHeaders(headers: RequestInit['headers']): Record<string, string> {
@@ -62,8 +61,8 @@ function concatenateChunks(chunks: Uint8Array[]): ArrayBuffer {
 async function nodeFetchWithTlsOptions(url: string, init: RequestInit, rejectUnauthorized: boolean): Promise<Response> {
   const parsed = new URL(url);
   const transport = parsed.protocol === 'https:'
-    ? await importNodeModule<NodeHttps>('node:https')
-    : await importNodeModule<NodeHttp>('node:http');
+    ? await importNodeModule<typeof import('node:https')>('node:https')
+    : await importNodeModule<typeof import('node:http')>('node:http');
   const body = await toNodeBody(init.body);
 
   return new Promise<Response>((resolve, reject) => {
