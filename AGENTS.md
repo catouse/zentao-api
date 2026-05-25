@@ -15,6 +15,9 @@ bun run typecheck:tests   # Type-check tests
 bun run build             # Clean → tsc → browser bundle
 bun run check             # Full CI: test + typecheck + registry + build + smoke
 bun run registry:check    # Verify generated registry is current
+bun run docs:generate     # Regenerate docs/reference (typedoc) + docs/zentao-api
+bun run docs:dev          # Generate + serve VitePress site locally
+bun run docs:build        # Generate + build static site to docs/.vitepress/dist
 ```
 
 Single file: `bun test tests/client.test.ts`
@@ -38,6 +41,16 @@ Single file: `bun test tests/client.test.ts`
 ## Browser Build
 
 `scripts/build-browser.ts` → UMD bundle exposing `window.ZentaoAPI`. Entry: `src/browser.ts` → `src/misc/browser-global.ts`.
+
+## Documentation Site
+
+VitePress site under `docs/`, three sections:
+
+- `docs/guide/` — hand-written guide pages, edit manually.
+- `docs/reference/` — **auto-generated** by `typedoc` from `src/` TSDoc (`bun run docs:reference`). Do not edit by hand.
+- `docs/zentao-api/` — **auto-generated** by `scripts/generate-zentao-api-docs.ts` from the module registry (`bun run docs:zentao-api`). Do not edit by hand.
+
+Workflow: update source TSDoc / registry / guide, then run `bun run docs:generate` to refresh. Use `bun run docs:dev` for local preview and `bun run docs:build` to build the static site.
 
 ## Testing
 
