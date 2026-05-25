@@ -176,6 +176,34 @@ describe('resolveModuleCommand', () => {
     });
   });
 
+  test('throws E_INVALID_PARAM when a boolean field receives an unrecognized string', () => {
+    defineModules({
+      name: 'strictflagform',
+      actions: [
+        {
+          name: 'create',
+          type: 'create',
+          method: 'post',
+          path: '/strict-flag-forms',
+          resultType: 'object',
+          requestBody: {
+            type: 'object',
+            schema: {
+              type: 'object',
+              properties: {
+                enabled: { type: 'boolean' },
+              },
+            },
+          },
+        },
+      ],
+    });
+
+    expect(() => resolveModuleCommand(getModule('strictflagform'), 'create', {
+      enabled: 'maybe',
+    })).toThrowError(expect.objectContaining({ code: 'E_INVALID_PARAM' }));
+  });
+
   test('preserves explicit object values from data for array schema fields', () => {
     defineModules({
       name: 'iteration',

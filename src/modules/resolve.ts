@@ -50,8 +50,11 @@ function parseData(value: unknown): Record<string, unknown> | undefined {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : undefined;
 }
 
+const TRUTHY_STRINGS = new Set(['true', '1', 'yes', 'on']);
+const FALSY_STRINGS = new Set(['false', '0', 'no', 'off']);
+
 /** 按 OpenAPI schema 的基础类型对参数做轻量转换。 */
-function coerceValue(value: unknown, type?: string): unknown {
+function coerceValue(value: unknown, type: string | undefined, paramName: string): unknown {
   if (value === undefined || value === null) return value;
   if (type === 'number' || type === 'integer') {
     const numberValue = Number(value);
@@ -62,15 +65,15 @@ function coerceValue(value: unknown, type?: string): unknown {
     if (typeof value === 'number') {
       if (value === 1) return true;
       if (value === 0) return false;
-      return value;
+      throw new ZentaoError('E_INVALID_PARAM', { param: paramName, value: String(value) });
     }
     if (typeof value === 'string') {
       const normalized = value.trim().toLowerCase();
-      if (['true', '1', 'yes', 'on'].includes(normalized)) return true;
-      if (['false', '0', 'no', 'off'].includes(normalized)) return false;
-      return value;
+      if (TRUTHY_STRINGS.has(normalized)) return true;
+      if (FALSY_STRINGS.has(normalized)) return false;
+      throw new ZentaoError('E_INVALID_PARAM', { param: paramName, value });
     }
-    return value;
+    throw new ZentaoError('E_INVALID_PARAM', { param: paramName, value: String(value) });
   }
   return value;
 }
@@ -155,7 +158,7 @@ export function resolveModuleCommand(
       if (value === undefined && (property.required || required.has(key))) {
         throw new ZentaoError('E_MISSING_PARAM', { param: key });
       }
-      value = coerceValue(value, property.type);
+      value = coerceValue(value, property.type, key);
       if (property.type === 'array' && value !== undefined && value !== null && !Array.isArray(value)) {
         if (typeof value === 'string') {
           value = value.split(',');
