@@ -11,33 +11,48 @@ export interface DefineModulesOptions {
   replace?: boolean;
 }
 
-// 运行时注册表使用内置定义的浅克隆，避免用户扩展污染生成文件导出的常量。
-let modules = cloneModules(BUILTIN_MODULES);
+// 运行时注册表存放「深克隆 + 深冻结」后的模块定义：
+// - 深克隆：避免用户后续修改自己的输入对象时污染注册表；
+// - 深冻结：让 getModule / getModuleAction 可以零拷贝返回引用，
+//   外部尝试改写会在严格模式下抛 TypeError，开销也降到 O(1) 查询。
+let modules = freezeModules(deepClone(BUILTIN_MODULES) as ModuleDefinition[]);
 let moduleMap = buildModuleMap(modules);
 
-function cloneValue<T>(value: T): T {
+function deepClone<T>(value: T): T {
   if (Array.isArray(value)) {
-    return value.map(cloneValue) as T;
+    return value.map((item) => deepClone(item)) as T;
   }
-  if (value && typeof value === 'object') {
+  if (value && typeof value === 'object' && !(value instanceof Function)) {
     const result: Record<string, unknown> = {};
     for (const [key, nestedValue] of Object.entries(value)) {
-      result[key] = cloneValue(nestedValue);
+      result[key] = deepClone(nestedValue);
     }
     return result as T;
   }
   return value;
 }
 
-function cloneActions(source: readonly ModuleAction[]): ModuleAction[] {
-  return source.map((action) => cloneValue(action));
+function deepFreeze<T>(value: T): T {
+  if (value === null || typeof value !== 'object') return value;
+  if (Object.isFrozen(value)) return value;
+  for (const key of Object.keys(value)) {
+    deepFreeze((value as Record<string, unknown>)[key]);
+  }
+  return Object.freeze(value);
 }
 
-function cloneModules(source: readonly ModuleDefinition[]): ModuleDefinition[] {
-  return source.map((module) => ({
-    ...cloneValue(module),
-    actions: cloneActions(module.actions),
-  }));
+function freezeAction(action: ModuleAction): ModuleAction {
+  return deepFreeze(action);
+}
+
+function freezeModule(module: ModuleDefinition): ModuleDefinition {
+  module.actions.forEach(freezeAction);
+  return deepFreeze(module);
+}
+
+function freezeModules(source: ModuleDefinition[]): ModuleDefinition[] {
+  source.forEach(freezeModule);
+  return source;
 }
 
 function findActionIndex(source: readonly ModuleAction[], actionName: string): number {
@@ -46,25 +61,25 @@ function findActionIndex(source: readonly ModuleAction[], actionName: string): n
 }
 
 function mergeActions(base: readonly ModuleAction[], extension: readonly ModuleAction[]): ModuleAction[] {
-  const next = cloneActions(base);
+  const next: ModuleAction[] = base.slice();
   for (const action of extension) {
     const index = findActionIndex(next, String(action.name));
-    const clone = cloneValue(action);
+    const frozen = freezeAction(deepClone(action));
     if (index >= 0) {
-      next[index] = clone;
+      next[index] = frozen;
     } else {
-      next.push(clone);
+      next.push(frozen);
     }
   }
   return next;
 }
 
 function mergeModule(base: ModuleDefinition, extension: ModuleDefinition): ModuleDefinition {
-  return {
+  return freezeModule({
     ...base,
-    ...extension,
+    ...deepClone(extension),
     actions: mergeActions(base.actions, extension.actions),
-  };
+  });
 }
 
 function buildModuleMap(source: readonly ModuleDefinition[]): Map<string, ModuleDefinition> {
@@ -93,11 +108,12 @@ export function defineModules(input: ModuleDefinition | ModuleDefinition[], opti
     validateModule(module);
     const key = module.name.toLowerCase();
     const index = modules.findIndex((item) => item.name.toLowerCase() === key);
-    const next = { ...cloneValue(module), actions: cloneActions(module.actions) };
     if (index >= 0) {
-      modules[index] = options.replace ? next : mergeModule(modules[index], module);
+      modules[index] = options.replace
+        ? freezeModule(deepClone(module))
+        : mergeModule(modules[index], module);
     } else {
-      modules.push(next);
+      modules.push(freezeModule(deepClone(module)));
     }
   }
   rebuildMap();
@@ -105,44 +121,51 @@ export function defineModules(input: ModuleDefinition | ModuleDefinition[], opti
 
 /** 为已存在模块定义或覆盖动作；同名动作替换，未知动作追加。 */
 export function defineModuleActions(moduleName: string, input: ModuleAction | ModuleAction[]): void {
-  const module = moduleMap.get(moduleName.toLowerCase());
+  const key = moduleName.toLowerCase();
+  const module = moduleMap.get(key);
   if (!module) {
     throw new ZentaoError('E_INVALID_MODULE', { module: moduleName });
   }
 
+  const actions: ModuleAction[] = module.actions.slice();
   for (const action of asArray(input)) {
     validateAction(action);
-    const index = findActionIndex(module.actions, String(action.name));
-    const next = cloneValue(action);
+    const index = findActionIndex(actions, String(action.name));
+    const frozen = freezeAction(deepClone(action));
     // 同名动作替换，未知动作追加；不做深度合并，避免 schema/数组字段出现隐式规则。
     if (index >= 0) {
-      module.actions[index] = next;
+      actions[index] = frozen;
     } else {
-      module.actions.push(next);
+      actions.push(frozen);
     }
   }
+
+  const nextModule = freezeModule({ ...module, actions });
+  const index = modules.findIndex((item) => item.name.toLowerCase() === key);
+  modules[index] = nextModule;
+  rebuildMap();
 }
 
-/** 获取模块定义；模块不存在时抛出 {@link ZentaoError}。 */
+/** 获取模块定义；模块不存在时抛出 {@link ZentaoError}。返回值已深冻结，请勿修改。 */
 export function getModule(moduleName: string): ModuleDefinition {
   const module = moduleMap.get(moduleName.toLowerCase());
   if (!module) {
     throw new ZentaoError('E_INVALID_MODULE', { module: moduleName });
   }
-  return cloneModules([module])[0];
+  return module;
 }
 
-/** 获取指定模块动作；`ls` 会作为 `list` 的别名处理。 */
+/** 获取指定模块动作；`ls` 会作为 `list` 的别名处理。返回值已深冻结。 */
 export function getModuleAction(moduleName: string, actionName: string): ModuleAction {
   const module = getModule(moduleName);
   const normalized = actionName === 'ls' ? 'list' : actionName;
   const direct = module.actions.find((action) => String(action.name).toLowerCase() === normalized.toLowerCase());
-  if (direct) return cloneValue(direct);
+  if (direct) return direct;
 
   const crud = new Set(['list', 'get', 'create', 'update', 'delete']);
   if (!crud.has(normalized)) {
     const custom = module.actions.find((action) => action.type === 'action' && String(action.name).toLowerCase() === normalized.toLowerCase());
-    if (custom) return cloneValue(custom);
+    if (custom) return custom;
   }
 
   throw new ZentaoError('E_INVALID_ACTION', { module: moduleName, action: actionName });
@@ -160,6 +183,6 @@ export function isModuleName(moduleName: string): boolean {
 
 /** @internal */
 export function resetModuleDefinitions(): void {
-  modules = cloneModules(BUILTIN_MODULES);
+  modules = freezeModules(deepClone(BUILTIN_MODULES) as ModuleDefinition[]);
   rebuildMap();
 }

@@ -129,14 +129,19 @@ describe('module registry', () => {
     expect(() => getModuleAction('product', 'missing')).toThrow('action');
   });
 
-  test('getModule and getModuleAction do not expose mutable registry internals', () => {
+  test('getModule and getModuleAction return frozen registry entries', () => {
     const module = getModule('product');
-    module.actions.length = 0;
-
-    expect(getModuleAction('product', 'list').path).toBe('/products');
+    expect(Object.isFrozen(module)).toBe(true);
+    expect(Object.isFrozen(module.actions)).toBe(true);
+    expect(() => {
+      (module.actions as ModuleAction[]).length = 0;
+    }).toThrow(TypeError);
 
     const action = getModuleAction('product', 'list');
-    action.path = '/mutated-products';
+    expect(Object.isFrozen(action)).toBe(true);
+    expect(() => {
+      (action as { path: string }).path = '/mutated-products';
+    }).toThrow(TypeError);
 
     expect(getModuleAction('product', 'list').path).toBe('/products');
   });
