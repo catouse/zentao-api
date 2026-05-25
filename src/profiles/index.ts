@@ -3,10 +3,6 @@ import { isNodeRuntime } from '../misc/environment.js';
 import { normalizeSiteUrl } from '../utils/index.js';
 import type { ZentaoProfile, ZentaoProfileRecord, ZentaoProfilesStore } from '../types/index.js';
 
-type NodeFs = typeof import('node:fs/promises');
-type NodeOs = typeof import('node:os');
-type NodePath = typeof import('node:path');
-
 export const ZENTAO_PROFILES_STORAGE_KEY = 'ZENTAO_PROFILES';
 
 const PROFILE_FILE_PARTS = ['.config', 'zentao', 'zentao.json'];
@@ -24,9 +20,20 @@ function nowString(): string {
   return new Date().toISOString();
 }
 
-async function importNodeModule<T>(specifier: string): Promise<T> {
-  const dynamicImport = new Function('specifier', 'return import(specifier)') as (specifier: string) => Promise<T>;
-  return dynamicImport(specifier);
+// 通过函数参数间接化 `import(specifier)`，避免打包器把 Node 内置模块拉进
+// 浏览器 bundle；同时不依赖 `new Function`/`eval`，对严格 CSP 友好。
+function importNodeModule<T>(specifier: string): Promise<T> {
+  return import(specifier) as Promise<T>;
+}
+
+// 进程内串行锁：所有 read-modify-write 类的 profile 操作都通过这个队列，
+// 避免并发 `addProfile`/`switchProfile` 出现 lost update（写文件本身是原子
+// rename，但 read→modify→write 之间没有跨步保护）。跨进程并发不在保证范围内。
+let storeMutex: Promise<unknown> = Promise.resolve();
+function withStoreMutex<T>(operation: () => Promise<T>): Promise<T> {
+  const next = storeMutex.then(operation, operation);
+  storeMutex = next.catch(() => undefined);
+  return next;
 }
 
 function getBrowserStorage(): Storage | undefined {
@@ -38,10 +45,10 @@ function getBrowserStorage(): Storage | undefined {
 }
 
 async function getProfileFilePath(): Promise<string> {
-  const path = await importNodeModule<NodePath>('node:path');
+  const path = await importNodeModule<typeof import('node:path')>('node:path');
   const home = process.env.HOME
     ?? process.env.USERPROFILE
-    ?? (await importNodeModule<NodeOs>('node:os')).homedir();
+    ?? (await importNodeModule<typeof import('node:os')>('node:os')).homedir();
 
   if (!home) {
     throw new ZentaoError('E_PROFILE_STORAGE_UNAVAILABLE');
@@ -102,7 +109,7 @@ function parseStore(text: string): ZentaoProfilesStore {
 
 async function readStore(): Promise<ZentaoProfilesStore> {
   if (isNodeRuntime()) {
-    const fs = await importNodeModule<NodeFs>('node:fs/promises');
+    const fs = await importNodeModule<typeof import('node:fs/promises')>('node:fs/promises');
     const file = await getProfileFilePath();
     try {
       return parseStore(await fs.readFile(file, 'utf8'));
@@ -128,8 +135,8 @@ async function writeStore(store: ZentaoProfilesStore): Promise<void> {
   const text = `${JSON.stringify(normalizedStore, null, 2)}\n`;
 
   if (isNodeRuntime()) {
-    const fs = await importNodeModule<NodeFs>('node:fs/promises');
-    const path = await importNodeModule<NodePath>('node:path');
+    const fs = await importNodeModule<typeof import('node:fs/promises')>('node:fs/promises');
+    const path = await importNodeModule<typeof import('node:path')>('node:path');
     const file = await getProfileFilePath();
     const dir = path.dirname(file);
     const tempFile = path.join(dir, `.zentao.${Date.now()}.${Math.random().toString(36).slice(2)}.tmp`);
@@ -194,54 +201,60 @@ export async function getProfile(profileKey?: string): Promise<ZentaoProfileReco
 }
 
 /** 添加或覆盖一个本地 profile，并把它设置为当前使用的 profile。 */
-export async function addProfile(profile: ZentaoProfile): Promise<ZentaoProfileRecord> {
-  const store = await readStore();
-  const timestamp = nowString();
-  const normalized = normalizeProfile({
-    ...profile,
-    loginTime: profile.loginTime ?? timestamp,
-    lastUsedTime: profile.lastUsedTime ?? timestamp,
+export function addProfile(profile: ZentaoProfile): Promise<ZentaoProfileRecord> {
+  return withStoreMutex(async () => {
+    const store = await readStore();
+    const timestamp = nowString();
+    const normalized = normalizeProfile({
+      ...profile,
+      loginTime: profile.loginTime ?? timestamp,
+      lastUsedTime: profile.lastUsedTime ?? timestamp,
+    });
+    const profileKey = getProfileKey(normalized);
+    const index = store.profiles.findIndex((item) => getProfileKey(item) === profileKey);
+
+    if (index >= 0) {
+      store.profiles[index] = normalized;
+    } else {
+      store.profiles.push(normalized);
+    }
+
+    store.currentProfile = profileKey;
+    await writeStore(store);
+    return toRecord(normalized);
   });
-  const profileKey = getProfileKey(normalized);
-  const index = store.profiles.findIndex((item) => getProfileKey(item) === profileKey);
-
-  if (index >= 0) {
-    store.profiles[index] = normalized;
-  } else {
-    store.profiles.push(normalized);
-  }
-
-  store.currentProfile = profileKey;
-  await writeStore(store);
-  return toRecord(normalized);
 }
 
 /** 删除指定 profile；返回是否实际删除了记录。 */
-export async function deleteProfile(profileKey: string): Promise<boolean> {
-  const store = await readStore();
-  const nextProfiles = store.profiles.filter((profile) => getProfileKey(profile) !== profileKey);
-  if (nextProfiles.length === store.profiles.length) return false;
+export function deleteProfile(profileKey: string): Promise<boolean> {
+  return withStoreMutex(async () => {
+    const store = await readStore();
+    const nextProfiles = store.profiles.filter((profile) => getProfileKey(profile) !== profileKey);
+    if (nextProfiles.length === store.profiles.length) return false;
 
-  store.profiles = nextProfiles;
-  setFallbackCurrentProfile(store);
-  await writeStore(store);
-  return true;
+    store.profiles = nextProfiles;
+    setFallbackCurrentProfile(store);
+    await writeStore(store);
+    return true;
+  });
 }
 
 /** 切换当前使用的 profile，并刷新最后使用时间；不传 key 时使用当前 profile。 */
-export async function switchProfile(profileKey?: string): Promise<ZentaoProfileRecord> {
-  const store = await readStore();
-  const key = profileKey ?? store.currentProfile;
-  if (!key) {
-    throw new ZentaoError('E_NO_PROFILE');
-  }
-  const profile = findProfile(store, key);
-  if (!profile) {
-    throw new ZentaoError('E_PROFILE_NOT_FOUND', { profileKey: key });
-  }
+export function switchProfile(profileKey?: string): Promise<ZentaoProfileRecord> {
+  return withStoreMutex(async () => {
+    const store = await readStore();
+    const key = profileKey ?? store.currentProfile;
+    if (!key) {
+      throw new ZentaoError('E_NO_PROFILE');
+    }
+    const profile = findProfile(store, key);
+    if (!profile) {
+      throw new ZentaoError('E_PROFILE_NOT_FOUND', { profileKey: key });
+    }
 
-  profile.lastUsedTime = nowString();
-  store.currentProfile = key;
-  await writeStore(store);
-  return toRecord(profile);
+    profile.lastUsedTime = nowString();
+    store.currentProfile = key;
+    await writeStore(store);
+    return toRecord(profile);
+  });
 }
