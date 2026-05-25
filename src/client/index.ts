@@ -125,12 +125,12 @@ export class ZentaoClient {
   }
 
   /** 发起 POST 请求并发送 JSON body。 */
-  async post<T>(path: string, body: any): Promise<T> {
+  async post<T>(path: string, body: unknown): Promise<T> {
     return this.request(path, { method: 'POST', body }) as Promise<T>;
   }
 
   /** 发起 PUT 请求并发送 JSON body。 */
-  async put<T>(path: string, body: any): Promise<T> {
+  async put<T>(path: string, body: unknown): Promise<T> {
     return this.request(path, { method: 'PUT', body }) as Promise<T>;
   }
 
@@ -190,8 +190,4 @@ export class ZentaoClient {
       insecure: typeof activeProfile.config?.insecure === 'boolean' ? activeProfile.config.insecure : undefined,
     });
   }
-}
-
-export function createClient(options: ZentaoClientOptions): ZentaoClient {
-  return ZentaoClient.create(options);
 }
