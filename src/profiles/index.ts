@@ -3,6 +3,11 @@ import { isNodeRuntime } from '../misc/environment.js';
 import { normalizeSiteUrl } from '../utils/index.js';
 import type { ZentaoProfile, ZentaoProfileRecord, ZentaoProfilesStore } from '../types/index.js';
 
+/**
+ * 浏览器环境下用于在 `localStorage` 中保存 profile 数据的 key。
+ *
+ * Node.js 环境会改用文件 `~/.config/zentao/zentao.json`，与此常量无关。
+ */
 export const ZENTAO_PROFILES_STORAGE_KEY = 'ZENTAO_PROFILES';
 
 const PROFILE_FILE_PARTS = ['.config', 'zentao', 'zentao.json'];
@@ -180,18 +185,42 @@ function setFallbackCurrentProfile(store: ZentaoProfilesStore): void {
   }
 }
 
-/** 根据 profile 的账号和禅道地址生成稳定 key。 */
+/**
+ * 根据 profile 的账号和禅道站点地址生成稳定 key。
+ *
+ * Key 格式为 `account@server`，其中 `server` 会经过 {@link normalizeSiteUrl} 规范化，
+ * 因此即使传入末尾带 `/` 或 `/api.php/v2` 的地址，也会得到一致的结果。
+ *
+ * @param profile - 只需要包含 `account` 和 `server` 两个字段。
+ * @returns 形如 `admin@https://zentao.example.com` 的 profile key。
+ * @throws {ZentaoError} `E_INVALID_PROFILE`（账号为空白）或 `E_INVALID_BASE_URL`（`server` 不合法）。
+ */
 export function getProfileKey(profile: Pick<ZentaoProfile, 'account' | 'server'>): string {
   return profileKeyFromParts(profile.account, profile.server);
 }
 
-/** 列出所有保存的本地 profile。 */
+/**
+ * 列出本地保存的所有 profile。
+ *
+ * Node.js 下从 `~/.config/zentao/zentao.json` 读取；浏览器下从 `localStorage` 读取。
+ * 读取过程不会写回存储；存储中无法解析的条目会被静默忽略，不会影响其余 profile。
+ *
+ * @returns 当前存储中的所有 profile（带 `key` 字段），文件不存在时返回空数组。
+ * @throws {ZentaoError} `E_PROFILE_STORAGE_INVALID`（存储内容不是合法 JSON）或
+ *   `E_PROFILE_STORAGE_UNAVAILABLE`（运行时无法访问存储）。
+ */
 export async function getAllProfiles(): Promise<ZentaoProfileRecord[]> {
   const store = await readStore();
   return store.profiles.map(toRecord);
 }
 
-/** 获取指定 profile；不传 key 时返回上次使用的 profile。 */
+/**
+ * 获取指定 profile。
+ *
+ * @param profileKey - 可选的 profile key（`account@server`）；不传时返回当前（最近一次切换的）profile。
+ * @returns 命中的 profile（带 `key` 字段）；当 key 不存在或尚未配置当前 profile 时返回 `undefined`。
+ * @throws {ZentaoError} `E_PROFILE_STORAGE_INVALID` / `E_PROFILE_STORAGE_UNAVAILABLE`。
+ */
 export async function getProfile(profileKey?: string): Promise<ZentaoProfileRecord | undefined> {
   const store = await readStore();
   const key = profileKey ?? store.currentProfile;
@@ -200,7 +229,20 @@ export async function getProfile(profileKey?: string): Promise<ZentaoProfileReco
   return profile ? toRecord(profile) : undefined;
 }
 
-/** 添加或覆盖一个本地 profile，并把它设置为当前使用的 profile。 */
+/**
+ * 添加或覆盖一个本地 profile，并把它设置为当前使用的 profile。
+ *
+ * 行为细节：
+ * - 同 key（`account@server`）已存在时会**整体覆盖**而非合并字段。
+ * - 写入时会自动补齐 `loginTime` 与 `lastUsedTime`（若调用方未提供则使用当前 ISO 时间）。
+ * - 操作通过进程内串行锁保护 read-modify-write，避免并发调用导致的 lost update；跨进程并发不在保证范围。
+ * - 实际写入使用临时文件 + `rename` 的原子方式，并将文件与目录权限收紧到 `0600`/`0700`（Node.js 下）。
+ *
+ * @param profile - 要写入的 profile，必须至少包含 `server`、`account`、`token`。
+ * @returns 实际写入并附带 `key` 字段的 profile 记录。
+ * @throws {ZentaoError} `E_INVALID_PROFILE`（必填字段缺失或 token 为空白）、
+ *   `E_INVALID_BASE_URL`、`E_PROFILE_STORAGE_INVALID`、`E_PROFILE_STORAGE_UNAVAILABLE`。
+ */
 export function addProfile(profile: ZentaoProfile): Promise<ZentaoProfileRecord> {
   return withStoreMutex(async () => {
     const store = await readStore();
@@ -225,7 +267,16 @@ export function addProfile(profile: ZentaoProfile): Promise<ZentaoProfileRecord>
   });
 }
 
-/** 删除指定 profile；返回是否实际删除了记录。 */
+/**
+ * 删除指定 profile。
+ *
+ * 若被删除的是当前 profile，会回退为列表中最近一次写入的 profile；若已无任何 profile，
+ * 当前 profile 会被清空。操作同样通过进程内串行锁保护。
+ *
+ * @param profileKey - 要删除的 profile key。
+ * @returns 当且仅当确实删除了某条记录时返回 `true`；key 不存在时返回 `false` 且不会写盘。
+ * @throws {ZentaoError} `E_PROFILE_STORAGE_INVALID` / `E_PROFILE_STORAGE_UNAVAILABLE`。
+ */
 export function deleteProfile(profileKey: string): Promise<boolean> {
   return withStoreMutex(async () => {
     const store = await readStore();
@@ -239,7 +290,18 @@ export function deleteProfile(profileKey: string): Promise<boolean> {
   });
 }
 
-/** 切换当前使用的 profile，并刷新最后使用时间；不传 key 时使用当前 profile。 */
+/**
+ * 切换当前使用的 profile，并刷新其 `lastUsedTime`。
+ *
+ * 不传 `profileKey` 时使用当前 profile（相当于把当前 profile 的 `lastUsedTime` 刷新一遍）。
+ * 切换成功后会立即写回存储，由进程内串行锁保护。
+ *
+ * @param profileKey - 可选的目标 profile key；不传则使用当前 profile。
+ * @returns 切换后生效的 profile 记录（带 `key` 字段）。
+ * @throws {ZentaoError} `E_NO_PROFILE`（未配置任何当前 profile 且未传 key）、
+ *   `E_PROFILE_NOT_FOUND`（目标 key 不存在）、`E_PROFILE_STORAGE_INVALID` /
+ *   `E_PROFILE_STORAGE_UNAVAILABLE`。
+ */
 export function switchProfile(profileKey?: string): Promise<ZentaoProfileRecord> {
   return withStoreMutex(async () => {
     const store = await readStore();
