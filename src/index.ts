@@ -14,6 +14,7 @@ export {
   defineModuleActions,
   defineModules,
   type DefineModulesOptions,
+  getModuleNames,
   getModule,
   getModuleAction,
 } from './modules/registry.js';
