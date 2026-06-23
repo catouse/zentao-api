@@ -5,14 +5,28 @@ import { getModule } from '../modules/registry.js';
 import { extractPager, extractResult, resolveModuleCommand } from '../modules/resolve.js';
 
 /** 将 `moduleName/methodName` 形式的请求名拆成模块名和动作名。 */
-function splitRequestName(name: `${string}/${string}`): { moduleName: string; actionName: string } {
-  const index = name.indexOf('/');
-  if (index <= 0 || index === name.length - 1) {
-    throw new ZentaoError('E_INVALID_REQUEST_NAME');
+function splitRequestName(name: string): { moduleName: string; actionName: string, id?: number } {
+  const [moduleName, actionName] = name.split('/');
+
+  // 如果没有指定 actionName
+  if (!actionName?.length) {
+    return {
+      moduleName,
+      actionName: 'list',
+    }
+  }
+
+  // 如果 actionName 为数值
+  if (Number.isInteger(Number(actionName))) {
+    return {
+      moduleName,
+      actionName: 'get',
+      id: Number(actionName),
+    }
   }
   return {
-    moduleName: name.slice(0, index),
-    actionName: name.slice(index + 1),
+    moduleName,
+    actionName,
   };
 }
 
@@ -68,11 +82,15 @@ export async function request<T = unknown>(
     throw new ZentaoError('E_NO_GLOBAL_CLIENT');
   }
 
-  const { moduleName, actionName } = splitRequestName(name);
+  const { moduleName, actionName, id } = splitRequestName(name);
   const module = getModule(moduleName);
   // recPerPage 是最常用的列表参数，允许在全局或本次调用中统一覆盖。
   const recPerPage = params.recPerPage ?? options.recPerPage ?? globals.recPerPage;
-  const mergedParams = recPerPage === undefined ? params : { ...params, recPerPage };
+  const mergedParams = {
+    ...(id !== undefined ? { id } : {}),
+    ...params,
+    ...(recPerPage !== undefined ? { recPerPage } : {}),
+  };
   const command = resolveModuleCommand(module, actionName, mergedParams);
   const raw = await client.request(command.path, {
     method: String(command.action.method).toUpperCase() as HttpMethod,
