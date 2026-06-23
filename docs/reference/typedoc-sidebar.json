@@ -216,6 +216,10 @@
         "link": "/reference/functions/getModuleAction.md"
       },
       {
+        "text": "getModuleNames",
+        "link": "/reference/functions/getModuleNames.md"
+      },
+      {
         "text": "getProfile",
         "link": "/reference/functions/getProfile.md"
       },
