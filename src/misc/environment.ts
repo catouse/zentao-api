@@ -29,7 +29,15 @@ function toResponseHeaders(headers: NodeJS.Dict<string | string[] | number>): He
   return result;
 }
 
-async function toNodeBody(body: BodyInit | null | undefined): Promise<string | Uint8Array | undefined> {
+function hasHeader(headers: Record<string, string>, name: string): boolean {
+  const normalized = name.toLowerCase();
+  return Object.keys(headers).some((key) => key.toLowerCase() === normalized);
+}
+
+async function toNodeBody(
+  body: BodyInit | null | undefined,
+  headers: Record<string, string>,
+): Promise<string | Uint8Array | undefined> {
   if (body === undefined || body === null) return undefined;
   if (typeof body === 'string') return body;
   if (body instanceof Uint8Array) return body;
@@ -38,7 +46,24 @@ async function toNodeBody(body: BodyInit | null | undefined): Promise<string | U
     return new Uint8Array(body.buffer, body.byteOffset, body.byteLength);
   }
   if (body instanceof Blob) {
+    if (body.type && !hasHeader(headers, 'content-type')) {
+      headers['content-type'] = body.type;
+    }
     return new Uint8Array(await body.arrayBuffer());
+  }
+  if (typeof FormData !== 'undefined' && body instanceof FormData) {
+    const request = new Request('https://zentao-api.local/', { method: 'POST', body });
+    const contentType = request.headers.get('content-type');
+    if (contentType && !hasHeader(headers, 'content-type')) {
+      headers['content-type'] = contentType;
+    }
+    return new Uint8Array(await request.arrayBuffer());
+  }
+  if (typeof URLSearchParams !== 'undefined' && body instanceof URLSearchParams) {
+    if (!hasHeader(headers, 'content-type')) {
+      headers['content-type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
+    }
+    return body.toString();
   }
   return String(body);
 }
@@ -63,7 +88,8 @@ async function nodeFetchWithTlsOptions(url: string, init: RequestInit, rejectUna
   const transport = parsed.protocol === 'https:'
     ? await importNodeModule<typeof import('node:https')>('node:https')
     : await importNodeModule<typeof import('node:http')>('node:http');
-  const body = await toNodeBody(init.body);
+  const headers = toNodeRequestHeaders(init.headers);
+  const body = await toNodeBody(init.body, headers);
 
   return new Promise<Response>((resolve, reject) => {
     if (init.signal?.aborted) {
@@ -73,7 +99,7 @@ async function nodeFetchWithTlsOptions(url: string, init: RequestInit, rejectUna
 
     const request = transport.request(parsed, {
       method: init.method ?? 'GET',
-      headers: toNodeRequestHeaders(init.headers),
+      headers,
       rejectUnauthorized,
     }, (response) => {
       const chunks: Uint8Array[] = [];

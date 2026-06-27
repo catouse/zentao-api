@@ -5,6 +5,7 @@ import { addProfile, switchProfile } from '../profiles/index.js';
 import { isRecord, normalizeSiteUrl } from '../utils/index.js';
 import type {
   ClientRequestOptions,
+  ClientResponseType,
   HttpMethod,
   LoginResponse,
   ServerConfig,
@@ -27,8 +28,95 @@ function buildUrl(baseUrl: string, path: string, query?: ClientRequestOptions['q
   return url.toString();
 }
 
-/** 优先解析 JSON；非 JSON 响应保留为原始文本。 */
-async function parseResponse(response: Response): Promise<unknown> {
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (!value || typeof value !== 'object') return false;
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
+}
+
+function isInstanceOfGlobal(value: unknown, name: 'FormData' | 'URLSearchParams' | 'Blob' | 'ReadableStream'): boolean {
+  const ctor = globalThis[name];
+  return typeof ctor === 'function' && value instanceof ctor;
+}
+
+function isArrayBufferBody(value: unknown): value is ArrayBuffer | ArrayBufferView {
+  return value instanceof ArrayBuffer || ArrayBuffer.isView(value);
+}
+
+function appendFormValue(form: URLSearchParams, key: string, value: unknown): void {
+  if (value === undefined) return;
+  if (Array.isArray(value)) {
+    for (const item of value) appendFormValue(form, key, item);
+    return;
+  }
+  form.append(key, value === null ? '' : String(value));
+}
+
+function serializeBody(body: unknown, bodyType: ClientRequestOptions['bodyType'], headers: Headers): BodyInit | undefined {
+  if (body === undefined || body === null) return undefined;
+
+  if (bodyType === 'form') {
+    const form = body instanceof URLSearchParams ? body : new URLSearchParams();
+    if (!(body instanceof URLSearchParams) && isPlainObject(body)) {
+      for (const [key, value] of Object.entries(body)) appendFormValue(form, key, value);
+    } else if (!(body instanceof URLSearchParams)) {
+      throw new ZentaoError('E_INVALID_PARAM', { param: 'body', value: String(body) });
+    }
+    if (!headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8');
+    }
+    return form;
+  }
+
+  if (
+    bodyType === 'raw' ||
+    typeof body === 'string' ||
+    isArrayBufferBody(body) ||
+    isInstanceOfGlobal(body, 'FormData') ||
+    isInstanceOfGlobal(body, 'URLSearchParams') ||
+    isInstanceOfGlobal(body, 'Blob') ||
+    isInstanceOfGlobal(body, 'ReadableStream')
+  ) {
+    return body as BodyInit;
+  }
+
+  if (!headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
+  return JSON.stringify(body);
+}
+
+function createRequestSignal(timeout: number, externalSignal?: AbortSignal): { signal: AbortSignal; cleanup: () => void } {
+  const controller = new AbortController();
+  const abortFromExternal = () => controller.abort(externalSignal?.reason);
+  const timer = setTimeout(() => controller.abort(), timeout);
+
+  if (externalSignal?.aborted) {
+    abortFromExternal();
+  } else {
+    externalSignal?.addEventListener('abort', abortFromExternal, { once: true });
+  }
+
+  return {
+    signal: controller.signal,
+    cleanup: () => {
+      clearTimeout(timer);
+      externalSignal?.removeEventListener('abort', abortFromExternal);
+    },
+  };
+}
+
+/** 按指定策略解析响应；默认优先 JSON，失败后保留原始文本。 */
+async function parseResponse(response: Response, responseType: ClientResponseType = 'auto'): Promise<unknown> {
+  if (responseType === 'response') return response;
+  if (responseType === 'arrayBuffer') return response.arrayBuffer();
+  if (responseType === 'blob') return response.blob();
+  if (responseType === 'text') return response.text();
+  if (responseType === 'json') {
+    const text = await response.text();
+    return text === '' ? undefined : JSON.parse(text);
+  }
+
   const text = await response.text();
   if (text === '') return undefined;
   try {
@@ -102,6 +190,10 @@ export class ZentaoClient {
    * @throws {ZentaoError} 可能抛出 `E_HTTP_ERROR`（非 2xx 状态）、`E_NETWORK_ERROR`（底层 fetch 失败）、
    *   `E_TIMEOUT`（超过 `timeout`）或 `E_INSECURE_BROWSER`（浏览器中开启了 `insecure`）。
    */
+  async request(path: string, options: ClientRequestOptions & { responseType: 'response' }): Promise<Response>;
+  async request(path: string, options: ClientRequestOptions & { responseType: 'arrayBuffer' }): Promise<ArrayBuffer>;
+  async request(path: string, options: ClientRequestOptions & { responseType: 'blob' }): Promise<Blob>;
+  async request<T = unknown>(path: string, options?: ClientRequestOptions): Promise<T>;
   async request(path: string, options: ClientRequestOptions = {}): Promise<unknown> {
     const globals = getGlobalOptions();
     const method: HttpMethod = options.method ?? 'GET';
@@ -109,23 +201,21 @@ export class ZentaoClient {
     const insecure = options.insecure ?? globals.insecure ?? this.insecure;
     assertInsecureSupported(insecure);
     const url = buildUrl(this.baseUrl, path, options.query);
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeout);
 
-    const headers: Record<string, string> = {};
+    const headers = new Headers(options.headers);
     if (this.token) {
-      headers.Token = this.token;
+      headers.set('Token', this.token);
     }
+    const { signal, cleanup } = createRequestSignal(timeout, options.signal);
 
     const init: RequestInit = {
       method,
       headers,
-      signal: controller.signal,
+      signal,
     };
     // GET 请求不携带 body，避免浏览器和部分代理拒绝请求。
     if (options.body !== undefined && method !== 'GET') {
-      headers['Content-Type'] = 'application/json';
-      init.body = JSON.stringify(options.body);
+      init.body = serializeBody(options.body, options.bodyType, headers);
     }
 
     try {
@@ -141,7 +231,7 @@ export class ZentaoClient {
           body: await response.text().catch(() => undefined),
         });
       }
-      return parseResponse(response);
+      return parseResponse(response, options.responseType);
     } catch (error) {
       if (error instanceof ZentaoError) throw error;
       if (error instanceof DOMException && error.name === 'AbortError') {
@@ -149,7 +239,7 @@ export class ZentaoClient {
       }
       throw new ZentaoError('E_NETWORK_ERROR', { message: (error as Error).message ?? String(error) }, error);
     } finally {
-      clearTimeout(timer);
+      cleanup();
     }
   }
 
@@ -161,8 +251,8 @@ export class ZentaoClient {
    * @returns 解析后的响应体（强转为 `T`）。
    * @throws {ZentaoError} 传输层失败时抛出，详见 {@link ZentaoClient.request}。
    */
-  async get<T>(path: string): Promise<T> {
-    return this.request(path, { method: 'GET' }) as Promise<T>;
+  async get<T>(path: string, options: Omit<ClientRequestOptions, 'method' | 'body' | 'bodyType'> = {}): Promise<T> {
+    return this.request(path, { ...options, method: 'GET' }) as Promise<T>;
   }
 
   /**
@@ -174,8 +264,8 @@ export class ZentaoClient {
    * @returns 解析后的响应体（强转为 `T`）。
    * @throws {ZentaoError} 传输层失败时抛出，详见 {@link ZentaoClient.request}。
    */
-  async post<T>(path: string, body: unknown): Promise<T> {
-    return this.request(path, { method: 'POST', body }) as Promise<T>;
+  async post<T>(path: string, body: unknown, options: Omit<ClientRequestOptions, 'method'> = {}): Promise<T> {
+    return this.request(path, { ...options, method: 'POST', body }) as Promise<T>;
   }
 
   /**
@@ -187,8 +277,8 @@ export class ZentaoClient {
    * @returns 解析后的响应体（强转为 `T`）。
    * @throws {ZentaoError} 传输层失败时抛出，详见 {@link ZentaoClient.request}。
    */
-  async put<T>(path: string, body: unknown): Promise<T> {
-    return this.request(path, { method: 'PUT', body }) as Promise<T>;
+  async put<T>(path: string, body: unknown, options: Omit<ClientRequestOptions, 'method'> = {}): Promise<T> {
+    return this.request(path, { ...options, method: 'PUT', body }) as Promise<T>;
   }
 
   /**
@@ -199,8 +289,8 @@ export class ZentaoClient {
    * @returns 解析后的响应体（强转为 `T`）。
    * @throws {ZentaoError} 传输层失败时抛出，详见 {@link ZentaoClient.request}。
    */
-  async delete<T>(path: string): Promise<T> {
-    return this.request(path, { method: 'DELETE' }) as Promise<T>;
+  async delete<T>(path: string, options: Omit<ClientRequestOptions, 'method' | 'body' | 'bodyType'> = {}): Promise<T> {
+    return this.request(path, { ...options, method: 'DELETE' }) as Promise<T>;
   }
 
   /**

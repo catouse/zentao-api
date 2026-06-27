@@ -6,7 +6,7 @@ import type { ModuleDefinition } from '../types/index.js';
  *
  * 此文件由 scripts/update-registry.ts 自动生成，请勿手动编辑。
  */
-export const BUILTIN_MODULES: ModuleDefinition[] = [
+export const BUILTIN_MODULES = [
     /* 用户模块 */
     {
         name: 'user',
@@ -4243,4 +4243,4 @@ export const BUILTIN_MODULES: ModuleDefinition[] = [
             }
         ],
     }
-];
+] as const satisfies readonly ModuleDefinition[];

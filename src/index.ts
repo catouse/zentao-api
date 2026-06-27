@@ -18,7 +18,12 @@ export {
   getModule,
   getModuleAction,
 } from './modules/registry.js';
-export { request } from './request/index.js';
+export {
+  request,
+  type BuiltinRequestName,
+  type RequestParamsFor,
+  type RequestResultFor,
+} from './request/index.js';
 export {
   pickFields,
   pickFieldsSingle,
@@ -31,7 +36,9 @@ export { BUILD, VERSION } from './version.js';
 export type {
   ApiListResponse,
   ApiResponse,
+  ClientRequestBodyType,
   ClientRequestOptions,
+  ClientResponseType,
   DataRecord,
   DataRecordFilter,
   DataRecordFilterGroup,

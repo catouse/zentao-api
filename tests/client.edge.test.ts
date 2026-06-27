@@ -52,6 +52,66 @@ describe('ZentaoClient edge cases', () => {
     }
   });
 
+  test('passes through FormData bodies and merges custom headers', async () => {
+    let receivedContentType = '';
+    let receivedName: FormDataEntryValue | null = null;
+    let receivedHeader: string | null = null;
+    const server = createMockServer(async (req) => {
+      receivedContentType = req.headers.get('Content-Type') ?? '';
+      receivedHeader = req.headers.get('X-Zentao-Test');
+      const form = await req.formData();
+      receivedName = form.get('name');
+      return Response.json({ status: 'success' });
+    });
+
+    try {
+      const client = new ZentaoClient({ baseUrl: server.url.toString() });
+      const form = new FormData();
+      form.set('name', 'readme.txt');
+      form.set('file', new Blob(['hello'], { type: 'text/plain' }), 'readme.txt');
+
+      await client.request('/files', {
+        method: 'POST',
+        body: form,
+        headers: { 'X-Zentao-Test': 'upload' },
+      });
+
+      expect(receivedContentType).toContain('multipart/form-data');
+      expect(String(receivedName)).toBe('readme.txt');
+      expect(String(receivedHeader)).toBe('upload');
+    } finally {
+      server.stop();
+    }
+  });
+
+  test('supports urlencoded form bodies and binary response parsing', async () => {
+    let receivedBody = '';
+    let receivedContentType = '';
+    const server = createMockServer(async (req) => {
+      receivedBody = await req.text();
+      receivedContentType = req.headers.get('Content-Type') ?? '';
+      return new Response(new Uint8Array([1, 2, 3]));
+    });
+
+    try {
+      const client = new ZentaoClient({ baseUrl: server.url.toString() });
+      const response = await client.request('/form', {
+        method: 'POST',
+        bodyType: 'form',
+        body: { name: '产品 A', tags: ['api', 'sdk'] },
+        responseType: 'arrayBuffer',
+      });
+
+      expect(receivedContentType).toContain('application/x-www-form-urlencoded');
+      expect(receivedBody).toContain('name=%E4%BA%A7%E5%93%81+A');
+      expect(receivedBody).toContain('tags=api');
+      expect(receivedBody).toContain('tags=sdk');
+      expect(Array.from(new Uint8Array(response))).toEqual([1, 2, 3]);
+    } finally {
+      server.stop();
+    }
+  });
+
   test('HTTP errors include response details and response body', async () => {
     const server = createMockServer(() => new Response('missing product', {
       status: 404,

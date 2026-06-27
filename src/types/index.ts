@@ -33,14 +33,28 @@ export interface GlobalOptions {
 /** SDK 支持的 HTTP 方法。 */
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
+/** 请求体序列化方式。 */
+export type ClientRequestBodyType = 'json' | 'form' | 'raw';
+
+/** 响应体解析方式。 */
+export type ClientResponseType = 'auto' | 'json' | 'text' | 'arrayBuffer' | 'blob' | 'response';
+
 /** `ZentaoClient.request()` 的单次请求选项。 */
 export interface ClientRequestOptions {
   /** HTTP 方法，默认 `GET`。 */
   method?: HttpMethod;
-  /** JSON 请求体；`GET` 请求会忽略该字段。 */
+  /** 请求体；`GET` 请求会忽略该字段。普通对象默认按 JSON 发送，`FormData` / `Blob` / `ArrayBuffer` 等会原样发送。 */
   body?: unknown;
+  /** 请求体序列化方式。默认 `json`；传入 `FormData` 等原生 body 时会自动按 `raw` 处理。 */
+  bodyType?: ClientRequestBodyType;
+  /** 响应体解析方式。默认 `auto`，会优先尝试 JSON，失败后回落为文本。 */
+  responseType?: ClientResponseType;
+  /** 额外请求头；会与 SDK 自动注入的 `Token` / `Content-Type` 合并。 */
+  headers?: HeadersInit;
   /** URL 查询参数；`undefined` 值会被跳过。 */
   query?: Record<string, string | number | boolean | undefined>;
+  /** 外部取消信号；会与 SDK 自身的超时控制合并。 */
+  signal?: AbortSignal;
   /** 单次请求超时时间，优先级高于全局和客户端默认值。 */
   timeout?: number;
   /** 单次请求 TLS 跳过证书验证选项；仅 Node.js 运行时支持。 */
@@ -70,6 +84,12 @@ export interface ResponseData<T = unknown> {
   status: 'success' | 'fail';
   /** 禅道服务端返回的消息。 */
   message?: string;
+  /** 原始消息字段；当服务端返回对象/数组等非字符串消息时保留在这里。 */
+  rawMessage?: unknown;
+  /** 服务端返回的业务错误码或状态码字段。 */
+  apiCode?: string | number;
+  /** 失败响应的原始对象，便于上层展示服务端返回的完整上下文。 */
+  raw?: Record<string, unknown>;
   /** 根据模块动作 `resultGetter` 提取后的业务数据。 */
   data?: T;
   /** 统一分页信息。 */
@@ -198,7 +218,7 @@ export type ModuleActionMethod = HttpMethod | Lowercase<HttpMethod>;
 /** 模块动作名称，允许除基础动作外的自定义名称。 */
 export type ModuleActionName = ModuleActionType | (string & {});
 /** 模块动作参数可选项。 */
-export type ModuleActionParamOption = { value: unknown; label: string };
+export type ModuleActionParamOption = { readonly value: unknown; readonly label: string };
 
 /** 模块动作的查询参数定义。 */
 export interface ModuleActionParam {
@@ -213,7 +233,7 @@ export interface ModuleActionParam {
   /** 参数值类型，用于基础类型转换。 */
   type?: 'string' | 'number' | 'boolean';
   /** 参数可选值。 */
-  options?: ModuleActionParamOption[];
+  options?: readonly ModuleActionParamOption[];
 }
 
 /** 模块动作结果形态。 */
@@ -228,7 +248,7 @@ export interface ModuleActionRequestBody {
   /** 请求体是否必填。 */
   required?: boolean;
   /** OpenAPI 风格 schema，用于从 params 组装 body。 */
-  schema: Record<string, unknown>;
+  schema: Readonly<Record<string, unknown>>;
   /** 请求体示例。 */
   example?: unknown;
 }
@@ -238,7 +258,7 @@ export interface ModuleActionResponse {
   /** 响应说明。 */
   description?: string;
   /** 响应 schema。 */
-  schema: Record<string, unknown>;
+  schema: Readonly<Record<string, unknown>>;
   /** 响应示例。 */
   example?: unknown;
 }
@@ -277,9 +297,9 @@ export interface ModuleAction {
   /** API 路径模板，可包含 `{productID}` 等路径参数。 */
   path: string;
   /** 路径参数定义；字符串为说明，对象可携带默认值和可选项。 */
-  pathParams?: Record<string, string | Omit<ModuleActionParam, 'name'>>;
+  pathParams?: Readonly<Record<string, string | Omit<ModuleActionParam, 'name'>>>;
   /** 查询参数定义。 */
-  params?: ModuleActionParam[];
+  params?: readonly ModuleActionParam[];
   /** 请求体定义。 */
   requestBody?: ModuleActionRequestBody;
   /** 结果形态。 */
@@ -324,7 +344,7 @@ export interface ModuleDefinition {
   /** 模块说明。 */
   description?: string;
   /** 模块支持的动作集合。 */
-  actions: ModuleAction[];
+  actions: readonly ModuleAction[];
 }
 
 /** 本地数据处理的基础记录类型，对应一条对象数据。 */

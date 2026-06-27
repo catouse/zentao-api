@@ -632,9 +632,9 @@ function buildRegistry(): RegistryBuildResult {
     output += ` *\n`;
     output += ` * 此文件由 scripts/update-registry.ts 自动生成，请勿手动编辑。\n`;
     output += ` */\n`;
-    output += `export const BUILTIN_MODULES: ModuleDefinition[] = [\n`;
+    output += `export const BUILTIN_MODULES = [\n`;
     output += modules.join(',\n\n');
-    output += `\n];\n`;
+    output += `\n] as const satisfies readonly ModuleDefinition[];\n`;
 
     return {
         output,

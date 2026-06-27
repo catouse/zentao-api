@@ -21,7 +21,7 @@ export interface DefineModulesOptions {
 // - 深克隆：避免用户后续修改自己的输入对象时污染注册表；
 // - 深冻结：让 getModule / getModuleAction 可以零拷贝返回引用，
 //   外部尝试改写会在严格模式下抛 TypeError，开销也降到 O(1) 查询。
-let modules = freezeModules(deepClone(BUILTIN_MODULES) as ModuleDefinition[]);
+let modules = freezeModules(cloneBuiltinModules());
 let moduleMap = buildModuleMap(modules);
 
 function deepClone<T>(value: T): T {
@@ -36,6 +36,10 @@ function deepClone<T>(value: T): T {
     return result as T;
   }
   return value;
+}
+
+function cloneBuiltinModules(): ModuleDefinition[] {
+  return deepClone(BUILTIN_MODULES) as unknown as ModuleDefinition[];
 }
 
 function deepFreeze<T>(value: T): T {
@@ -246,6 +250,6 @@ export function isModuleName(moduleName: string): boolean {
 
 /** @internal */
 export function resetModuleDefinitions(): void {
-  modules = freezeModules(deepClone(BUILTIN_MODULES) as ModuleDefinition[]);
+  modules = freezeModules(cloneBuiltinModules());
   rebuildMap();
 }

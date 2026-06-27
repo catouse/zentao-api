@@ -307,4 +307,43 @@ describe('high-level request', () => {
       server.stop();
     }
   });
+
+  test('rejects malformed request names with E_INVALID_REQUEST_NAME', async () => {
+    const client = new ZentaoClient({ baseUrl: 'https://zentao.example.com' });
+    setGlobalOptions({ client });
+
+    await expect(request('product/list/extra' as `${string}/${string}`, {})).rejects.toMatchObject({
+      code: 'E_INVALID_REQUEST_NAME',
+    });
+  });
+
+  test('preserves non-string failure messages and API codes', async () => {
+    const server = createMockServer(() => Response.json({
+      status: 'fail',
+      message: { reason: '权限不足', fields: ['product'] },
+      code: 40301,
+    }));
+
+    try {
+      const client = new ZentaoClient({ baseUrl: server.url.toString() });
+      setGlobalOptions({ client });
+
+      const response = await request('product/list', {});
+      expect(response.status).toBe('fail');
+      expect(response.message).toBe('{"reason":"权限不足","fields":["product"]}');
+      expect(response.rawMessage).toEqual({ reason: '权限不足', fields: ['product'] });
+      expect(response.apiCode).toBe(40301);
+      expect(response.raw).toEqual(expect.objectContaining({ status: 'fail', code: 40301 }));
+
+      await expect(request('product/list', {}, { throwOnFail: true })).rejects.toMatchObject({
+        code: 'E_API_FAILED',
+        details: expect.objectContaining({
+          rawMessage: { reason: '权限不足', fields: ['product'] },
+          apiCode: 40301,
+        }),
+      });
+    } finally {
+      server.stop();
+    }
+  });
 });

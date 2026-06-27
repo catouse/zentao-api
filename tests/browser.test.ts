@@ -50,8 +50,8 @@ describe('browser bundle', () => {
           },
         },
         fetch: (_url: string, init?: RequestInit) => {
-          const headers = init?.headers as Record<string, string> | undefined;
-          receivedToken = headers?.Token;
+          const headers = new Headers(init?.headers);
+          receivedToken = headers.get('Token') ?? undefined;
           return Promise.resolve(Response.json({ status: 'success' }));
         },
       });
