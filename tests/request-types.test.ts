@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { request, type DataRecord } from '../src/index';
+import { request, type BuiltinRequestName, type DataRecord } from '../src/index';
 
 interface ProductSummary {
   id: number;
@@ -7,9 +7,20 @@ interface ProductSummary {
 }
 
 async function typedRequestExamples(): Promise<void> {
+  const moduleOnlyName: BuiltinRequestName = 'product';
+  const actionName: BuiltinRequestName = 'product/list';
+  const detailName: BuiltinRequestName = 'product/1';
+
+  await request(moduleOnlyName, { recPerPage: 20 });
+  await request(actionName, { recPerPage: 20, pageID: 1 });
+
   const products = await request('product/list', { recPerPage: 20, pageID: 1 });
   const rows: DataRecord[] | undefined = products.data;
   rows?.forEach((item) => String(item.id));
+
+  const product = await request(detailName);
+  const detail: DataRecord | undefined = product.data;
+  String(detail?.id);
 
   await request('product/update', { id: 1, name: '产品 A', acl: 'open' });
   await request('bug/list', { productID: 1, status: 'active', page: 1 });

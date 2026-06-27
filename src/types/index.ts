@@ -61,7 +61,7 @@ export interface ClientRequestOptions {
   insecure?: boolean;
 }
 
-/** 高阶 `request("moduleName/methodName")` 的单次调用选项。 */
+/** 高阶 `request("moduleName")` / `request("moduleName/methodName")` / `request("moduleName/<objectID>")` 的单次调用选项。 */
 export interface RequestOptions extends ProcessListOptions {
   /** 本次调用使用的客户端；优先级高于全局客户端。 */
   client?: ZentaoClient;

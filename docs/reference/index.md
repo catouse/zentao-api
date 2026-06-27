@@ -28,7 +28,7 @@
 | [Pager](interfaces/Pager.md) | 禅道 API 原始分页结构。 |
 | [ProcessListOptions](interfaces/ProcessListOptions.md) | [processData](functions/processData.md) 处理列表时的选项；执行顺序为 过滤 → 搜索 → 排序 → 限制数量 → 摘取。 |
 | [ProcessSingleOptions](interfaces/ProcessSingleOptions.md) | [processData](functions/processData.md) 处理单条对象时的选项。 |
-| [RequestOptions](interfaces/RequestOptions.md) | 高阶 `request("moduleName/methodName")` 的单次调用选项。 |
+| [RequestOptions](interfaces/RequestOptions.md) | 高阶 `request("moduleName")` / `request("moduleName/methodName")` / `request("moduleName/<objectID>")` 的单次调用选项。 |
 | [ResolvedModuleCommand](interfaces/ResolvedModuleCommand.md) | 将模块动作和参数解析后的可执行请求描述。 |
 | [ResponseData](interfaces/ResponseData.md) | 高阶 `request()` 归一化后的返回数据。 |
 | [ServerConfig](interfaces/ServerConfig.md) | 禅道 `?mode=getconfig` 返回的服务端配置。 |
@@ -42,7 +42,7 @@
 
 | Type Alias | Description |
 | ------ | ------ |
-| [BuiltinRequestName](type-aliases/BuiltinRequestName.md) | 内置模块支持的 `module/action` 请求名，也包含 `module/123` 形式的详情快捷写法。 |
+| [BuiltinRequestName](type-aliases/BuiltinRequestName.md) | 内置模块支持的请求名：`module`、`module/action` 或 `module/123`。 |
 | [ClientRequestBodyType](type-aliases/ClientRequestBodyType.md) | 请求体序列化方式。 |
 | [ClientResponseType](type-aliases/ClientResponseType.md) | 响应体解析方式。 |
 | [DataRecord](type-aliases/DataRecord.md) | 本地数据处理的基础记录类型，对应一条对象数据。 |
@@ -90,7 +90,7 @@
 | [pickFields](functions/pickFields.md) | 对列表中的每条对象摘取指定字段。 |
 | [pickFieldsSingle](functions/pickFieldsSingle.md) | 从单条对象中摘取指定字段，支持通过 `.` 访问子字段，保留嵌套结构。 |
 | [processData](functions/processData.md) | 处理单条对象：仅支持字段摘取。 |
-| [request](functions/request.md) | 按模块动作名请求禅道 API。 |
+| [request](functions/request.md) | 按模块名或模块动作名请求禅道 API。 |
 | [searchData](functions/searchData.md) | 对列表做大小写不敏感的模糊匹配。 |
 | [setGlobalOptions](functions/setGlobalOptions.md) | 以浅合并的方式更新全局选项。 |
 | [sortData](functions/sortData.md) | 对列表排序，返回新数组（不修改入参）。 |

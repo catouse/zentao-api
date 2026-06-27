@@ -2,7 +2,7 @@
 
 # Interface: RequestOptions
 
-高阶 `request("moduleName/methodName")` 的单次调用选项。
+高阶 `request("moduleName")` / `request("moduleName/methodName")` / `request("moduleName/<objectID>")` 的单次调用选项。
 
 ## Extends
 

@@ -12,6 +12,7 @@
   "githubPages": false,
   "hideGenerator": true,
   "intentionallyNotExported": [
+    "BuiltinListRequestName",
     "BuiltinNamedRequestName",
     "BuiltinIdRequestName",
     "PathParams",

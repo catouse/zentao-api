@@ -10,16 +10,19 @@ type BuiltinModuleDefinition = (typeof BUILTIN_MODULES)[number];
 type BuiltinModuleName = BuiltinModuleDefinition['name'];
 type BuiltinAction<M extends BuiltinModuleName> = Extract<BuiltinModuleDefinition, { name: M }>['actions'][number];
 type BuiltinActionName<M extends BuiltinModuleName> = BuiltinAction<M>['name'] & string;
+type BuiltinListRequestName = BuiltinModuleName;
 type BuiltinNamedRequestName = {
   [M in BuiltinModuleName]: `${M}/${BuiltinActionName<M>}`;
 }[BuiltinModuleName];
 type BuiltinIdRequestName = `${BuiltinModuleName}/${number}`;
-/** 内置模块支持的 `module/action` 请求名，也包含 `module/123` 形式的详情快捷写法。 */
-export type BuiltinRequestName = BuiltinNamedRequestName | BuiltinIdRequestName;
-type ModuleNameOf<Name extends BuiltinRequestName> = Name extends `${infer M}/${string}` ? Extract<M, BuiltinModuleName> : never;
+/** 内置模块支持的请求名：`module`、`module/action` 或 `module/123`。 */
+export type BuiltinRequestName = BuiltinListRequestName | BuiltinNamedRequestName | BuiltinIdRequestName;
+type ModuleNameOf<Name extends BuiltinRequestName> = Name extends `${infer M}/${string}`
+  ? Extract<M, BuiltinModuleName>
+  : Extract<Name, BuiltinModuleName>;
 type ActionNameOf<Name extends BuiltinRequestName> = Name extends `${string}/${infer A}`
   ? A extends `${number}` ? 'get' : A
-  : never;
+  : 'list';
 type ActionOfRequest<Name extends BuiltinRequestName> = Extract<
   BuiltinAction<ModuleNameOf<Name>>,
   { name: ActionNameOf<Name> }
@@ -86,15 +89,15 @@ export type RequestResultFor<Name extends BuiltinRequestName> = ActionOfRequest<
     ? DataRecord
     : unknown;
 
-/** 将 `moduleName/methodName` 形式的请求名拆成模块名和动作名。 */
-function splitRequestName(name: string): { moduleName: string; actionName: string, id?: number } {
+/** 将 `moduleName`、`moduleName/methodName` 或 `moduleName/<objectID>` 请求名拆成模块名、动作名和对象 ID。 */
+function splitRequestName(name: string): { moduleName: string; actionName: string; id?: number } {
   const parts = name.split('/');
-  if (parts.length !== 2 || !parts[0]) {
+  if (parts.length > 2 || !parts[0]) {
     throw new ZentaoError('E_INVALID_REQUEST_NAME');
   }
   const [moduleName, actionName] = parts;
 
-  // 如果没有指定 actionName
+  // 如果没有指定 actionName，按列表动作处理。
   if (!actionName?.length) {
     return {
       moduleName,
@@ -102,7 +105,7 @@ function splitRequestName(name: string): { moduleName: string; actionName: strin
     };
   }
 
-  // 如果 actionName 为数值
+  // 如果 actionName 为数值，按详情快捷写法处理。
   if (Number.isInteger(Number(actionName))) {
     return {
       moduleName,
@@ -212,14 +215,14 @@ function normalizeResponse<T>(
 }
 
 /**
- * 按模块动作名请求禅道 API。
+ * 按模块名或模块动作名请求禅道 API。
  *
  * 选项优先级为：本次调用 options > 全局 options > 客户端默认值。
  * 当响应 `status` 为 `"fail"` 时，默认按原样返回；若 `options.throwOnFail`
  * 或全局 `throwOnFail` 为真，则改为抛出 `E_API_FAILED`。
  *
  * @typeParam T 期望的 `data` 字段类型；不传时为 `unknown`，调用方需要自行收窄。
- * @param name - 模块动作名，例如 `product/list`。
+ * @param name - 请求名，例如 `product`、`product/list` 或 `product/1`。
  * @param params - 请求参数。
  * @param options - 请求选项。
  * @returns 归一化后的禅道 API 响应。
@@ -231,12 +234,12 @@ export async function request<Name extends BuiltinRequestName>(
   options?: RequestOptions,
 ): Promise<ResponseData<RequestResultFor<Name>>>;
 export async function request<T = unknown>(
-  name: `${string}/${string}`,
+  name: string,
   params?: Record<string, unknown>,
   options?: RequestOptions,
 ): Promise<ResponseData<T>>;
 export async function request<T = unknown>(
-  name: `${string}/${string}`,
+  name: string,
   params: Record<string, unknown> = {},
   options: RequestOptions = {},
 ): Promise<ResponseData<T>> {
@@ -251,8 +254,8 @@ export async function request<T = unknown>(
   // recPerPage 是最常用的列表参数，允许在全局或本次调用中统一覆盖。
   const recPerPage = params.recPerPage ?? options.recPerPage ?? globals.recPerPage;
   const mergedParams = {
-    ...(id !== undefined ? { id } : {}),
     ...params,
+    ...(id !== undefined ? { id } : {}),
     ...(recPerPage !== undefined ? { recPerPage } : {}),
   };
   const command = resolveModuleCommand(module, actionName, mergedParams);

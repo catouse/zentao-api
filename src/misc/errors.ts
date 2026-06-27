@@ -23,7 +23,7 @@ export const ERRORS = {
   E_INVALID_ACTION_DEFINITION: 'Invalid module action definition.',
   E_MISSING_PARAM: 'Missing required parameter: {param}',
   E_INVALID_PARAM: 'Invalid value for parameter {param}: {value}',
-  E_INVALID_REQUEST_NAME: 'Request name must use the form "moduleName/methodName".',
+  E_INVALID_REQUEST_NAME: 'Request name must use the form "moduleName", "moduleName/methodName", or "moduleName/<objectID>".',
   E_API_FAILED: 'ZenTao API returned failure: {message}',
 } as const;
 

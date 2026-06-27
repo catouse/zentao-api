@@ -177,6 +177,31 @@ describe('high-level request', () => {
     }
   });
 
+  test('uses moduleName as the list action shortcut', async () => {
+    let receivedUrl = '';
+    const server = createMockServer((req) => {
+      receivedUrl = req.url;
+      return Response.json({
+        status: 'success',
+        products: [{ id: 1 }],
+      });
+    });
+
+    try {
+      const client = new ZentaoClient({ baseUrl: server.url.toString() });
+      setGlobalOptions({ client });
+
+      const response = await request('product', { recPerPage: 20 });
+
+      const url = new URL(receivedUrl);
+      expect(url.pathname).toBe('/api.php/v2/products');
+      expect(url.searchParams.get('recPerPage')).toBe('20');
+      expect(response.data).toEqual([{ id: 1 }]);
+    } finally {
+      server.stop();
+    }
+  });
+
   test('per-call options override globals and limit list response data', async () => {
     let receivedUrl = '';
     const server = createMockServer((req) => {
@@ -235,19 +260,22 @@ describe('high-level request', () => {
   });
 
   test('applies pick to a single object response', async () => {
-    const server = createMockServer(() =>
-      Response.json({
+    let receivedPathname = '';
+    const server = createMockServer((req) => {
+      receivedPathname = new URL(req.url).pathname;
+      return Response.json({
         status: 'success',
         product: { id: 7, name: 'Solo', desc: 'detail', owner: 'admin' },
-      }),
-    );
+      });
+    });
 
     try {
       const client = new ZentaoClient({ baseUrl: server.url.toString() });
       setGlobalOptions({ client });
 
-      const response = await request('product/7', {}, { pick: ['id', 'name'] });
+      const response = await request('product/7', { id: 9 }, { pick: ['id', 'name'] });
 
+      expect(receivedPathname).toBe('/api.php/v2/products/7');
       expect(response.data).toEqual({ id: 7, name: 'Solo' });
     } finally {
       server.stop();
@@ -312,7 +340,7 @@ describe('high-level request', () => {
     const client = new ZentaoClient({ baseUrl: 'https://zentao.example.com' });
     setGlobalOptions({ client });
 
-    await expect(request('product/list/extra' as `${string}/${string}`, {})).rejects.toMatchObject({
+    await expect(request('product/list/extra', {})).rejects.toMatchObject({
       code: 'E_INVALID_REQUEST_NAME',
     });
   });

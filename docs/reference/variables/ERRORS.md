@@ -23,7 +23,7 @@ SDK 已知错误码到默认消息的映射表。
 | <a id="property-e_invalid_module_definition"></a> `E_INVALID_MODULE_DEFINITION` | `"Invalid module definition."` | `'Invalid module definition.'` |
 | <a id="property-e_invalid_param"></a> `E_INVALID_PARAM` | `"Invalid value for parameter {param}: {value}"` | `'Invalid value for parameter {param}: {value}'` |
 | <a id="property-e_invalid_profile"></a> `E_INVALID_PROFILE` | `"Invalid ZenTao profile."` | `'Invalid ZenTao profile.'` |
-| <a id="property-e_invalid_request_name"></a> `E_INVALID_REQUEST_NAME` | "Request name must use the form \"moduleName/methodName\"." | `'Request name must use the form "moduleName/methodName".'` |
+| <a id="property-e_invalid_request_name"></a> `E_INVALID_REQUEST_NAME` | "Request name must use the form \"moduleName\", \"moduleName/methodName\", or \"moduleName/\<objectID\>\"." | `'Request name must use the form "moduleName", "moduleName/methodName", or "moduleName/<objectID>".'` |
 | <a id="property-e_login_failed"></a> `E_LOGIN_FAILED` | `"ZenTao login failed."` | `'ZenTao login failed.'` |
 | <a id="property-e_missing_param"></a> `E_MISSING_PARAM` | `"Missing required parameter: {param}"` | `'Missing required parameter: {param}'` |
 | <a id="property-e_network_error"></a> `E_NETWORK_ERROR` | `"Network request failed: {message}"` | `'Network request failed: {message}'` |

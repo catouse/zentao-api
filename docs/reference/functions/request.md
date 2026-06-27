@@ -6,7 +6,7 @@
 
 > **request**\<`Name`\>(`name`, `params?`, `options?`): `Promise`\<[`ResponseData`](../interfaces/ResponseData.md)\<[`RequestResultFor`](../type-aliases/RequestResultFor.md)\<`Name`\>\>\>
 
-按模块动作名请求禅道 API。
+按模块名或模块动作名请求禅道 API。
 
 选项优先级为：本次调用 options > 全局 options > 客户端默认值。
 当响应 `status` 为 `"fail"` 时，默认按原样返回；若 `options.throwOnFail`
@@ -22,7 +22,7 @@
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `name` | `Name` | 模块动作名，例如 `product/list`。 |
+| `name` | `Name` | 请求名，例如 `product`、`product/list` 或 `product/1`。 |
 | `params?` | [`RequestParamsFor`](../type-aliases/RequestParamsFor.md)\<`Name`\> | 请求参数。 |
 | `options?` | [`RequestOptions`](../interfaces/RequestOptions.md) | 请求选项。 |
 
@@ -40,7 +40,7 @@
 
 > **request**\<`T`\>(`name`, `params?`, `options?`): `Promise`\<[`ResponseData`](../interfaces/ResponseData.md)\<`T`\>\>
 
-按模块动作名请求禅道 API。
+按模块名或模块动作名请求禅道 API。
 
 选项优先级为：本次调用 options > 全局 options > 客户端默认值。
 当响应 `status` 为 `"fail"` 时，默认按原样返回；若 `options.throwOnFail`
@@ -56,7 +56,7 @@
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `name` | `` `${string}/${string}` `` | 模块动作名，例如 `product/list`。 |
+| `name` | `string` | 请求名，例如 `product`、`product/list` 或 `product/1`。 |
 | `params?` | `Record`\<`string`, `unknown`\> | 请求参数。 |
 | `options?` | [`RequestOptions`](../interfaces/RequestOptions.md) | 请求选项。 |
 

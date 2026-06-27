@@ -1,6 +1,6 @@
 # 常见 API 示例
 
-本页示例使用高阶 `request("module/action")`。可用模块和动作来自 SDK 模块注册表，完整列表见 [ZenTao API](/zentao-api/)。
+本页示例使用高阶 `request()`。请求名可以写成 `module`（默认列表）、`module/action` 或 `module/<objectID>`（详情快捷写法）。可用模块和动作来自 SDK 模块注册表，完整列表见 [ZenTao API](/zentao-api/)。
 
 ## 获取产品列表
 
@@ -19,6 +19,22 @@ const result = await request('product/list', {
 
 console.log(result.data);
 console.log(result.pager);
+```
+
+也可以省略 `/list`，直接使用模块名：
+
+```ts
+const result = await request('product', {
+  recPerPage: 20,
+});
+```
+
+## 获取产品详情
+
+详情接口可以使用完整动作名，也可以把对象 ID 写在请求名里。
+
+```ts
+const product = await request('product/1');
 ```
 
 ## 获取 Bug 列表
