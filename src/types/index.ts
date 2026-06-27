@@ -48,7 +48,7 @@ export interface ClientRequestOptions {
 }
 
 /** 高阶 `request("moduleName/methodName")` 的单次调用选项。 */
-export interface RequestOptions {
+export interface RequestOptions extends ProcessListOptions {
   /** 本次调用使用的客户端；优先级高于全局客户端。 */
   client?: ZentaoClient;
   /** 本次调用使用的每页记录数，优先级高于全局 `recPerPage`。 */

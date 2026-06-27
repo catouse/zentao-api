@@ -200,6 +200,60 @@ describe('high-level request', () => {
     }
   });
 
+  test('applies local filter/search/sort/pick to list data before limit', async () => {
+    const server = createMockServer(() =>
+      Response.json({
+        status: 'success',
+        products: [
+          { id: 1, name: 'Alpha', pri: 1, status: 'active' },
+          { id: 2, name: 'Beta', pri: 3, status: 'closed' },
+          { id: 3, name: 'Gamma', pri: 2, status: 'active' },
+          { id: 4, name: 'Delta', pri: 4, status: 'active' },
+        ],
+      }),
+    );
+
+    try {
+      const client = new ZentaoClient({ baseUrl: server.url.toString() });
+      setGlobalOptions({ client });
+
+      const response = await request('product/list', {}, {
+        filter: ['status=active'],
+        sort: 'pri:desc',
+        pick: ['id', 'name'],
+        limit: '2',
+      });
+
+      // status=active 留下 1/3/4，按 pri 降序为 4/3/1，limit 截断到前 2，pick 仅留 id/name。
+      expect(response.data).toEqual([
+        { id: 4, name: 'Delta' },
+        { id: 3, name: 'Gamma' },
+      ]);
+    } finally {
+      server.stop();
+    }
+  });
+
+  test('applies pick to a single object response', async () => {
+    const server = createMockServer(() =>
+      Response.json({
+        status: 'success',
+        product: { id: 7, name: 'Solo', desc: 'detail', owner: 'admin' },
+      }),
+    );
+
+    try {
+      const client = new ZentaoClient({ baseUrl: server.url.toString() });
+      setGlobalOptions({ client });
+
+      const response = await request('product/7', {}, { pick: ['id', 'name'] });
+
+      expect(response.data).toEqual({ id: 7, name: 'Solo' });
+    } finally {
+      server.stop();
+    }
+  });
+
   test('resolves path params and request body from params', async () => {
     const requests: Array<{ method: string; pathname: string; body: unknown }> = [];
     const server = createMockServer(async (req) => {

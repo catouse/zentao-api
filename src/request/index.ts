@@ -1,8 +1,9 @@
 import { ZentaoError } from '../misc/errors.js';
 import { getGlobalOptions } from '../misc/global-options.js';
-import type { HttpMethod, RequestOptions, ResponseData } from '../types/index.js';
+import type { DataRecord, HttpMethod, ProcessListOptions, RequestOptions, ResponseData } from '../types/index.js';
 import { getModule } from '../modules/registry.js';
 import { extractPager, extractResult, resolveModuleCommand } from '../modules/resolve.js';
+import { isRecord, processData } from '../utils/index.js';
 
 /** 将 `moduleName/methodName` 形式的请求名拆成模块名和动作名。 */
 function splitRequestName(name: string): { moduleName: string; actionName: string, id?: number } {
@@ -30,15 +31,55 @@ function splitRequestName(name: string): { moduleName: string; actionName: strin
   };
 }
 
+/** 判断本次调用是否携带了需要本地处理列表的选项。 */
+function hasListProcessing(options: ProcessListOptions): boolean {
+  return Boolean(
+    (options.filter && options.filter.length > 0) ||
+    (options.search && options.search.length > 0) ||
+    options.sort ||
+    (options.pick && options.pick.length > 0),
+  );
+}
+
+/**
+ * 对归一化后的业务数据应用本地处理（过滤 → 搜索 → 排序 → 摘取）。
+ *
+ * - 列表数据：仅当每一项都是对象时才处理，避免破坏原始基本类型数组。
+ * - 单条对象：只有 `pick` 生效。
+ * - 其他形态（基本类型、混合数组）原样返回。
+ */
+function applyProcessing(data: unknown, options: ProcessListOptions): unknown {
+  if (Array.isArray(data)) {
+    if (!hasListProcessing(options) || !data.every(isRecord)) return data;
+    return processData(data as DataRecord[], {
+      filter: options.filter,
+      search: options.search,
+      searchFields: options.searchFields,
+      sort: options.sort,
+      pick: options.pick,
+    });
+  }
+  if (isRecord(data) && options.pick && options.pick.length > 0) {
+    return processData(data, { pick: options.pick });
+  }
+  return data;
+}
+
 /** 将禅道原始响应归一化为稳定的 ResponseData 结构。 */
-function normalizeResponse<T>(command: ReturnType<typeof resolveModuleCommand>, raw: unknown, limit?: string): ResponseData<T> {
+function normalizeResponse<T>(
+  command: ReturnType<typeof resolveModuleCommand>,
+  raw: unknown,
+  options: ProcessListOptions,
+  limit?: string,
+): ResponseData<T> {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
     return { status: 'success', data: raw as T };
   }
 
   const record = raw as Record<string, unknown>;
   const status = record.status === 'fail' ? 'fail' : 'success';
-  let data = extractResult(command.action, record);
+  // 先做本地过滤/搜索/排序/摘取，再按 limit 截断，使 sort + limit 等价于取 Top N。
+  let data = applyProcessing(extractResult(command.action, record), options);
   const numericLimit = limit === undefined ? undefined : Number(limit);
   if (Array.isArray(data) && numericLimit !== undefined && !Number.isNaN(numericLimit)) {
     data = data.slice(0, numericLimit);
@@ -100,7 +141,7 @@ export async function request<T = unknown>(
     insecure: options.insecure ?? globals.insecure,
   });
 
-  const response = normalizeResponse<T>(command, raw, options.limit ?? globals.limit);
+  const response = normalizeResponse<T>(command, raw, options, options.limit ?? globals.limit);
   if (response.status === 'fail' && (options.throwOnFail ?? globals.throwOnFail)) {
     throw new ZentaoError('E_API_FAILED', { message: response.message ?? '' }, response);
   }
