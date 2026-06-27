@@ -30,6 +30,14 @@
         "link": "/reference/interfaces/ClientRequestOptions.md"
       },
       {
+        "text": "DataRecordFilter",
+        "link": "/reference/interfaces/DataRecordFilter.md"
+      },
+      {
+        "text": "DataRecordFilterGroup",
+        "link": "/reference/interfaces/DataRecordFilterGroup.md"
+      },
+      {
         "text": "DefineModulesOptions",
         "link": "/reference/interfaces/DefineModulesOptions.md"
       },
@@ -68,6 +76,14 @@
       {
         "text": "Pager",
         "link": "/reference/interfaces/Pager.md"
+      },
+      {
+        "text": "ProcessListOptions",
+        "link": "/reference/interfaces/ProcessListOptions.md"
+      },
+      {
+        "text": "ProcessSingleOptions",
+        "link": "/reference/interfaces/ProcessSingleOptions.md"
       },
       {
         "text": "RequestOptions",
@@ -112,6 +128,10 @@
     "collapsed": true,
     "items": [
       {
+        "text": "DataRecord",
+        "link": "/reference/type-aliases/DataRecord.md"
+      },
+      {
         "text": "ErrorCode",
         "link": "/reference/type-aliases/ErrorCode.md"
       },
@@ -154,6 +174,14 @@
       {
         "text": "ModuleName",
         "link": "/reference/type-aliases/ModuleName.md"
+      },
+      {
+        "text": "SortExpr",
+        "link": "/reference/type-aliases/SortExpr.md"
+      },
+      {
+        "text": "SortFn",
+        "link": "/reference/type-aliases/SortFn.md"
       }
     ]
   },
@@ -200,6 +228,10 @@
         "link": "/reference/functions/deleteProfile.md"
       },
       {
+        "text": "filterData",
+        "link": "/reference/functions/filterData.md"
+      },
+      {
         "text": "getAllProfiles",
         "link": "/reference/functions/getAllProfiles.md"
       },
@@ -228,12 +260,32 @@
         "link": "/reference/functions/getProfileKey.md"
       },
       {
+        "text": "pickFields",
+        "link": "/reference/functions/pickFields.md"
+      },
+      {
+        "text": "pickFieldsSingle",
+        "link": "/reference/functions/pickFieldsSingle.md"
+      },
+      {
+        "text": "processData",
+        "link": "/reference/functions/processData.md"
+      },
+      {
         "text": "request",
         "link": "/reference/functions/request.md"
       },
       {
+        "text": "searchData",
+        "link": "/reference/functions/searchData.md"
+      },
+      {
         "text": "setGlobalOptions",
         "link": "/reference/functions/setGlobalOptions.md"
+      },
+      {
+        "text": "sortData",
+        "link": "/reference/functions/sortData.md"
       },
       {
         "text": "switchProfile",

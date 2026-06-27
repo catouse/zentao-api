@@ -60,6 +60,7 @@ export default defineConfig({
             { text: '安装与配置', link: '/guide/installation' },
             { text: '运行环境', link: '/guide/environments' },
             { text: '常见 API 示例', link: '/guide/examples' },
+            { text: '本地数据处理', link: '/guide/data-processing' },
             { text: 'Profile 与错误处理', link: '/guide/profiles-and-errors' },
           ],
         },

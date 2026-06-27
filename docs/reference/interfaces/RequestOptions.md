@@ -4,13 +4,22 @@
 
 高阶 `request("moduleName/methodName")` 的单次调用选项。
 
+## Extends
+
+- [`ProcessListOptions`](ProcessListOptions.md)
+
 ## Properties
 
-| Property | Type | Description |
-| ------ | ------ | ------ |
-| <a id="property-client"></a> `client?` | [`ZentaoClient`](../classes/ZentaoClient.md) | 本次调用使用的客户端；优先级高于全局客户端。 |
-| <a id="property-insecure"></a> `insecure?` | `boolean` | 本次调用 TLS 跳过证书验证选项；仅 Node.js 运行时支持。 |
-| <a id="property-limit"></a> `limit?` | `string` | 本次调用限制返回列表数量，优先级高于全局 `limit`。 |
-| <a id="property-recperpage"></a> `recPerPage?` | `string` | 本次调用使用的每页记录数，优先级高于全局 `recPerPage`。 |
-| <a id="property-throwonfail"></a> `throwOnFail?` | `boolean` | 当禅道服务端返回 `{ status: "fail" }` 时是否抛出 `E_API_FAILED`。 不传时回落到全局 `throwOnFail`，默认 false（保留原始失败响应）。 |
-| <a id="property-timeout"></a> `timeout?` | `number` | 本次调用超时时间。 |
+| Property | Type | Description | Inherited from |
+| ------ | ------ | ------ | ------ |
+| <a id="property-client"></a> `client?` | [`ZentaoClient`](../classes/ZentaoClient.md) | 本次调用使用的客户端；优先级高于全局客户端。 | - |
+| <a id="property-filter"></a> `filter?` | `string`[] | 过滤表达式列表，例如 `["status=active", "pri>=2"]`，多条之间按 AND 组合。 | [`ProcessListOptions`](ProcessListOptions.md).[`filter`](ProcessListOptions.md#property-filter) |
+| <a id="property-insecure"></a> `insecure?` | `boolean` | 本次调用 TLS 跳过证书验证选项；仅 Node.js 运行时支持。 | - |
+| <a id="property-limit"></a> `limit?` | `string` | 限制返回列表数量，在排序后、摘取前截断；不改变服务端页大小。 | [`ProcessListOptions`](ProcessListOptions.md).[`limit`](ProcessListOptions.md#property-limit) |
+| <a id="property-pick"></a> `pick?` | `string`[] | 摘取字段路径列表。 | [`ProcessListOptions`](ProcessListOptions.md).[`pick`](ProcessListOptions.md#property-pick) |
+| <a id="property-recperpage"></a> `recPerPage?` | `string` | 本次调用使用的每页记录数，优先级高于全局 `recPerPage`。 | - |
+| <a id="property-search"></a> `search?` | `string`[] | 模糊搜索关键词组，组内空格分隔为 OR，多组之间按 AND 组合。 | [`ProcessListOptions`](ProcessListOptions.md).[`search`](ProcessListOptions.md#property-search) |
+| <a id="property-searchfields"></a> `searchFields?` | `string`[] | 限定搜索字段，缺省时搜索全部字段。 | [`ProcessListOptions`](ProcessListOptions.md).[`searchFields`](ProcessListOptions.md#property-searchfields) |
+| <a id="property-sort"></a> `sort?` | `string` | 排序表达式，多个字段以英文逗号分隔，例如 `pri:desc,id:asc`。 | [`ProcessListOptions`](ProcessListOptions.md).[`sort`](ProcessListOptions.md#property-sort) |
+| <a id="property-throwonfail"></a> `throwOnFail?` | `boolean` | 当禅道服务端返回 `{ status: "fail" }` 时是否抛出 `E_API_FAILED`。 不传时回落到全局 `throwOnFail`，默认 false（保留原始失败响应）。 | - |
+| <a id="property-timeout"></a> `timeout?` | `number` | 本次调用超时时间。 | - |

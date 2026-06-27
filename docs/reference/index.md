@@ -14,6 +14,8 @@
 | [ApiListResponse](interfaces/ApiListResponse.md) | 禅道 API 列表响应结构。 |
 | [ApiResponse](interfaces/ApiResponse.md) | 禅道 API 通用响应结构，允许携带任意业务字段。 |
 | [ClientRequestOptions](interfaces/ClientRequestOptions.md) | `ZentaoClient.request()` 的单次请求选项。 |
+| [DataRecordFilter](interfaces/DataRecordFilter.md) | 单条过滤条件，字段名支持 `.` 访问子字段。 |
+| [DataRecordFilterGroup](interfaces/DataRecordFilterGroup.md) | 一组过滤条件，组内按 `operator` 组合；多组之间按 AND 组合。 |
 | [DefineModulesOptions](interfaces/DefineModulesOptions.md) | [defineModules](functions/defineModules.md) 的选项。 |
 | [GlobalOptions](interfaces/GlobalOptions.md) | SDK 进程级全局默认选项，供高阶 [request](functions/request.md) 调用复用。 |
 | [LoginResponse](interfaces/LoginResponse.md) | 登录接口响应结构。 |
@@ -24,6 +26,8 @@
 | [ModuleActionResponse](interfaces/ModuleActionResponse.md) | 模块动作响应定义。 |
 | [ModuleDefinition](interfaces/ModuleDefinition.md) | 禅道模块定义，由多个动作组成。 |
 | [Pager](interfaces/Pager.md) | 禅道 API 原始分页结构。 |
+| [ProcessListOptions](interfaces/ProcessListOptions.md) | [processData](functions/processData.md) 处理列表时的选项；执行顺序为 过滤 → 搜索 → 排序 → 限制数量 → 摘取。 |
+| [ProcessSingleOptions](interfaces/ProcessSingleOptions.md) | [processData](functions/processData.md) 处理单条对象时的选项。 |
 | [RequestOptions](interfaces/RequestOptions.md) | 高阶 `request("moduleName/methodName")` 的单次调用选项。 |
 | [ResolvedModuleCommand](interfaces/ResolvedModuleCommand.md) | 将模块动作和参数解析后的可执行请求描述。 |
 | [ResponseData](interfaces/ResponseData.md) | 高阶 `request()` 归一化后的返回数据。 |
@@ -38,6 +42,7 @@
 
 | Type Alias | Description |
 | ------ | ------ |
+| [DataRecord](type-aliases/DataRecord.md) | 本地数据处理的基础记录类型，对应一条对象数据。 |
 | [ErrorCode](type-aliases/ErrorCode.md) | SDK 已知错误码，对应 [ERRORS](variables/ERRORS.md) 的 key。 |
 | [HttpMethod](type-aliases/HttpMethod.md) | SDK 支持的 HTTP 方法。 |
 | [ListPagerInfo](type-aliases/ListPagerInfo.md) | 列表分页信息别名。 |
@@ -49,6 +54,8 @@
 | [ModuleActionResultType](type-aliases/ModuleActionResultType.md) | 模块动作结果形态。 |
 | [ModuleActionType](type-aliases/ModuleActionType.md) | 模块动作类型：基础 CRUD 或自定义动作。 |
 | [ModuleName](type-aliases/ModuleName.md) | 内置模块名称，同时允许用户扩展自定义模块名。 |
+| [SortExpr](type-aliases/SortExpr.md) | 排序表达式，格式为 `字段:asc|desc`。 |
+| [SortFn](type-aliases/SortFn.md) | 自定义排序比较函数。 |
 
 ## Variables
 
@@ -67,6 +74,7 @@
 | [defineModuleActions](functions/defineModuleActions.md) | 为已存在的模块追加或覆盖动作。 |
 | [defineModules](functions/defineModules.md) | 注册或扩展模块定义。 |
 | [deleteProfile](functions/deleteProfile.md) | 删除指定 profile。 |
+| [filterData](functions/filterData.md) | 按条件组过滤列表，多组之间按 AND 组合。 |
 | [getAllProfiles](functions/getAllProfiles.md) | 列出本地保存的所有 profile。 |
 | [getGlobalOptions](functions/getGlobalOptions.md) | 获取当前全局选项的快照。 |
 | [getModule](functions/getModule.md) | 获取模块定义。 |
@@ -74,6 +82,11 @@
 | [getModuleNames](functions/getModuleNames.md) | 返回当前运行时注册表中的所有模块名。 |
 | [getProfile](functions/getProfile.md) | 获取指定 profile。 |
 | [getProfileKey](functions/getProfileKey.md) | 根据 profile 的账号和禅道站点地址生成稳定 key。 |
+| [pickFields](functions/pickFields.md) | 对列表中的每条对象摘取指定字段。 |
+| [pickFieldsSingle](functions/pickFieldsSingle.md) | 从单条对象中摘取指定字段，支持通过 `.` 访问子字段，保留嵌套结构。 |
+| [processData](functions/processData.md) | 处理单条对象：仅支持字段摘取。 |
 | [request](functions/request.md) | 按模块动作名请求禅道 API。 |
+| [searchData](functions/searchData.md) | 对列表做大小写不敏感的模糊匹配。 |
 | [setGlobalOptions](functions/setGlobalOptions.md) | 以浅合并的方式更新全局选项。 |
+| [sortData](functions/sortData.md) | 对列表排序，返回新数组（不修改入参）。 |
 | [switchProfile](functions/switchProfile.md) | 切换当前使用的 profile，并刷新其 `lastUsedTime`。 |

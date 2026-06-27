@@ -73,3 +73,4 @@ const result = await request('product/list', {});
 - 阅读 [安装与配置](./installation.md) 了解客户端选项。
 - 阅读 [运行环境](./environments.md) 了解 Node.js、Bun 和浏览器差异。
 - 阅读 [常见 API 示例](./examples.md) 直接套用常见调用方式。
+- 阅读 [本地数据处理](./data-processing.md) 对返回数据做过滤、搜索、排序与摘取。
