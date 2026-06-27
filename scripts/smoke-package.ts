@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -71,10 +72,20 @@ const browserSubpathApi = await import('zentao-api/browser');
 assert(typeof browserSubpathApi.ZentaoClient === 'function', 'Package ./browser subpath does not export ZentaoClient.');
 assert(browserSubpathApi.VERSION === api.VERSION, 'Package ./browser VERSION does not match package main.');
 
-const packOutput = execFileSync('npm', ['pack', '--dry-run', '--json'], {
-  cwd: root,
-  encoding: 'utf8',
-});
+const npmCache = mkdtempSync(join(tmpdir(), 'zentao-api-npm-cache-'));
+let packOutput: string;
+try {
+  packOutput = execFileSync('npm', ['pack', '--dry-run', '--json'], {
+    cwd: root,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      npm_config_cache: npmCache,
+    },
+  });
+} finally {
+  rmSync(npmCache, { recursive: true, force: true });
+}
 const [pack] = JSON.parse(packOutput) as Array<{ files: Array<{ path: string }> }>;
 const packedFiles = new Set(pack.files.map((file) => file.path));
 

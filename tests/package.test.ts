@@ -19,6 +19,7 @@ describe('package exports', () => {
     expect(packageJson.scripts).toEqual(expect.objectContaining({
       check: expect.stringContaining('typecheck:tests'),
       'registry:check': 'bun run scripts/update-registry.ts --check',
+      'smoke:browser': 'bun run scripts/smoke-browser-bundler.ts',
       'smoke:node': 'node scripts/smoke-node.mjs',
       'smoke:package': 'bun run scripts/smoke-package.ts',
       'test:coverage': 'bun test --coverage',
@@ -26,6 +27,7 @@ describe('package exports', () => {
     }));
     expect(packageJson.scripts.check).toContain('registry:check');
     expect(packageJson.scripts.check).toContain('smoke:node');
+    expect(packageJson.scripts.check).toContain('smoke:browser');
     expect(packageJson.scripts.check).toContain('smoke:package');
     expect(packageJson.scripts.prepublishOnly).toBe('bun run check');
   });
