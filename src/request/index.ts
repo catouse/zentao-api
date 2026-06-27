@@ -37,27 +37,35 @@ function hasListProcessing(options: ProcessListOptions): boolean {
     (options.filter && options.filter.length > 0) ||
     (options.search && options.search.length > 0) ||
     options.sort ||
+    options.limit ||
     (options.pick && options.pick.length > 0),
   );
 }
 
 /**
- * 对归一化后的业务数据应用本地处理（过滤 → 搜索 → 排序 → 摘取）。
+ * 对归一化后的业务数据应用本地处理（过滤 → 搜索 → 排序 → 限制数量 → 摘取）。
  *
- * - 列表数据：仅当每一项都是对象时才处理，避免破坏原始基本类型数组。
+ * - 对象列表：交由 {@link processData} 完整处理。
+ * - 基本类型数组：仅 `limit` 生效（按数量截断），避免破坏原始元素。
  * - 单条对象：只有 `pick` 生效。
- * - 其他形态（基本类型、混合数组）原样返回。
+ * - 其他形态原样返回。
  */
 function applyProcessing(data: unknown, options: ProcessListOptions): unknown {
   if (Array.isArray(data)) {
-    if (!hasListProcessing(options) || !data.every(isRecord)) return data;
-    return processData(data as DataRecord[], {
-      filter: options.filter,
-      search: options.search,
-      searchFields: options.searchFields,
-      sort: options.sort,
-      pick: options.pick,
-    });
+    if (!hasListProcessing(options)) return data;
+    if (data.every(isRecord)) {
+      return processData(data as DataRecord[], {
+        filter: options.filter,
+        search: options.search,
+        searchFields: options.searchFields,
+        sort: options.sort,
+        limit: options.limit,
+        pick: options.pick,
+      });
+    }
+    // 非对象数组（如 ID 列表）只能按数量截断，其余处理不适用。
+    const limit = Number(options.limit);
+    return Number.isFinite(limit) && limit >= 0 ? data.slice(0, Math.floor(limit)) : data;
   }
   if (isRecord(data) && options.pick && options.pick.length > 0) {
     return processData(data, { pick: options.pick });
@@ -70,7 +78,6 @@ function normalizeResponse<T>(
   command: ReturnType<typeof resolveModuleCommand>,
   raw: unknown,
   options: ProcessListOptions,
-  limit?: string,
 ): ResponseData<T> {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
     return { status: 'success', data: raw as T };
@@ -78,12 +85,7 @@ function normalizeResponse<T>(
 
   const record = raw as Record<string, unknown>;
   const status = record.status === 'fail' ? 'fail' : 'success';
-  // 先做本地过滤/搜索/排序/摘取，再按 limit 截断，使 sort + limit 等价于取 Top N。
-  let data = applyProcessing(extractResult(command.action, record), options);
-  const numericLimit = limit === undefined ? undefined : Number(limit);
-  if (Array.isArray(data) && numericLimit !== undefined && !Number.isNaN(numericLimit)) {
-    data = data.slice(0, numericLimit);
-  }
+  const data = applyProcessing(extractResult(command.action, record), options);
 
   const pager = extractPager(command.action, record);
   return {
@@ -141,7 +143,9 @@ export async function request<T = unknown>(
     insecure: options.insecure ?? globals.insecure,
   });
 
-  const response = normalizeResponse<T>(command, raw, options, options.limit ?? globals.limit);
+  // limit 现归入本地处理选项；本次调用优先，缺省回落到全局默认。
+  const processOptions: ProcessListOptions = { ...options, limit: options.limit ?? globals.limit };
+  const response = normalizeResponse<T>(command, raw, processOptions);
   if (response.status === 'fail' && (options.throwOnFail ?? globals.throwOnFail)) {
     throw new ZentaoError('E_API_FAILED', { message: response.message ?? '' }, response);
   }

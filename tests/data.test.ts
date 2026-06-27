@@ -136,6 +136,21 @@ describe('processData', () => {
     ]);
   });
 
+  test('limit truncates after sort and before pick', () => {
+    const result = processData(records, { sort: 'pri:desc', limit: '2', pick: ['id', 'pri'] });
+    expect(result).toEqual([
+      { id: 1, pri: 3 },
+      { id: 3, pri: 2 },
+    ]);
+  });
+
+  test('ignores invalid or empty limit values', () => {
+    expect(processData(records, { limit: '0' })).toEqual([]);
+    expect(processData(records, { limit: '' }).map((r) => r.id)).toEqual([1, 2, 3]);
+    expect(processData(records, { limit: 'abc' }).map((r) => r.id)).toEqual([1, 2, 3]);
+    expect(processData(records, { limit: '-1' }).map((r) => r.id)).toEqual([1, 2, 3]);
+  });
+
   test('single object picks fields', () => {
     expect(processData(records[0], { pick: ['id', 'assignedTo.name'] })).toEqual({
       id: 1,

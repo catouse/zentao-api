@@ -53,8 +53,6 @@ export interface RequestOptions extends ProcessListOptions {
   client?: ZentaoClient;
   /** 本次调用使用的每页记录数，优先级高于全局 `recPerPage`。 */
   recPerPage?: string;
-  /** 本次调用限制返回列表数量，优先级高于全局 `limit`。 */
-  limit?: string;
   /** 本次调用超时时间。 */
   timeout?: number;
   /** 本次调用 TLS 跳过证书验证选项；仅 Node.js 运行时支持。 */
@@ -356,7 +354,7 @@ export type SortExpr = `${string}:${'asc' | 'desc'}`;
 /** 自定义排序比较函数。 */
 export type SortFn = (a: DataRecord, b: DataRecord) => number;
 
-/** {@link processData} 处理列表时的选项；执行顺序为 过滤 → 搜索 → 排序 → 摘取。 */
+/** {@link processData} 处理列表时的选项；执行顺序为 过滤 → 搜索 → 排序 → 限制数量 → 摘取。 */
 export interface ProcessListOptions {
   /** 过滤表达式列表，例如 `["status=active", "pri>=2"]`，多条之间按 AND 组合。 */
   filter?: string[];
@@ -366,6 +364,8 @@ export interface ProcessListOptions {
   searchFields?: string[];
   /** 排序表达式，多个字段以英文逗号分隔，例如 `pri:desc,id:asc`。 */
   sort?: string;
+  /** 限制返回列表数量，在排序后、摘取前截断；不改变服务端页大小。 */
+  limit?: string;
   /** 摘取字段路径列表。 */
   pick?: string[];
 }

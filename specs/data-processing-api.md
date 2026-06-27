@@ -1,6 +1,6 @@
 # 本地数据处理方法设计
 
-支持对单个对象数据或列表数据进行处理，处理方法包括：字段摘取、过滤、模糊搜索、排序。
+支持对单个对象数据或列表数据进行处理，处理方法包括：字段摘取、过滤、模糊搜索、排序、限制数量。
 
 ## 基础类型
 
@@ -77,9 +77,17 @@ function sortData(data: DataRecord[], sortFields: (SortExpr | SortFn)[]): DataRe
 - **参数**：`sortFields` 排序字段列表，每个元素可以是字段名或排序函数
 - **返回**：排序后的新列表（不可变，内部 copy）；数值字段按数字比较，否则按字符串 `localeCompare`
 
-## 5. 串联编排
+## 5. 限制数量 `limit`
 
-为体现“过滤/搜索 → 排序 → 摘取”的执行顺序，可定义聚合方法：
+限制返回列表的数量，在排序之后、摘取之前截断。
+只支持列表处理，不改变服务端返回的页大小。
+
+- **参数**：`limit` 期望的最大返回数量（字符串形式，便于 CLI 传参）
+- **取值**：非负整数；为空、非数字或负数时忽略（不限制）
+
+## 6. 串联编排
+
+为体现“过滤 → 搜索 → 排序 → 限制数量 → 摘取”的执行顺序，可定义聚合方法：
 
 ```typescript
 interface ProcessListOptions {
@@ -87,6 +95,7 @@ interface ProcessListOptions {
   search?: string[];
   searchFields?: string[];
   sort?: string;
+  limit?: string;
   pick?: string[];
 }
 
@@ -97,3 +106,5 @@ interface ProcessSingleOptions {
 function processData(data: DataRecord[], options: ProcessListOptions): DataRecord[];
 function processData(data: DataRecord, options: ProcessSingleOptions): DataRecord;
 ```
+
+`limit` 同时作为高阶 `request()` 的调用选项：本次调用优先，缺省时回落到全局默认 `limit`。
