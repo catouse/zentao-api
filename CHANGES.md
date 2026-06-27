@@ -1,5 +1,20 @@
 # 变更日志
 
+## 0.3.0 - 2026-06-27
+
+### 新增
+
+- 新增本地数据处理工具，可对返回记录进行过滤、搜索、排序与字段裁剪：导出 `filterData`、`searchData`、`sortData`、`pickFields`、`pickFieldsSingle` 与统一入口 `processData`。
+- `RequestOptions` 支持本地数据处理选项，可在请求时直接对结果做过滤、搜索、排序与字段挑选，并与 `limit` 协同生效。
+
+### 变更
+
+- 拆分 `utils` 为 `object`、`array`、`url` 三个子模块，结构更清晰。
+
+### 文档
+
+- 新增「数据处理」指南页与对应 API 参考。
+
 ## 0.2.1 - 2026-06-23
 
 ### 新增
