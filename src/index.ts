@@ -19,11 +19,22 @@ export {
   getModuleAction,
 } from './modules/registry.js';
 export { request } from './request/index.js';
+export {
+  pickFields,
+  pickFieldsSingle,
+  filterData,
+  searchData,
+  sortData,
+  processData,
+} from './utils/index.js';
 export { BUILD, VERSION } from './version.js';
 export type {
   ApiListResponse,
   ApiResponse,
   ClientRequestOptions,
+  DataRecord,
+  DataRecordFilter,
+  DataRecordFilterGroup,
   GlobalOptions,
   HttpMethod,
   ListPagerInfo,
@@ -43,10 +54,14 @@ export type {
   ModuleDefinition,
   ModuleName,
   Pager,
+  ProcessListOptions,
+  ProcessSingleOptions,
   RequestOptions,
   ResolvedModuleCommand,
   ResponseData,
   ServerConfig,
+  SortExpr,
+  SortFn,
   ZentaoProfile,
   ZentaoProfileConfig,
   ZentaoProfileRecord,
