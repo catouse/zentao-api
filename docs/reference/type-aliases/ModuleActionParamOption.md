@@ -8,7 +8,7 @@
 
 ## Properties
 
-| Property | Type |
-| ------ | ------ |
-| <a id="property-label"></a> `label` | `string` |
-| <a id="property-value"></a> `value` | `unknown` |
+| Property | Modifier | Type |
+| ------ | ------ | ------ |
+| <a id="property-label"></a> `label` | `readonly` | `string` |
+| <a id="property-value"></a> `value` | `readonly` | `unknown` |

@@ -6,7 +6,7 @@
 
 根据 profile 的账号和禅道站点地址生成稳定 key。
 
-Key 格式为 `account@server`，其中 `server` 会经过 normalizeSiteUrl 规范化，
+Key 格式为 `account@server`，其中 `server` 会经过 [normalizeSiteUrl](#) 规范化，
 因此即使传入末尾带 `/` 或 `/api.php/v2` 的地址，也会得到一致的结果。
 
 ## Parameters

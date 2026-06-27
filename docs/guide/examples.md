@@ -73,6 +73,30 @@ const raw = await client.request('/products/1', {
 });
 ```
 
+## 上传附件与下载二进制
+
+底层客户端会自动识别 `FormData`、`Blob`、`ArrayBuffer`、`URLSearchParams` 等原生请求体。普通对象默认按 JSON 发送。
+
+```ts
+const form = new FormData();
+form.set('file', file);
+form.set('objectType', 'bug');
+form.set('objectID', '1001');
+
+await client.request('/files', {
+  method: 'POST',
+  body: form,
+});
+```
+
+需要下载文件或其他二进制内容时，指定 `responseType`：
+
+```ts
+const bytes = await client.request<ArrayBuffer>('/files/42', {
+  responseType: 'arrayBuffer',
+});
+```
+
 ## 限制返回列表数量
 
 `limit` 只影响 SDK 归一化后的 `data` 数组，不改变服务端返回页大小。

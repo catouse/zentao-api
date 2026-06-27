@@ -7,7 +7,7 @@
 主要职责：
 - 站点根地址规范化与 `/api.php/v2` 拼接
 - 自动注入 `Token` 头
-- 请求超时控制（基于 AbortController）
+- 请求超时控制（基于 [AbortController](https://developer.mozilla.org/docs/Web/API/AbortController)）
 - 可选的 TLS 跳过校验（仅 Node.js 运行时）
 - 响应体的 JSON 解析与错误归一化
 
@@ -67,7 +67,7 @@
 
 ### delete()
 
-> **delete**\<`T`\>(`path`): `Promise`\<`T`\>
+> **delete**\<`T`\>(`path`, `options?`): `Promise`\<`T`\>
 
 发起 `DELETE` 请求。
 
@@ -82,6 +82,7 @@
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
 | `path` | `string` | 相对 [baseUrl](#property-baseurl) 的路径。 |
+| `options` | `Omit`\<[`ClientRequestOptions`](../interfaces/ClientRequestOptions.md), `"method"` \| `"body"` \| `"bodyType"`\> | - |
 
 #### Returns
 
@@ -97,7 +98,7 @@
 
 ### get()
 
-> **get**\<`T`\>(`path`): `Promise`\<`T`\>
+> **get**\<`T`\>(`path`, `options?`): `Promise`\<`T`\>
 
 发起 `GET` 请求。
 
@@ -112,6 +113,7 @@
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
 | `path` | `string` | 相对 [baseUrl](#property-baseurl) 的路径。 |
+| `options` | `Omit`\<[`ClientRequestOptions`](../interfaces/ClientRequestOptions.md), `"method"` \| `"body"` \| `"bodyType"`\> | - |
 
 #### Returns
 
@@ -158,7 +160,7 @@
 
 ### post()
 
-> **post**\<`T`\>(`path`, `body`): `Promise`\<`T`\>
+> **post**\<`T`\>(`path`, `body`, `options?`): `Promise`\<`T`\>
 
 发起 `POST` 请求，`body` 会被序列化为 JSON。
 
@@ -174,6 +176,7 @@
 | ------ | ------ | ------ |
 | `path` | `string` | 相对 [baseUrl](#property-baseurl) 的路径。 |
 | `body` | `unknown` | JSON 请求体，传入对象/数组将被 `JSON.stringify`。 |
+| `options` | `Omit`\<[`ClientRequestOptions`](../interfaces/ClientRequestOptions.md), `"method"`\> | - |
 
 #### Returns
 
@@ -189,7 +192,7 @@
 
 ### put()
 
-> **put**\<`T`\>(`path`, `body`): `Promise`\<`T`\>
+> **put**\<`T`\>(`path`, `body`, `options?`): `Promise`\<`T`\>
 
 发起 `PUT` 请求，`body` 会被序列化为 JSON。
 
@@ -205,6 +208,7 @@
 | ------ | ------ | ------ |
 | `path` | `string` | 相对 [baseUrl](#property-baseurl) 的路径。 |
 | `body` | `unknown` | JSON 请求体。 |
+| `options` | `Omit`\<[`ClientRequestOptions`](../interfaces/ClientRequestOptions.md), `"method"`\> | - |
 
 #### Returns
 
@@ -220,7 +224,9 @@
 
 ### request()
 
-> **request**(`path`, `options?`): `Promise`\<`unknown`\>
+#### Call Signature
+
+> **request**(`path`, `options`): `Promise`\<`Response`\>
 
 发起一次原始 API 请求。
 
@@ -232,20 +238,122 @@
 - 业务层失败（即响应体 `{ status: "fail" }`）不会抛出，仍按原样返回；只有 HTTP/网络/超时等传输层错误才会抛错。
 - `insecure` 仅在 Node.js 下可用，浏览器中传入会抛 `E_INSECURE_BROWSER`。
 
-#### Parameters
+##### Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
 | `path` | `string` | 相对 [baseUrl](#property-baseurl) 的路径，可省略前导 `/`。 |
-| `options` | [`ClientRequestOptions`](../interfaces/ClientRequestOptions.md) | 单次请求选项，参见 [ClientRequestOptions](../interfaces/ClientRequestOptions.md)。 |
+| `options` | [`ClientRequestOptions`](../interfaces/ClientRequestOptions.md) & `object` | 单次请求选项，参见 [ClientRequestOptions](../interfaces/ClientRequestOptions.md)。 |
 
-#### Returns
+##### Returns
 
-`Promise`\<`unknown`\>
+`Promise`\<`Response`\>
 
 解析后的响应体；当响应为空字符串时返回 `undefined`。
 
-#### Throws
+##### Throws
+
+可能抛出 `E_HTTP_ERROR`（非 2xx 状态）、`E_NETWORK_ERROR`（底层 fetch 失败）、
+  `E_TIMEOUT`（超过 `timeout`）或 `E_INSECURE_BROWSER`（浏览器中开启了 `insecure`）。
+
+#### Call Signature
+
+> **request**(`path`, `options`): `Promise`\<`ArrayBuffer`\>
+
+发起一次原始 API 请求。
+
+选项优先级：本次调用 `options` > 全局选项（[getGlobalOptions](../functions/getGlobalOptions.md)） > 客户端构造时默认值。
+
+特殊处理：
+- 默认 HTTP 方法为 `GET`，`GET` 请求即使提供了 `options.body` 也不会发送，避免被部分代理/浏览器拒绝。
+- 非空响应优先按 JSON 解析；解析失败时回落为字符串原文。
+- 业务层失败（即响应体 `{ status: "fail" }`）不会抛出，仍按原样返回；只有 HTTP/网络/超时等传输层错误才会抛错。
+- `insecure` 仅在 Node.js 下可用，浏览器中传入会抛 `E_INSECURE_BROWSER`。
+
+##### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `path` | `string` | 相对 [baseUrl](#property-baseurl) 的路径，可省略前导 `/`。 |
+| `options` | [`ClientRequestOptions`](../interfaces/ClientRequestOptions.md) & `object` | 单次请求选项，参见 [ClientRequestOptions](../interfaces/ClientRequestOptions.md)。 |
+
+##### Returns
+
+`Promise`\<`ArrayBuffer`\>
+
+解析后的响应体；当响应为空字符串时返回 `undefined`。
+
+##### Throws
+
+可能抛出 `E_HTTP_ERROR`（非 2xx 状态）、`E_NETWORK_ERROR`（底层 fetch 失败）、
+  `E_TIMEOUT`（超过 `timeout`）或 `E_INSECURE_BROWSER`（浏览器中开启了 `insecure`）。
+
+#### Call Signature
+
+> **request**(`path`, `options`): `Promise`\<`Blob`\>
+
+发起一次原始 API 请求。
+
+选项优先级：本次调用 `options` > 全局选项（[getGlobalOptions](../functions/getGlobalOptions.md)） > 客户端构造时默认值。
+
+特殊处理：
+- 默认 HTTP 方法为 `GET`，`GET` 请求即使提供了 `options.body` 也不会发送，避免被部分代理/浏览器拒绝。
+- 非空响应优先按 JSON 解析；解析失败时回落为字符串原文。
+- 业务层失败（即响应体 `{ status: "fail" }`）不会抛出，仍按原样返回；只有 HTTP/网络/超时等传输层错误才会抛错。
+- `insecure` 仅在 Node.js 下可用，浏览器中传入会抛 `E_INSECURE_BROWSER`。
+
+##### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `path` | `string` | 相对 [baseUrl](#property-baseurl) 的路径，可省略前导 `/`。 |
+| `options` | [`ClientRequestOptions`](../interfaces/ClientRequestOptions.md) & `object` | 单次请求选项，参见 [ClientRequestOptions](../interfaces/ClientRequestOptions.md)。 |
+
+##### Returns
+
+`Promise`\<`Blob`\>
+
+解析后的响应体；当响应为空字符串时返回 `undefined`。
+
+##### Throws
+
+可能抛出 `E_HTTP_ERROR`（非 2xx 状态）、`E_NETWORK_ERROR`（底层 fetch 失败）、
+  `E_TIMEOUT`（超过 `timeout`）或 `E_INSECURE_BROWSER`（浏览器中开启了 `insecure`）。
+
+#### Call Signature
+
+> **request**\<`T`\>(`path`, `options?`): `Promise`\<`T`\>
+
+发起一次原始 API 请求。
+
+选项优先级：本次调用 `options` > 全局选项（[getGlobalOptions](../functions/getGlobalOptions.md)） > 客户端构造时默认值。
+
+特殊处理：
+- 默认 HTTP 方法为 `GET`，`GET` 请求即使提供了 `options.body` 也不会发送，避免被部分代理/浏览器拒绝。
+- 非空响应优先按 JSON 解析；解析失败时回落为字符串原文。
+- 业务层失败（即响应体 `{ status: "fail" }`）不会抛出，仍按原样返回；只有 HTTP/网络/超时等传输层错误才会抛错。
+- `insecure` 仅在 Node.js 下可用，浏览器中传入会抛 `E_INSECURE_BROWSER`。
+
+##### Type Parameters
+
+| Type Parameter | Default type |
+| ------ | ------ |
+| `T` | `unknown` |
+
+##### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `path` | `string` | 相对 [baseUrl](#property-baseurl) 的路径，可省略前导 `/`。 |
+| `options?` | [`ClientRequestOptions`](../interfaces/ClientRequestOptions.md) | 单次请求选项，参见 [ClientRequestOptions](../interfaces/ClientRequestOptions.md)。 |
+
+##### Returns
+
+`Promise`\<`T`\>
+
+解析后的响应体；当响应为空字符串时返回 `undefined`。
+
+##### Throws
 
 可能抛出 `E_HTTP_ERROR`（非 2xx 状态）、`E_NETWORK_ERROR`（底层 fetch 失败）、
   `E_TIMEOUT`（超过 `timeout`）或 `E_INSECURE_BROWSER`（浏览器中开启了 `insecure`）。

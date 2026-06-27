@@ -128,6 +128,18 @@
     "collapsed": true,
     "items": [
       {
+        "text": "BuiltinRequestName",
+        "link": "/reference/type-aliases/BuiltinRequestName.md"
+      },
+      {
+        "text": "ClientRequestBodyType",
+        "link": "/reference/type-aliases/ClientRequestBodyType.md"
+      },
+      {
+        "text": "ClientResponseType",
+        "link": "/reference/type-aliases/ClientResponseType.md"
+      },
+      {
         "text": "DataRecord",
         "link": "/reference/type-aliases/DataRecord.md"
       },
@@ -174,6 +186,14 @@
       {
         "text": "ModuleName",
         "link": "/reference/type-aliases/ModuleName.md"
+      },
+      {
+        "text": "RequestParamsFor",
+        "link": "/reference/type-aliases/RequestParamsFor.md"
+      },
+      {
+        "text": "RequestResultFor",
+        "link": "/reference/type-aliases/RequestResultFor.md"
       },
       {
         "text": "SortExpr",

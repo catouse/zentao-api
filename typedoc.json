@@ -11,6 +11,22 @@
   "disableSources": true,
   "githubPages": false,
   "hideGenerator": true,
+  "intentionallyNotExported": [
+    "BuiltinNamedRequestName",
+    "BuiltinIdRequestName",
+    "PathParams",
+    "ActionOfRequest",
+    "QueryParams",
+    "BodyParams"
+  ],
+  "externalSymbolLinkMappings": {
+    "typescript": {
+      "AbortController": "https://developer.mozilla.org/docs/Web/API/AbortController"
+    },
+    "zentao-api": {
+      "normalizeSiteUrl": "#"
+    }
+  },
   "sidebar": {
     "autoConfiguration": true,
     "format": "vitepress",

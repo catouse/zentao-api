@@ -42,6 +42,9 @@
 
 | Type Alias | Description |
 | ------ | ------ |
+| [BuiltinRequestName](type-aliases/BuiltinRequestName.md) | 内置模块支持的 `module/action` 请求名，也包含 `module/123` 形式的详情快捷写法。 |
+| [ClientRequestBodyType](type-aliases/ClientRequestBodyType.md) | 请求体序列化方式。 |
+| [ClientResponseType](type-aliases/ClientResponseType.md) | 响应体解析方式。 |
 | [DataRecord](type-aliases/DataRecord.md) | 本地数据处理的基础记录类型，对应一条对象数据。 |
 | [ErrorCode](type-aliases/ErrorCode.md) | SDK 已知错误码，对应 [ERRORS](variables/ERRORS.md) 的 key。 |
 | [HttpMethod](type-aliases/HttpMethod.md) | SDK 支持的 HTTP 方法。 |
@@ -54,6 +57,8 @@
 | [ModuleActionResultType](type-aliases/ModuleActionResultType.md) | 模块动作结果形态。 |
 | [ModuleActionType](type-aliases/ModuleActionType.md) | 模块动作类型：基础 CRUD 或自定义动作。 |
 | [ModuleName](type-aliases/ModuleName.md) | 内置模块名称，同时允许用户扩展自定义模块名。 |
+| [RequestParamsFor](type-aliases/RequestParamsFor.md) | 根据内置请求名推导出的参数类型。 |
+| [RequestResultFor](type-aliases/RequestResultFor.md) | 根据内置请求名推导出的 `ResponseData.data` 类型。 |
 | [SortExpr](type-aliases/SortExpr.md) | 排序表达式，格式为 `字段:asc|desc`。 |
 | [SortFn](type-aliases/SortFn.md) | 自定义排序比较函数。 |
 
