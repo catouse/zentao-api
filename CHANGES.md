@@ -1,5 +1,21 @@
 # 变更日志
 
+## 0.3.1 - 2026-06-27
+
+### 新增
+
+- `request()` 新增完整类型推导：导出 `BuiltinRequestName`、`RequestParamsFor`、`RequestResultFor` 类型，可根据请求名自动推导参数与返回数据类型，并支持 `"module"`、`"module/action"`、`"module/123"` 三种写法的类型提示。
+- `ZentaoClient` 的 `request/get/post/put/delete` 支持 `responseType` 选项（`response` / `arrayBuffer` / `blob` / `auto`），并按返回类型提供方法重载；新增导出 `ClientRequestBodyType`、`ClientResponseType` 类型。
+
+### 变更
+
+- 改进请求体处理：仅在存在请求体时附加请求头，并完善 Node 环境下的请求体转换。
+- 请求名为空或格式非法时以 `E_INVALID_REQUEST_NAME` 报错，避免静默放行。
+
+### 测试
+
+- 新增浏览器打包烟雾测试门禁，构建产物随 CI 一并校验。
+
 ## 0.3.0 - 2026-06-27
 
 ### 新增
