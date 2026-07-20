@@ -18,6 +18,7 @@ export {
   getModuleNames,
   getModule,
   getModuleAction,
+  getModuleActionParams,
 } from './modules/registry.js';
 export {
   request,

@@ -10,10 +10,15 @@ export type ModuleActionName = ModuleActionType | (string & {});
 /** 模块动作参数可选项。 */
 export type ModuleActionParamOption = { readonly value: unknown; readonly label: string };
 
+/** 模块动作参数角色。 */
+export type ModuleActionParamRole = 'query' | 'path' | 'body';
+
 /** 模块动作的查询参数定义。 */
 export interface ModuleActionParam {
   /** 参数名称。 */
   name: string;
+  /** 参数角色。 */
+  role?: ModuleActionParamRole;
   /** 参数说明。 */
   description?: string;
   /** 是否必填。 */

@@ -1,5 +1,5 @@
 import { ZentaoError } from '../misc/errors.js';
-import type { ModuleAction, ModuleDefinition } from '../types/index.js';
+import type { ModuleAction, ModuleActionParam, ModuleActionParamRole, ModuleDefinition } from '../types/index.js';
 import { getModuleMapState, getModulesState } from './registry-store.js';
 
 /**
@@ -49,6 +49,65 @@ export function getModuleAction(moduleName: string, actionName: string): ModuleA
   }
 
   throw new ZentaoError('E_INVALID_ACTION', { module: moduleName, action: actionName });
+}
+
+/**
+ * 获取指定模块下的某个动作的参数。
+ *
+ * @param moduleName - 模块名（大小写不敏感）。
+ * @param actionName - 动作名（大小写不敏感）；支持 `ls` 作为 `list` 的别名。
+ * @param options - 选项。
+ * @param options.roles - 角色，可选 `path`、`query`、`body`。
+ * @returns 动作参数。
+ */
+export function getModuleActionParams(moduleName: string, actionName: string, options?: { roles?: ModuleActionParamRole[] }): ModuleActionParam[] {
+  const { roles } = options ?? {};
+  const params = [] as ModuleActionParam[];
+  const action = getModuleAction(moduleName, actionName);
+  if (!action) {
+    return [];
+  }
+  if (action.pathParams && (!roles || roles.includes('path'))) {
+    Object.entries(action.pathParams).forEach(([name, param]) => {
+      if (typeof param === 'string') {
+        param = {
+          description: param,
+        };
+      }
+      params.push({
+        name,
+        role: 'path',
+        required: true,
+        ...param,
+      });
+    });
+  }
+  if (action.params && (!roles || roles.includes('query'))) {
+    params.push(...action.params.map(x => ({...x, role: 'query' as const})));
+  }
+  const schema = action.requestBody?.schema;
+  if (schema && (!roles || roles.includes('body'))) {
+    if (schema.type === 'object') {
+      const requiredSet = new Set(schema.required ? (schema.required as string[]).map(x => x.toLowerCase()) : []);
+      Object.entries(schema.properties as Record<string, Partial<ModuleActionParam>>).forEach(([name, property]) => {
+        params.push({
+          name,
+          role: 'body',
+          required: property.required ?? requiredSet.has(name.toLowerCase()),
+          type: ((property.type as string) === 'integer' ? 'number' : property.type) ?? 'string',
+          ...property,
+        });
+      });
+    } else {
+      params.push({
+        name: 'data',
+        role: 'body',
+        required: true,
+        type: schema.type as 'string' | 'number' | 'boolean',
+      });
+    }
+  }
+  return params;
 }
 
 /**

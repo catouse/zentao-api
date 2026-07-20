@@ -30,6 +30,7 @@ applyBuiltinOverrides();
 export {
   getModule,
   getModuleAction,
+  getModuleActionParams,
   getModuleNames,
   isModuleName,
 } from './query.js';
