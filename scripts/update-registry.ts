@@ -511,8 +511,8 @@ function buildRegistry(): RegistryBuildResult {
             body += `                pagerGetter: 'pager',\n`;
             if (resultGetter) body += `                resultGetter: '${escapeStr(resultGetter)}',\n`;
             body += `                pathParams: {\n`;
-            body += `                    scope: {description: '${escapeStr(`${display}范围`)}', options: [${scopeOptions.map(o => `{value: '${escapeStr(o.value)}', label: '${escapeStr(o.label)}'}`).join(', ')}]},\n`;
-            body += `                    scopeID: '范围ID',\n`;
+            body += `                    scope: {description: '${escapeStr(`${display}所属范围`)}', options: [${scopeOptions.map(o => `{value: '${escapeStr(o.value)}', label: '${escapeStr(o.label)}'}`).join(', ')}]},\n`;
+            body += `                    scopeID: '所属范围ID',\n`;
             body += `                },\n`;
             if (params) {
                 body += `                params: [\n`;

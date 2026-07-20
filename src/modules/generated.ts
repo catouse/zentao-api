@@ -1023,13 +1023,12 @@ export const BUILTIN_MODULES = [
                 display: '获取产品计划列表，支持获取产品下的产品计划',
                 type: 'list',
                 method: 'get',
-                path: '/{scope}/{scopeID}/productplans',
+                path: '/products/{productID}/productplans',
                 resultType: 'list',
                 pagerGetter: 'pager',
                 resultGetter: 'productplans',
                 pathParams: {
-                    scope: {description: '产品计划范围', options: [{value: 'products', label: '产品'}]},
-                    scopeID: '范围ID',
+                    productID: '所属产品ID',
                 },
                 params: [
                     {
@@ -1215,8 +1214,8 @@ export const BUILTIN_MODULES = [
                 pagerGetter: 'pager',
                 resultGetter: 'stories',
                 pathParams: {
-                    scope: {description: '需求范围', options: [{value: 'products', label: '产品'}, {value: 'projects', label: '项目'}, {value: 'executions', label: '执行'}]},
-                    scopeID: '范围ID',
+                    scope: {description: '需求所属范围', options: [{value: 'products', label: '产品'}, {value: 'projects', label: '项目'}, {value: 'executions', label: '执行'}]},
+                    scopeID: '所属范围ID',
                 },
                 params: [
                     {
@@ -1543,8 +1542,8 @@ export const BUILTIN_MODULES = [
                 pagerGetter: 'pager',
                 resultGetter: 'epics',
                 pathParams: {
-                    scope: {description: '业务需求范围', options: [{value: 'products', label: '产品'}]},
-                    scopeID: '范围ID',
+                    scope: {description: '业务需求所属范围', options: [{value: 'products', label: '产品'}]},
+                    scopeID: '所属范围ID',
                 },
                 params: [
                     {
@@ -1862,8 +1861,8 @@ export const BUILTIN_MODULES = [
                 pagerGetter: 'pager',
                 resultGetter: 'requirements',
                 pathParams: {
-                    scope: {description: '用户需求范围', options: [{value: 'products', label: '产品'}]},
-                    scopeID: '范围ID',
+                    scope: {description: '用户需求所属范围', options: [{value: 'products', label: '产品'}]},
+                    scopeID: '所属范围ID',
                 },
                 params: [
                     {
@@ -2170,8 +2169,8 @@ export const BUILTIN_MODULES = [
                 pagerGetter: 'pager',
                 resultGetter: 'bugs',
                 pathParams: {
-                    scope: {description: 'Bug范围', options: [{value: 'products', label: '产品'}, {value: 'projects', label: '项目'}, {value: 'executions', label: '执行'}]},
-                    scopeID: '范围ID',
+                    scope: {description: 'Bug所属范围', options: [{value: 'products', label: '产品'}, {value: 'projects', label: '项目'}, {value: 'executions', label: '执行'}]},
+                    scopeID: '所属范围ID',
                 },
                 params: [
                     {
@@ -2488,8 +2487,8 @@ export const BUILTIN_MODULES = [
                 pagerGetter: 'pager',
                 resultGetter: 'testcases',
                 pathParams: {
-                    scope: {description: '测试用例范围', options: [{value: 'products', label: '产品'}, {value: 'projects', label: '项目'}, {value: 'executions', label: '执行'}]},
-                    scopeID: '范围ID',
+                    scope: {description: '测试用例所属范围', options: [{value: 'products', label: '产品'}, {value: 'projects', label: '项目'}, {value: 'executions', label: '执行'}]},
+                    scopeID: '所属范围ID',
                 },
                 params: [
                     {
@@ -2725,8 +2724,8 @@ export const BUILTIN_MODULES = [
                 pagerGetter: 'pager',
                 resultGetter: 'tasks',
                 pathParams: {
-                    scope: {description: '任务范围', options: [{value: 'executions', label: '执行'}]},
-                    scopeID: '范围ID',
+                    scope: {description: '任务所属范围', options: [{value: 'executions', label: '执行'}]},
+                    scopeID: '所属范围ID',
                 },
                 params: [
                     {
@@ -3092,8 +3091,8 @@ export const BUILTIN_MODULES = [
                 pagerGetter: 'pager',
                 resultGetter: 'feedbacks',
                 pathParams: {
-                    scope: {description: '反馈范围', options: [{value: 'products', label: '产品'}]},
-                    scopeID: '范围ID',
+                    scope: {description: '反馈所属范围', options: [{value: 'products', label: '产品'}]},
+                    scopeID: '所属范围ID',
                 },
                 params: [
                     {
@@ -3340,8 +3339,8 @@ export const BUILTIN_MODULES = [
                 pagerGetter: 'pager',
                 resultGetter: 'tickets',
                 pathParams: {
-                    scope: {description: '工单范围', options: [{value: 'products', label: '产品'}]},
-                    scopeID: '范围ID',
+                    scope: {description: '工单所属范围', options: [{value: 'products', label: '产品'}]},
+                    scopeID: '所属范围ID',
                 },
                 params: [
                     {
@@ -3599,8 +3598,8 @@ export const BUILTIN_MODULES = [
                 resultType: 'list',
                 pagerGetter: 'pager',
                 pathParams: {
-                    scope: {description: '应用范围', options: [{value: 'products', label: '产品'}]},
-                    scopeID: '范围ID',
+                    scope: {description: '应用所属范围', options: [{value: 'products', label: '产品'}]},
+                    scopeID: '所属范围ID',
                 },
             }, {
                 name: 'create',
@@ -3707,8 +3706,8 @@ export const BUILTIN_MODULES = [
                 pagerGetter: 'pager',
                 resultGetter: 'builds',
                 pathParams: {
-                    scope: {description: '版本范围', options: [{value: 'projects', label: '项目'}, {value: 'executions', label: '执行'}]},
-                    scopeID: '范围ID',
+                    scope: {description: '版本所属范围', options: [{value: 'projects', label: '项目'}, {value: 'executions', label: '执行'}]},
+                    scopeID: '所属范围ID',
                 },
             }, {
                 name: 'create',
@@ -3869,8 +3868,8 @@ export const BUILTIN_MODULES = [
                 pagerGetter: 'pager',
                 resultGetter: 'testtasks',
                 pathParams: {
-                    scope: {description: '测试单范围', options: [{value: 'products', label: '产品'}, {value: 'projects', label: '项目'}, {value: 'executions', label: '执行'}]},
-                    scopeID: '范围ID',
+                    scope: {description: '测试单所属范围', options: [{value: 'products', label: '产品'}, {value: 'projects', label: '项目'}, {value: 'executions', label: '执行'}]},
+                    scopeID: '所属范围ID',
                 },
             }, {
                 name: 'create',
@@ -4037,8 +4036,8 @@ export const BUILTIN_MODULES = [
                 pagerGetter: 'pager',
                 resultGetter: 'releases',
                 pathParams: {
-                    scope: {description: '发布范围', options: [{value: 'products', label: '产品'}]},
-                    scopeID: '范围ID',
+                    scope: {description: '发布所属范围', options: [{value: 'products', label: '产品'}]},
+                    scopeID: '所属范围ID',
                 },
             }, {
                 name: 'create',
