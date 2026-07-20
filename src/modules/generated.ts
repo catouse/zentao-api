@@ -1537,13 +1537,12 @@ export const BUILTIN_MODULES = [
                 display: '获取业务需求列表，支持获取产品下的业务需求',
                 type: 'list',
                 method: 'get',
-                path: '/{scope}/{scopeID}/epics',
+                path: '/products/{productID}/epics',
                 resultType: 'list',
                 pagerGetter: 'pager',
                 resultGetter: 'epics',
                 pathParams: {
-                    scope: {description: '业务需求所属范围', options: [{value: 'products', label: '产品'}]},
-                    scopeID: '所属范围ID',
+                    productID: '所属产品ID',
                 },
                 params: [
                     {
@@ -1856,13 +1855,12 @@ export const BUILTIN_MODULES = [
                 display: '获取用户需求列表，支持获取产品下的用户需求',
                 type: 'list',
                 method: 'get',
-                path: '/{scope}/{scopeID}/requirements',
+                path: '/products/{productID}/requirements',
                 resultType: 'list',
                 pagerGetter: 'pager',
                 resultGetter: 'requirements',
                 pathParams: {
-                    scope: {description: '用户需求所属范围', options: [{value: 'products', label: '产品'}]},
-                    scopeID: '所属范围ID',
+                    productID: '所属产品ID',
                 },
                 params: [
                     {
@@ -2719,13 +2717,12 @@ export const BUILTIN_MODULES = [
                 display: '获取任务列表，支持获取执行下的任务',
                 type: 'list',
                 method: 'get',
-                path: '/{scope}/{scopeID}/tasks',
+                path: '/executions/{executionID}/tasks',
                 resultType: 'list',
                 pagerGetter: 'pager',
                 resultGetter: 'tasks',
                 pathParams: {
-                    scope: {description: '任务所属范围', options: [{value: 'executions', label: '执行'}]},
-                    scopeID: '所属范围ID',
+                    executionID: '所属执行ID',
                 },
                 params: [
                     {
@@ -3086,13 +3083,12 @@ export const BUILTIN_MODULES = [
                 display: '获取反馈列表，支持获取产品下的反馈',
                 type: 'list',
                 method: 'get',
-                path: '/{scope}/{scopeID}/feedbacks',
+                path: '/products/{productID}/feedbacks',
                 resultType: 'list',
                 pagerGetter: 'pager',
                 resultGetter: 'feedbacks',
                 pathParams: {
-                    scope: {description: '反馈所属范围', options: [{value: 'products', label: '产品'}]},
-                    scopeID: '所属范围ID',
+                    productID: '所属产品ID',
                 },
                 params: [
                     {
@@ -3334,13 +3330,12 @@ export const BUILTIN_MODULES = [
                 display: '获取工单列表，支持获取产品下的工单',
                 type: 'list',
                 method: 'get',
-                path: '/{scope}/{scopeID}/tickets',
+                path: '/products/{productID}/tickets',
                 resultType: 'list',
                 pagerGetter: 'pager',
                 resultGetter: 'tickets',
                 pathParams: {
-                    scope: {description: '工单所属范围', options: [{value: 'products', label: '产品'}]},
-                    scopeID: '所属范围ID',
+                    productID: '所属产品ID',
                 },
                 params: [
                     {
@@ -3594,12 +3589,11 @@ export const BUILTIN_MODULES = [
                 display: '获取应用列表，支持获取产品下的应用',
                 type: 'list',
                 method: 'get',
-                path: '/{scope}/{scopeID}/systems',
+                path: '/products/{productID}/systems',
                 resultType: 'list',
                 pagerGetter: 'pager',
                 pathParams: {
-                    scope: {description: '应用所属范围', options: [{value: 'products', label: '产品'}]},
-                    scopeID: '所属范围ID',
+                    productID: '所属产品ID',
                 },
             }, {
                 name: 'create',
@@ -4031,13 +4025,12 @@ export const BUILTIN_MODULES = [
                 display: '获取发布列表，支持获取产品下的发布',
                 type: 'list',
                 method: 'get',
-                path: '/{scope}/{scopeID}/releases',
+                path: '/products/{productID}/releases',
                 resultType: 'list',
                 pagerGetter: 'pager',
                 resultGetter: 'releases',
                 pathParams: {
-                    scope: {description: '发布所属范围', options: [{value: 'products', label: '产品'}]},
-                    scopeID: '所属范围ID',
+                    productID: '所属产品ID',
                 },
             }, {
                 name: 'create',

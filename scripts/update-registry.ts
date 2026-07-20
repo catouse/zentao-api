@@ -498,6 +498,7 @@ function buildRegistry(): RegistryBuildResult {
 
             const scopeDisplayParts = scopeOptions.map(o => o.label).join('/');
             const listDisplay = `获取${display}列表，支持获取${scopeDisplayParts}下的${display}`;
+            const singleScope = scopedLists.length === 1;
 
             actionDisplayNames.push(listDisplay);
 
@@ -506,13 +507,23 @@ function buildRegistry(): RegistryBuildResult {
             body += `                display: '${escapeStr(listDisplay)}',\n`;
             body += `                type: 'list',\n`;
             body += `                method: 'get',\n`;
-            body += `                path: '${escapeStr(`/{scope}/{scopeID}/${first.childResource}`)}',\n`;
+            // Single scope: use concrete path/params; multiple: abstract scope/scopeID
+            if (singleScope) {
+                body += `                path: '${escapeStr(`/${first.parentResource}/{${first.parentParam}}/${first.childResource}`)}',\n`;
+            } else {
+                body += `                path: '${escapeStr(`/{scope}/{scopeID}/${first.childResource}`)}',\n`;
+            }
             body += `                resultType: 'list',\n`;
             body += `                pagerGetter: 'pager',\n`;
             if (resultGetter) body += `                resultGetter: '${escapeStr(resultGetter)}',\n`;
             body += `                pathParams: {\n`;
-            body += `                    scope: {description: '${escapeStr(`${display}所属范围`)}', options: [${scopeOptions.map(o => `{value: '${escapeStr(o.value)}', label: '${escapeStr(o.label)}'}`).join(', ')}]},\n`;
-            body += `                    scopeID: '所属范围ID',\n`;
+            if (singleScope) {
+                const scopeLabel = scopeOptions[0].label;
+                body += `                    ${first.parentParam}: '${escapeStr(`所属${scopeLabel}ID`)}',\n`;
+            } else {
+                body += `                    scope: {description: '${escapeStr(`${display}所属范围`)}', options: [${scopeOptions.map(o => `{value: '${escapeStr(o.value)}', label: '${escapeStr(o.label)}'}`).join(', ')}]},\n`;
+                body += `                    scopeID: '所属范围ID',\n`;
+            }
             body += `                },\n`;
             if (params) {
                 body += `                params: [\n`;
