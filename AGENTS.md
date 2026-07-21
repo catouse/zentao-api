@@ -6,6 +6,8 @@
 
 ## Commands
 
+Package manager: **Bun only** (`bun install`). Do not use npm, pnpm, or yarn in this repo.
+
 ```sh
 bun test                  # Unit tests (Bun runner)
 bun run test:real         # Integration tests (needs env config, see README)

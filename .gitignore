@@ -8,3 +8,8 @@ coverage/
 *.tgz
 *.local
 *.local.*
+
+# Alternate package managers — this repo uses bun.lock only
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

@@ -243,6 +243,8 @@ import { ZentaoClient } from 'zentao-api';
 
 ## 测试
 
+本仓库开发依赖管理仅使用 [Bun](https://bun.sh)（`bun install`）。请勿使用 npm / pnpm / yarn，以免生成其它 lockfile。
+
 ```sh
 bun test              # 单元测试
 bun run test:coverage # 含覆盖率的单元测试
