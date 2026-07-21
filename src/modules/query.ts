@@ -1,4 +1,3 @@
-import { ZentaoError } from '../misc/errors.js';
 import type { ModuleAction, ModuleActionParam, ModuleActionParamRole, ModuleDefinition } from '../types/index.js';
 import { getModuleMapState, getModulesState } from './registry-store.js';
 
@@ -9,15 +8,10 @@ import { getModuleMapState, getModulesState } from './registry-store.js';
  * 任何写入尝试在严格模式下会抛 `TypeError`；如需修改请使用 {@link defineModules}。
  *
  * @param moduleName - 模块名。
- * @returns 已注册的模块定义。
- * @throws {ZentaoError} `E_INVALID_MODULE` —— 模块未注册。
+ * @returns 已注册的模块定义；模块未注册时返回 `undefined`。
  */
-export function getModule(moduleName: string): ModuleDefinition {
-  const module = getModuleMapState().get(moduleName.toLowerCase());
-  if (!module) {
-    throw new ZentaoError('E_INVALID_MODULE', { module: moduleName });
-  }
-  return module;
+export function getModule(moduleName: string): ModuleDefinition | undefined {
+  return getModuleMapState().get(moduleName.toLowerCase());
 }
 
 /**
@@ -33,11 +27,11 @@ export function getModule(moduleName: string): ModuleDefinition {
  *
  * @param moduleName - 模块名（大小写不敏感）。
  * @param actionName - 动作名（大小写不敏感）；支持 `ls` 作为 `list` 的别名。
- * @returns 匹配到的动作定义。
- * @throws {ZentaoError} `E_INVALID_MODULE`（模块未注册）或 `E_INVALID_ACTION`（动作不存在）。
+ * @returns 匹配到的动作定义；模块未注册或动作不存在时返回 `undefined`。
  */
-export function getModuleAction(moduleName: string, actionName: string): ModuleAction {
+export function getModuleAction(moduleName: string, actionName: string): ModuleAction | undefined {
   const module = getModule(moduleName);
+  if (!module) return undefined;
   const normalized = actionName === 'ls' ? 'list' : actionName;
   const direct = module.actions.find((action) => String(action.name).toLowerCase() === normalized.toLowerCase());
   if (direct) return direct;
@@ -48,7 +42,7 @@ export function getModuleAction(moduleName: string, actionName: string): ModuleA
     if (custom) return custom;
   }
 
-  throw new ZentaoError('E_INVALID_ACTION', { module: moduleName, action: actionName });
+  return undefined;
 }
 
 /**

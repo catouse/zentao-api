@@ -231,7 +231,7 @@ function renderModulePage(module: ModuleDefinition): string {
 }
 
 export function getRegistryModules(): ModuleDefinition[] {
-  return getModuleNames().map((name) => getModule(name));
+  return getModuleNames().map((name) => getModule(name)!);
 }
 
 export function renderZentaoApiDocs(modules: ModuleDefinition[]): RenderedZentaoApiDocs {

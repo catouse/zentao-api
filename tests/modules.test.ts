@@ -35,8 +35,8 @@ afterEach(() => {
 
 describe('module registry', () => {
   test('gets generated module and action definitions', () => {
-    expect(getModule('product').name).toBe('product');
-    expect(getModuleAction('product', 'list').path).toBe('/products');
+    expect(getModule('product')!.name).toBe('product');
+    expect(getModuleAction('product', 'list')!.path).toBe('/products');
   });
 
   test('defineModules merges same-name generated modules by default', () => {
@@ -65,10 +65,10 @@ describe('module registry', () => {
 
     defineModules(extension);
 
-    expect(getModule('product').display).toBe('Custom Product');
-    expect(getModuleAction('product', 'list').path).toBe('/custom-products');
-    expect(getModuleAction('product', 'create').path).toBe('/products');
-    expect(getModuleAction('product', 'archive').path).toBe('/products/{productID}/archive');
+    expect(getModule('product')!.display).toBe('Custom Product');
+    expect(getModuleAction('product', 'list')!.path).toBe('/custom-products');
+    expect(getModuleAction('product', 'create')!.path).toBe('/products');
+    expect(getModuleAction('product', 'archive')!.path).toBe('/products/{productID}/archive');
   });
 
   test('defineModules replaces same-name generated modules when replace is true', () => {
@@ -89,9 +89,9 @@ describe('module registry', () => {
 
     defineModules(replacement, { replace: true });
 
-    expect(getModule('product').display).toBe('Custom Product');
-    expect(getModuleAction('product', 'list').path).toBe('/custom-products');
-    expect(() => getModuleAction('product', 'create')).toThrow('action');
+    expect(getModule('product')!.display).toBe('Custom Product');
+    expect(getModuleAction('product', 'list')!.path).toBe('/custom-products');
+    expect(getModuleAction('product', 'create')).toBeUndefined();
   });
 
   test('defineModuleActions appends new actions and replaces same-name actions', () => {
@@ -124,29 +124,29 @@ describe('module registry', () => {
     defineModuleActions('custom', extra);
     defineModuleActions('custom', replacement);
 
-    expect(getModuleAction('custom', 'archive').path).toBe('/custom/{customID}/archive-now');
+    expect(getModuleAction('custom', 'archive')!.path).toBe('/custom/{customID}/archive-now');
   });
 
-  test('getModule and getModuleAction throw for missing definitions', () => {
-    expect(() => getModule('missing')).toThrow('module');
-    expect(() => getModuleAction('product', 'missing')).toThrow('action');
+  test('getModule and getModuleAction return undefined for missing definitions', () => {
+    expect(getModule('missing')).toBeUndefined();
+    expect(getModuleAction('product', 'missing')).toBeUndefined();
   });
 
   test('getModule and getModuleAction return frozen registry entries', () => {
-    const module = getModule('product');
+    const module = getModule('product')!;
     expect(Object.isFrozen(module)).toBe(true);
     expect(Object.isFrozen(module.actions)).toBe(true);
     expect(() => {
       (module.actions as ModuleAction[]).length = 0;
     }).toThrow(TypeError);
 
-    const action = getModuleAction('product', 'list');
+    const action = getModuleAction('product', 'list')!;
     expect(Object.isFrozen(action)).toBe(true);
     expect(() => {
       (action as { path: string }).path = '/mutated-products';
     }).toThrow(TypeError);
 
-    expect(getModuleAction('product', 'list').path).toBe('/products');
+    expect(getModuleAction('product', 'list')!.path).toBe('/products');
   });
 });
 
@@ -171,7 +171,7 @@ describe('action method / resultType inference', () => {
     });
 
     for (const { type, method, resultType } of cases) {
-      const action = getModuleAction('inferred', type);
+      const action = getModuleAction('inferred', type)!;
       expect(action.method).toBe(method);
       expect(action.resultType).toBe(resultType);
     }
@@ -185,7 +185,7 @@ describe('action method / resultType inference', () => {
       ],
     });
 
-    const action = getModuleAction('explicit', 'remove');
+    const action = getModuleAction('explicit', 'remove')!;
     expect(action.method).toBe('delete');
     expect(action.resultType).toBe('object');
   });
@@ -219,11 +219,11 @@ describe('action method / resultType inference', () => {
     });
 
     defineModuleActions('infer-extend', { name: 'close', type: 'action', path: '/infer-extend/{id}/close' });
-    expect(getModuleAction('infer-extend', 'close').method).toBe('post');
-    expect(getModuleAction('infer-extend', 'close').resultType).toBe('text');
+    expect(getModuleAction('infer-extend', 'close')!.method).toBe('post');
+    expect(getModuleAction('infer-extend', 'close')!.resultType).toBe('text');
 
     extendModuleAction('infer-extend', 'list', { display: 'Listed' });
-    const list = getModuleAction('infer-extend', 'list');
+    const list = getModuleAction('infer-extend', 'list')!;
     expect(list.method).toBe('get');
     expect(list.resultType).toBe('list');
   });
@@ -231,11 +231,11 @@ describe('action method / resultType inference', () => {
 
 describe('extendModuleAction', () => {
   test('deep-merges a partial patch and keeps untouched fields', () => {
-    const before = getModuleAction('product', 'list');
+    const before = getModuleAction('product', 'list')!;
 
     extendModuleAction('product', 'list', { display: 'Patched list' });
 
-    const after = getModuleAction('product', 'list');
+    const after = getModuleAction('product', 'list')!;
     expect(after.display).toBe('Patched list');
     expect(after.path).toBe(before.path);
     expect(after.method).toBe(before.method);
@@ -267,7 +267,7 @@ describe('extendModuleAction', () => {
       requestBody: { schema: { owner: { description: '指派给' } } },
     });
 
-    const action = getModuleAction('custom', 'create');
+    const action = getModuleAction('custom', 'create')!;
     // 嵌套对象递归合并：owner.description 被改写，owner.type 与 name 字段保留。
     expect(action.requestBody).toEqual({
       required: true,
@@ -295,16 +295,16 @@ describe('extendModuleAction', () => {
 
     extendModuleAction('custom', 'list', { params: [{ name: 'product', type: 'number' }] });
 
-    expect(getModuleAction('custom', 'list').params).toEqual([{ name: 'product', type: 'number' }]);
+    expect(getModuleAction('custom', 'list')!.params).toEqual([{ name: 'product', type: 'number' }]);
   });
 
   test('uses a function return value as the full action without merging', () => {
-    const before = getModuleAction('product', 'list');
+    const before = getModuleAction('product', 'list')!;
 
     // 函数返回完整动作定义直接取代原定义，不做合并。
     extendModuleAction('product', 'list', (current) => ({ ...current, display: `${current.display} (extended)` }));
 
-    const after = getModuleAction('product', 'list');
+    const after = getModuleAction('product', 'list')!;
     expect(after.display).toBe(`${before.display} (extended)`);
     expect(after.path).toBe(before.path);
     expect(after.method).toBe(before.method);
@@ -331,11 +331,11 @@ describe('extendModuleAction', () => {
       return rest as typeof current;
     });
 
-    expect(getModuleAction('custom', 'list').params).toBeUndefined();
+    expect(getModuleAction('custom', 'list')!.params).toBeUndefined();
   });
 
   test('does not mutate the previously returned frozen action', () => {
-    const before = getModuleAction('product', 'list');
+    const before = getModuleAction('product', 'list')!;
 
     extendModuleAction('product', 'list', { display: 'New display' });
 
@@ -364,25 +364,25 @@ describe('extendModuleAction', () => {
   });
 
   test('survives a registry reset back to the builtin baseline', () => {
-    const original = getModuleAction('product', 'list').display;
+    const original = getModuleAction('product', 'list')!.display;
 
     extendModuleAction('product', 'list', { display: 'Temporary' });
-    expect(getModuleAction('product', 'list').display).toBe('Temporary');
+    expect(getModuleAction('product', 'list')!.display).toBe('Temporary');
 
     resetModuleDefinitions();
-    expect(getModuleAction('product', 'list').display).toBe(original);
+    expect(getModuleAction('product', 'list')!.display).toBe(original);
   });
 });
 
 describe('builtin overrides (override.ts)', () => {
   test('execution/create adds products to required fields', () => {
-    const required = getModuleAction('execution', 'create').requestBody?.schema?.required;
+    const required = getModuleAction('execution', 'create')!.requestBody?.schema?.required;
     expect(Array.isArray(required)).toBe(true);
     expect(required).toContain('products');
   });
 
   test('story/update adds the plan field and changes category to string', () => {
-    const properties = getModuleAction('story', 'update').requestBody?.schema?.properties as Record<
+    const properties = getModuleAction('story', 'update')!.requestBody?.schema?.properties as Record<
       string,
       Record<string, unknown>
     >;
@@ -391,7 +391,7 @@ describe('builtin overrides (override.ts)', () => {
   });
 
   test('task/list points at the execution-scoped path and keeps the executionID param', () => {
-    const action = getModuleAction('task', 'list');
+    const action = getModuleAction('task', 'list')!;
     expect(action.path).toBe('/executions/{executionID}/tasks');
     expect(action.pathParams?.executionID).toBe('执行ID');
   });
@@ -402,7 +402,7 @@ describe('builtin overrides (override.ts)', () => {
     ['execution', 'create'],
     ['execution', 'update'],
   ] as const)('%s/%s defaults acl to open', (moduleName, actionName) => {
-    const properties = getModuleAction(moduleName, actionName).requestBody?.schema?.properties as Record<
+    const properties = getModuleAction(moduleName, actionName)!.requestBody?.schema?.properties as Record<
       string,
       Record<string, unknown>
     >;
@@ -411,12 +411,12 @@ describe('builtin overrides (override.ts)', () => {
 
   test('overrides are reapplied after a registry reset', () => {
     extendModuleAction('task', 'list', { path: '/mutated-tasks' });
-    expect(getModuleAction('task', 'list').path).toBe('/mutated-tasks');
+    expect(getModuleAction('task', 'list')!.path).toBe('/mutated-tasks');
 
     resetModuleDefinitions();
 
     // 重置触发 post-reset 钩子重新应用内置覆盖，task/list 回到 override.ts 定义的路径。
-    expect(getModuleAction('task', 'list').path).toBe('/executions/{executionID}/tasks');
+    expect(getModuleAction('task', 'list')!.path).toBe('/executions/{executionID}/tasks');
   });
 });
 

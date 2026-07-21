@@ -309,6 +309,9 @@ export async function request<T = unknown>(
 
   const { moduleName, actionName, id } = splitRequestName(name);
   const module = getModule(moduleName);
+  if (!module) {
+    throw new ZentaoError('E_INVALID_MODULE', { module: moduleName });
+  }
   // recPerPage 是最常用的列表参数，允许在全局或本次调用中统一覆盖。
   const recPerPage = params.recPerPage ?? options.recPerPage ?? globals.recPerPage;
   const mergedParams = {
@@ -320,6 +323,9 @@ export async function request<T = unknown>(
   // autoFill：update 动作先 GET 当前对象，用现值补齐用户未显式传入的字段，
   // 避免禅道 PUT 把未提交字段覆盖为空。
   const action = getModuleAction(moduleName, actionName);
+  if (!action) {
+    throw new ZentaoError('E_INVALID_ACTION', { module: moduleName, action: actionName });
+  }
   const finalParams = action.type === 'update' && (options.autoFill ?? globals.autoFill)
     ? await autoFillUpdateParams(module, action, mergedParams, options)
     : mergedParams;

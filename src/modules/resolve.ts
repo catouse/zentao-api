@@ -192,6 +192,9 @@ export function resolveActionRequest(
   params: Record<string, unknown> = {},
 ): ModuleActionRequest {
   const action = getModuleAction(module.name, actionName);
+  if (!action) {
+    throw new ZentaoError('E_INVALID_ACTION', { module: module.name, action: actionName });
+  }
   const { values, id } = resolvePathValues(module, action, params);
   return {
     module: module.name,
