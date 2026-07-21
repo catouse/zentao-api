@@ -6,7 +6,7 @@
 
 | SDK 动作 | 说明 | 方法 | 路径 |
 | --- | --- | --- | --- |
-| `list` | 获取反馈列表，支持获取产品下的反馈 | `GET` | `/{scope}/{scopeID}/feedbacks` |
+| `list` | 获取反馈列表，支持获取产品下的反馈 | `GET` | `/products/{productID}/feedbacks` |
 | `create` | 创建反馈 | `POST` | `/feedbacks` |
 | `get` | 获取反馈详情 | `GET` | `/feedbacks/{feedbackID}` |
 | `update` | 修改反馈 | `PUT` | `/feedbacks/{feedbackID}` |
@@ -17,15 +17,14 @@
 ## 获取反馈列表，支持获取产品下的反馈
 
 - SDK 调用：`request("feedback/list", params)`
-- HTTP：`GET /{scope}/{scopeID}/feedbacks`
+- HTTP：`GET /products/{productID}/feedbacks`
 - 动作类型：`list`
 
 ### 路径参数
 
 | 参数 | 说明 |
 | --- | --- |
-| `scope` | 反馈范围 |
-| `scopeID` | 范围ID |
+| `productID` | 所属产品ID |
 
 ### 查询参数
 
@@ -52,8 +51,7 @@
 import { request } from 'zentao-api';
 
 const result = await request("feedback/list", {
-  "scope": "<string>",
-  "scopeID": 1,
+  "productID": 1,
   "browseType": "wait",
   "orderBy": "id_asc",
   "recPerPage": 1,

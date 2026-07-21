@@ -6,7 +6,7 @@
 
 | SDK 动作 | 说明 | 方法 | 路径 |
 | --- | --- | --- | --- |
-| `list` | 获取业务需求列表，支持获取产品下的业务需求 | `GET` | `/{scope}/{scopeID}/epics` |
+| `list` | 获取业务需求列表，支持获取产品下的业务需求 | `GET` | `/products/{productID}/epics` |
 | `create` | 创建业务需求 | `POST` | `/epics` |
 | `get` | 获取业务需求详情 | `GET` | `/epics/{storyID}` |
 | `update` | 修改业务需求 | `PUT` | `/epics/{epicID}` |
@@ -18,15 +18,14 @@
 ## 获取业务需求列表，支持获取产品下的业务需求
 
 - SDK 调用：`request("epic/list", params)`
-- HTTP：`GET /{scope}/{scopeID}/epics`
+- HTTP：`GET /products/{productID}/epics`
 - 动作类型：`list`
 
 ### 路径参数
 
 | 参数 | 说明 |
 | --- | --- |
-| `scope` | 业务需求范围 |
-| `scopeID` | 范围ID |
+| `productID` | 所属产品ID |
 
 ### 查询参数
 
@@ -53,8 +52,7 @@
 import { request } from 'zentao-api';
 
 const result = await request("epic/list", {
-  "scope": "<string>",
-  "scopeID": 1,
+  "productID": 1,
   "browseType": "unclosed",
   "orderBy": "id_asc",
   "recPerPage": 1,

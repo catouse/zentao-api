@@ -6,7 +6,7 @@
 
 | SDK 动作 | 说明 | 方法 | 路径 |
 | --- | --- | --- | --- |
-| `list` | 获取用户需求列表，支持获取产品下的用户需求 | `GET` | `/{scope}/{scopeID}/requirements` |
+| `list` | 获取用户需求列表，支持获取产品下的用户需求 | `GET` | `/products/{productID}/requirements` |
 | `create` | 创建用户需求 | `POST` | `/requirements` |
 | `get` | 获取用户需求详情 | `GET` | `/requirements/{storyID}` |
 | `update` | 修改用户需求 | `PUT` | `/requirements/{requirementID}` |
@@ -18,15 +18,14 @@
 ## 获取用户需求列表，支持获取产品下的用户需求
 
 - SDK 调用：`request("requirement/list", params)`
-- HTTP：`GET /{scope}/{scopeID}/requirements`
+- HTTP：`GET /products/{productID}/requirements`
 - 动作类型：`list`
 
 ### 路径参数
 
 | 参数 | 说明 |
 | --- | --- |
-| `scope` | 用户需求范围 |
-| `scopeID` | 范围ID |
+| `productID` | 所属产品ID |
 
 ### 查询参数
 
@@ -53,8 +52,7 @@
 import { request } from 'zentao-api';
 
 const result = await request("requirement/list", {
-  "scope": "<string>",
-  "scopeID": 1,
+  "productID": 1,
   "browseType": "unclosed",
   "orderBy": "id_asc",
   "recPerPage": 1,

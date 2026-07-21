@@ -6,22 +6,21 @@
 
 | SDK 动作 | 说明 | 方法 | 路径 |
 | --- | --- | --- | --- |
-| `list` | 获取应用列表，支持获取产品下的应用 | `GET` | `/{scope}/{scopeID}/systems` |
+| `list` | 获取应用列表，支持获取产品下的应用 | `GET` | `/products/{productID}/systems` |
 | `create` | 创建应用 | `POST` | `/systems` |
 | `update` | 修改应用 | `PUT` | `/systems/{systemID}` |
 
 ## 获取应用列表，支持获取产品下的应用
 
 - SDK 调用：`request("system/list", params)`
-- HTTP：`GET /{scope}/{scopeID}/systems`
+- HTTP：`GET /products/{productID}/systems`
 - 动作类型：`list`
 
 ### 路径参数
 
 | 参数 | 说明 |
 | --- | --- |
-| `scope` | 应用范围 |
-| `scopeID` | 范围ID |
+| `productID` | 所属产品ID |
 
 ### 查询参数
 
@@ -42,8 +41,7 @@
 import { request } from 'zentao-api';
 
 const result = await request("system/list", {
-  "scope": "<string>",
-  "scopeID": 1
+  "productID": 1
 });
 ```
 ## 创建应用

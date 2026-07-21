@@ -1,5 +1,27 @@
 # 变更日志
 
+## 0.4.0 - 2026-07-21
+
+### 新增
+
+- 新增 `getModuleActionParams`，统一返回某个 action 的参数定义，便于按需读取路径、查询与请求体参数。
+- 请求支持 `raw` 选项：开启后直接返回未经处理的原始响应体，跳过 `ResponseData` 归一化与分页封装。
+
+### 修复
+
+- 单 scope 列表请求改用具体路径参数，避免路径拼装歧义。
+- 澄清带 scope 列表的路径参数以及产品计划（productplan）列表的路径。
+- 当 `autoFill` 回填前的 prefill 拉取失败时，中止本次 update，避免以不完整数据覆盖对象。
+
+### 变更
+
+- 拆分 `resolveActionRequest` 为多个辅助函数，并由 `resolveModuleCommand` 重命名而来，逻辑更清晰。
+
+### 文档
+
+- 补充 `raw` 请求选项的说明。
+- 随 `ModuleActionRequest` 重命名重新生成 reference 文档。
+
 ## 0.3.3 - 2026-06-30
 
 ### 新增

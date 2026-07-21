@@ -6,7 +6,7 @@
 
 | SDK 动作 | 说明 | 方法 | 路径 |
 | --- | --- | --- | --- |
-| `list` | 获取发布列表，支持获取产品下的发布 | `GET` | `/{scope}/{scopeID}/releases` |
+| `list` | 获取发布列表，支持获取产品下的发布 | `GET` | `/products/{productID}/releases` |
 | `create` | 创建发布 | `POST` | `/releases` |
 | `update` | 修改发布 | `PUT` | `/releases/{releasID}` |
 | `delete` | 删除发布 | `DELETE` | `/releases/{releasID}` |
@@ -14,15 +14,14 @@
 ## 获取发布列表，支持获取产品下的发布
 
 - SDK 调用：`request("release/list", params)`
-- HTTP：`GET /{scope}/{scopeID}/releases`
+- HTTP：`GET /products/{productID}/releases`
 - 动作类型：`list`
 
 ### 路径参数
 
 | 参数 | 说明 |
 | --- | --- |
-| `scope` | 发布范围 |
-| `scopeID` | 范围ID |
+| `productID` | 所属产品ID |
 
 ### 查询参数
 
@@ -44,8 +43,7 @@
 import { request } from 'zentao-api';
 
 const result = await request("release/list", {
-  "scope": "<string>",
-  "scopeID": 1
+  "productID": 1
 });
 ```
 ## 创建发布

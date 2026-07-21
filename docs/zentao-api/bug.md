@@ -25,8 +25,8 @@ Bug管理，支持获取Bug列表，支持获取产品/项目/执行下的Bug、
 
 | 参数 | 说明 |
 | --- | --- |
-| `scope` | Bug范围 |
-| `scopeID` | 范围ID |
+| `scope` | Bug所属范围 |
+| `scopeID` | 所属范围ID |
 
 ### 查询参数
 

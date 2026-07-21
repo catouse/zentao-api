@@ -6,7 +6,7 @@
 
 | SDK 动作 | 说明 | 方法 | 路径 |
 | --- | --- | --- | --- |
-| `list` | 获取工单列表，支持获取产品下的工单 | `GET` | `/{scope}/{scopeID}/tickets` |
+| `list` | 获取工单列表，支持获取产品下的工单 | `GET` | `/products/{productID}/tickets` |
 | `create` | 创建工单 | `POST` | `/tickets` |
 | `get` | 获取工单详情 | `GET` | `/tickets/{ticketID}` |
 | `update` | 修改工单 | `PUT` | `/tickets/{ticketID}` |
@@ -17,15 +17,14 @@
 ## 获取工单列表，支持获取产品下的工单
 
 - SDK 调用：`request("ticket/list", params)`
-- HTTP：`GET /{scope}/{scopeID}/tickets`
+- HTTP：`GET /products/{productID}/tickets`
 - 动作类型：`list`
 
 ### 路径参数
 
 | 参数 | 说明 |
 | --- | --- |
-| `scope` | 工单范围 |
-| `scopeID` | 范围ID |
+| `productID` | 所属产品ID |
 
 ### 查询参数
 
@@ -52,8 +51,7 @@
 import { request } from 'zentao-api';
 
 const result = await request("ticket/list", {
-  "scope": "<string>",
-  "scopeID": 1,
+  "productID": 1,
   "browseType": "wait",
   "orderBy": "id_asc",
   "recPerPage": 1,

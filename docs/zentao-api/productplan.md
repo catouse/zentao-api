@@ -6,7 +6,7 @@
 
 | SDK 动作 | 说明 | 方法 | 路径 |
 | --- | --- | --- | --- |
-| `list` | 获取产品计划列表，支持获取产品下的产品计划 | `GET` | `/{scope}/{scopeID}/productplans` |
+| `list` | 获取产品计划列表，支持获取产品下的产品计划 | `GET` | `/products/{productID}/productplans` |
 | `create` | 创建产品计划 | `POST` | `/productplans` |
 | `get` | 获取产品计划详情 | `GET` | `/productplans/{planID}` |
 | `update` | 修改产品计划 | `PUT` | `/productplans/{productplanID}` |
@@ -15,15 +15,14 @@
 ## 获取产品计划列表，支持获取产品下的产品计划
 
 - SDK 调用：`request("productplan/list", params)`
-- HTTP：`GET /{scope}/{scopeID}/productplans`
+- HTTP：`GET /products/{productID}/productplans`
 - 动作类型：`list`
 
 ### 路径参数
 
 | 参数 | 说明 |
 | --- | --- |
-| `scope` | 产品计划范围 |
-| `scopeID` | 范围ID |
+| `productID` | 所属产品ID |
 
 ### 查询参数
 
@@ -50,8 +49,7 @@
 import { request } from 'zentao-api';
 
 const result = await request("productplan/list", {
-  "scope": "<string>",
-  "scopeID": 1,
+  "productID": 1,
   "browseType": "undone",
   "orderBy": "id_asc",
   "recPerPage": 1,

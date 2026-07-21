@@ -264,6 +264,10 @@
         "link": "/reference/functions/getModuleAction.md"
       },
       {
+        "text": "getModuleActionParams",
+        "link": "/reference/functions/getModuleActionParams.md"
+      },
+      {
         "text": "getModuleNames",
         "link": "/reference/functions/getModuleNames.md"
       },

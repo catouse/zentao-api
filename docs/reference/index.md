@@ -83,6 +83,7 @@
 | [getGlobalOptions](functions/getGlobalOptions.md) | 获取当前全局选项的快照。 |
 | [getModule](functions/getModule.md) | 获取模块定义。 |
 | [getModuleAction](functions/getModuleAction.md) | 获取指定模块下的某个动作。 |
+| [getModuleActionParams](functions/getModuleActionParams.md) | 获取指定模块下的某个动作的参数。 |
 | [getModuleNames](functions/getModuleNames.md) | 返回当前运行时注册表中的所有模块名。 |
 | [getProfile](functions/getProfile.md) | 获取指定 profile。 |
 | [getProfileKey](functions/getProfileKey.md) | 根据 profile 的账号和禅道站点地址生成稳定 key。 |
