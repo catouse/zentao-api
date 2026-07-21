@@ -67,6 +67,137 @@ describe('resolveActionRequest', () => {
     });
   });
 
+  test('resolves scoped list paths from explicit scope and scopeID', () => {
+    defineModules({
+      name: 'workitem',
+      actions: [
+        {
+          name: 'list',
+          type: 'list',
+          method: 'get',
+          path: '/{scope}/{scopeID}/workitems',
+          pathParams: {
+            scope: {
+              description: 'Scope',
+              options: [
+                { value: 'products', label: 'Product' },
+                { value: 'projects', label: 'Project' },
+                { value: 'executions', label: 'Execution' },
+              ],
+            },
+            scopeID: 'Scope ID',
+          },
+          resultType: 'list',
+        },
+      ],
+    });
+
+    const command = resolveActionRequest(getModule('workitem')!, 'list', {
+      scope: 'products',
+      scopeID: 1,
+    });
+
+    expect(command.path).toBe('/products/1/workitems');
+  });
+
+  test('prefers explicit scope/scopeID over product/project/execution aliases', () => {
+    defineModules({
+      name: 'workitem',
+      actions: [
+        {
+          name: 'list',
+          type: 'list',
+          method: 'get',
+          path: '/{scope}/{scopeID}/workitems',
+          pathParams: {
+            scope: {
+              description: 'Scope',
+              options: [
+                { value: 'products', label: 'Product' },
+                { value: 'projects', label: 'Project' },
+                { value: 'executions', label: 'Execution' },
+              ],
+            },
+            scopeID: 'Scope ID',
+          },
+          resultType: 'list',
+        },
+      ],
+    });
+
+    const command = resolveActionRequest(getModule('workitem')!, 'list', {
+      scope: 'products',
+      scopeID: 1,
+      executionID: 9,
+    });
+
+    expect(command.path).toBe('/products/1/workitems');
+  });
+
+  test('falls back to aliases when only one of scope/scopeID is provided', () => {
+    defineModules({
+      name: 'workitem',
+      actions: [
+        {
+          name: 'list',
+          type: 'list',
+          method: 'get',
+          path: '/{scope}/{scopeID}/workitems',
+          pathParams: {
+            scope: {
+              description: 'Scope',
+              options: [
+                { value: 'products', label: 'Product' },
+                { value: 'projects', label: 'Project' },
+                { value: 'executions', label: 'Execution' },
+              ],
+            },
+            scopeID: 'Scope ID',
+          },
+          resultType: 'list',
+        },
+      ],
+    });
+
+    const command = resolveActionRequest(getModule('workitem')!, 'list', {
+      scope: 'products',
+      productID: 7,
+    });
+
+    expect(command.path).toBe('/products/7/workitems');
+  });
+
+  test('throws E_INVALID_PARAM for an unrecognized scope value', () => {
+    defineModules({
+      name: 'workitem',
+      actions: [
+        {
+          name: 'list',
+          type: 'list',
+          method: 'get',
+          path: '/{scope}/{scopeID}/workitems',
+          pathParams: {
+            scope: {
+              description: 'Scope',
+              options: [
+                { value: 'products', label: 'Product' },
+                { value: 'projects', label: 'Project' },
+                { value: 'executions', label: 'Execution' },
+              ],
+            },
+            scopeID: 'Scope ID',
+          },
+          resultType: 'list',
+        },
+      ],
+    });
+
+    expect(() => resolveActionRequest(getModule('workitem')!, 'list', {
+      scope: 'product',
+      scopeID: 1,
+    })).toThrowError(expect.objectContaining({ code: 'E_INVALID_PARAM' }));
+  });
+
   test('uses path param defaults and id aliases when building paths', () => {
     defineModules({
       name: 'widget',

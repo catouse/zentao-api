@@ -64,6 +64,8 @@ type BodyParams<A> = A extends { requestBody: { schema: infer Schema } }
   }
   : { data?: string | Record<string, unknown> };
 type ScopedParams<PathParams> = 'scope' extends keyof PathParams ? {
+  scope?: 'products' | 'projects' | 'executions' | (string & {});
+  scopeID?: string | number;
   product?: string | number;
   productID?: string | number;
   project?: string | number;

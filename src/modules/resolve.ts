@@ -9,10 +9,31 @@ const SCOPE_MAP: Record<string, string> = {
   execution: 'executions',
 };
 
+const VALID_SCOPES = new Set(Object.values(SCOPE_MAP));
+
 const SCOPE_KEY_ORDER = ['execution', 'project', 'product'] as const;
 
-/** 从调用参数中推断作用域列表路径，优先级为执行 > 项目 > 产品。 */
+/**
+ * 从调用参数中推断作用域列表路径。
+ *
+ * 优先使用显式 `scope` + `scopeID`；二者缺一则回落到别名推断，
+ * 别名优先级为执行 > 项目 > 产品。
+ */
 function pickScope(params: Record<string, unknown>): { scope: string; scopeID: number } | undefined {
+  const explicitScope = params.scope;
+  const explicitScopeID = params.scopeID;
+  if (!isBlank(explicitScope) && !isBlank(explicitScopeID)) {
+    const scope = String(explicitScope);
+    if (!VALID_SCOPES.has(scope)) {
+      throw new ZentaoError('E_INVALID_PARAM', { param: 'scope', value: scope });
+    }
+    const scopeID = Number(explicitScopeID);
+    if (Number.isNaN(scopeID)) {
+      throw new ZentaoError('E_INVALID_PARAM', { param: 'scopeID', value: String(explicitScopeID) });
+    }
+    return { scope, scopeID };
+  }
+
   for (const key of SCOPE_KEY_ORDER) {
     const value = params[key] ?? params[`${key}ID`];
     if (isBlank(value)) continue;
@@ -99,7 +120,7 @@ function resolvePathValues(
   // 生成定义中的 scope 列表接口会统一成 /{scope}/{scopeID}/xxx。
   if (pathParamNames.includes('scope')) {
     const scope = pickScope(params);
-    if (!scope) throw new ZentaoError('E_MISSING_PARAM', { param: 'product/project/execution' });
+    if (!scope) throw new ZentaoError('E_MISSING_PARAM', { param: 'scope/scopeID or product/project/execution' });
     values.scope = scope.scope;
     values.scopeID = scope.scopeID;
   }
