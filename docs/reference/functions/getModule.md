@@ -2,7 +2,7 @@
 
 # Function: getModule()
 
-> **getModule**(`moduleName`): [`ModuleDefinition`](../interfaces/ModuleDefinition.md)
+> **getModule**(`moduleName`): [`ModuleDefinition`](../interfaces/ModuleDefinition.md) \| `undefined`
 
 获取模块定义。
 
@@ -17,10 +17,6 @@
 
 ## Returns
 
-[`ModuleDefinition`](../interfaces/ModuleDefinition.md)
+[`ModuleDefinition`](../interfaces/ModuleDefinition.md) \| `undefined`
 
-已注册的模块定义。
-
-## Throws
-
-`E_INVALID_MODULE` —— 模块未注册。
+已注册的模块定义；模块未注册时返回 `undefined`。

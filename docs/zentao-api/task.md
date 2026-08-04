@@ -132,6 +132,11 @@ Schema:
     "desc": {
       "type": "string",
       "description": "任务描述"
+    },
+    "parent": {
+      "type": "integer",
+      "description": "父任务",
+      "format": "int32"
     }
   },
   "required": [
@@ -155,7 +160,8 @@ Schema:
   "estimate": 1,
   "module": 1,
   "story": 1,
-  "desc": "<string>"
+  "desc": "<string>",
+  "parent": 1
 }
 ```
 
@@ -179,7 +185,8 @@ const result = await request("task/create", {
   "estimate": 1,
   "module": 1,
   "story": 1,
-  "desc": "<string>"
+  "desc": "<string>",
+  "parent": 1
 });
 ```
 ## 获取任务详情
@@ -284,6 +291,11 @@ Schema:
     "desc": {
       "type": "string",
       "description": "任务描述"
+    },
+    "parent": {
+      "type": "integer",
+      "description": "父任务",
+      "format": "int32"
     }
   }
 }
@@ -302,7 +314,8 @@ Schema:
   "estimate": 1,
   "module": 1,
   "story": 1,
-  "desc": "<string>"
+  "desc": "<string>",
+  "parent": 1
 }
 ```
 
@@ -326,7 +339,8 @@ const result = await request("task/update", {
   "estimate": 1,
   "module": 1,
   "story": 1,
-  "desc": "<string>"
+  "desc": "<string>",
+  "parent": 1
 });
 ```
 ## 删除任务

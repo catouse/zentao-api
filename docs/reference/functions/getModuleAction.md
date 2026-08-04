@@ -2,7 +2,7 @@
 
 # Function: getModuleAction()
 
-> **getModuleAction**(`moduleName`, `actionName`): [`ModuleAction`](../interfaces/ModuleAction.md)
+> **getModuleAction**(`moduleName`, `actionName`): [`ModuleAction`](../interfaces/ModuleAction.md) \| `undefined`
 
 获取指定模块下的某个动作。
 
@@ -23,10 +23,6 @@
 
 ## Returns
 
-[`ModuleAction`](../interfaces/ModuleAction.md)
+[`ModuleAction`](../interfaces/ModuleAction.md) \| `undefined`
 
-匹配到的动作定义。
-
-## Throws
-
-`E_INVALID_MODULE`（模块未注册）或 `E_INVALID_ACTION`（动作不存在）。
+匹配到的动作定义；模块未注册或动作不存在时返回 `undefined`。
