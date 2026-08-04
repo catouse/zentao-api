@@ -116,4 +116,17 @@ export function applyBuiltinOverrides(): void {
       return action;
     });
   });
+
+  // 为 task/create 补充 parent 字段（创建子任务）
+  extendModuleAction('task', 'create', (action) => {
+    const properties = action.requestBody?.schema?.properties as Record<string, Record<string, unknown>>;
+    if (properties && !properties.parent) {
+      properties.parent = {
+        type: 'integer',
+        description: '父任务',
+        format: 'int32',
+      };
+    }
+    return action;
+  });
 }
