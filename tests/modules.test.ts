@@ -611,6 +611,29 @@ describe('high-level request', () => {
     }
   });
 
+  test('converts a single object before applying pick', async () => {
+    const server = createMockServer(() =>
+      Response.json({
+        status: 'success',
+        product: { id: 7, name: 'Solo', desc: '<p>detail</p>' },
+      }),
+    );
+
+    try {
+      const client = new ZentaoClient({ baseUrl: server.url.toString() });
+      setGlobalOptions({ client });
+
+      const response = await request('product/7', {}, {
+        convertSingle: (record) => ({ ...record, desc: String(record.desc).replace(/<[^>]+>/g, '') }),
+        pick: ['id', 'desc'],
+      });
+
+      expect(response.data).toEqual({ id: 7, desc: 'detail' });
+    } finally {
+      server.stop();
+    }
+  });
+
   test('resolves path params and request body from params', async () => {
     const requests: Array<{ method: string; pathname: string; body: unknown }> = [];
     const server = createMockServer(async (req) => {

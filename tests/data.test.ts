@@ -81,9 +81,14 @@ describe('searchData', () => {
     expect(searchData(records, ['alice'], ['title']).map((r) => r.id)).toEqual([]);
   });
 
-  test('groups AND, within-group whitespace OR', () => {
-    expect(searchData(records, ['login crash']).map((r) => r.id)).toEqual([1, 2]);
-    expect(searchData(records, ['bug', 'alice']).map((r) => r.id)).toEqual([1]);
+  test('combines comma-separated terms with AND and groups with OR', () => {
+    expect(searchData(records, ['login,bug']).map((r) => r.id)).toEqual([1]);
+    expect(searchData(records, ['login', 'crash']).map((r) => r.id)).toEqual([1, 2]);
+  });
+
+  test('keeps quoted commas inside a search term', () => {
+    const data = [{ id: 1, title: 'Login, bug' }, { id: 2, title: 'Login bug' }];
+    expect(searchData(data, ['"login, bug"']).map((r) => r.id)).toEqual([1]);
   });
 
   test('empty keywords return a copy of all', () => {
@@ -103,6 +108,10 @@ describe('sortData', () => {
   test('multi-key with string localeCompare', () => {
     const result = sortData(records, ['status:asc', 'id:desc']);
     expect(result.map((r) => r.id)).toEqual([3, 1, 2]);
+  });
+
+  test('accepts legacy underscore direction syntax', () => {
+    expect(sortData(records, ['pri_desc']).map((r) => r.pri)).toEqual([3, 2, 1]);
   });
 
   test('accepts custom comparator function', () => {
@@ -145,6 +154,29 @@ describe('processData', () => {
       { id: 1 },
       { id: 2 },
     ]);
+  });
+
+  test('supports equality aliases, AND within a filter group, and OR across groups', () => {
+    const result = processData(records, {
+      filter: ['status:active,pri>=3', 'assignedTo.name=Bob'],
+      sort: 'pri_desc',
+      pick: ['id'],
+    });
+    expect(result).toEqual([{ id: 1 }, { id: 2 }]);
+  });
+
+  test('does not split quoted or array filter values at commas', () => {
+    const data = [
+      { id: 1, title: 'Login, bug', status: 'active' },
+      { id: 2, title: 'Login bug', status: 'active' },
+    ];
+    expect(processData(data, { filter: ['title:"Login, bug"'] })).toEqual([data[0]]);
+    expect(processData(records, { filter: ['id:[1,2]'], pick: ['id'] })).toEqual([{ id: 1 }, { id: 2 }]);
+  });
+
+  test('ignores operators inside quoted filter values when finding the condition operator', () => {
+    const data = [{ id: 1, title: 'a>=b' }, { id: 2, title: 'other' }];
+    expect(processData(data, { filter: ['title="a>=b"'] })).toEqual([data[0]]);
   });
 
   test('limit truncates after sort and before pick', () => {

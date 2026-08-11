@@ -6,7 +6,7 @@
 
 对列表排序，返回新数组（不修改入参）。
 
-`sortFields` 的每个元素可以是 `字段:asc|desc` 表达式或自定义比较函数，按先后顺序生效；
+`sortFields` 的每个元素可以是 `字段:asc|desc`（兼容 `字段_asc|desc`）或自定义比较函数，按先后顺序生效；
 数值字段按数字比较，否则按字符串 `localeCompare`。
 
 ## Parameters
@@ -14,7 +14,7 @@
 | Parameter | Type |
 | ------ | ------ |
 | `data` | [`DataRecord`](../type-aliases/DataRecord.md)[] |
-| `sortFields` | (`` `${string}:asc` `` \| `` `${string}:desc` `` \| [`SortFn`](../type-aliases/SortFn.md))[] |
+| `sortFields` | ([`SortExpr`](../type-aliases/SortExpr.md) \| [`SortFn`](../type-aliases/SortFn.md))[] |
 
 ## Returns
 

@@ -57,7 +57,7 @@
 | [ModuleName](type-aliases/ModuleName.md) | 内置模块名称，同时允许用户扩展自定义模块名。 |
 | [RequestParamsFor](type-aliases/RequestParamsFor.md) | 根据内置请求名推导出的参数类型。 |
 | [RequestResultFor](type-aliases/RequestResultFor.md) | 根据内置请求名推导出的 `ResponseData.data` 类型。 |
-| [SortExpr](type-aliases/SortExpr.md) | 排序表达式，格式为 `字段:asc|desc`。 |
+| [SortExpr](type-aliases/SortExpr.md) | 排序表达式；推荐 `字段:asc|desc`，兼容 `字段_asc|desc`。 |
 | [SortFn](type-aliases/SortFn.md) | 自定义排序比较函数。 |
 
 ## Variables

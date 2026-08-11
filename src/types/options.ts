@@ -1,5 +1,5 @@
 import type { ZentaoClient } from '../client/index.js';
-import type { ProcessListOptions } from './data.js';
+import type { ProcessListOptions, ProcessSingleOptions } from './data.js';
 
 /** SDK 进程级全局默认选项，供高阶 {@link request} 调用复用。 */
 export interface GlobalOptions {
@@ -35,6 +35,8 @@ export interface RequestOptions extends ProcessListOptions {
   timeout?: number;
   /** 本次调用 TLS 跳过证书验证选项；仅 Node.js 运行时支持。 */
   insecure?: boolean;
+  /** 单条对象转换函数，在字段摘取前执行；列表转换请使用 `convert`。 */
+  convertSingle?: ProcessSingleOptions['convert'];
   /**
    * 当禅道服务端返回 `{ status: "fail" }` 时是否抛出 `E_API_FAILED`。
    * 不传时回落到全局 `throwOnFail`，默认 false（保留原始失败响应）。

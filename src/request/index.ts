@@ -6,6 +6,8 @@ import type { BUILTIN_MODULES } from '../modules/generated.js';
 import { extractPager, extractResult, resolveActionRequest } from '../modules/resolve.js';
 import { isRecord, processData } from '../utils/index.js';
 
+type RequestProcessOptions = ProcessListOptions & Pick<RequestOptions, 'convertSingle'>;
+
 type BuiltinModuleDefinition = (typeof BUILTIN_MODULES)[number];
 type BuiltinModuleName = BuiltinModuleDefinition['name'];
 type BuiltinAction<M extends BuiltinModuleName> = Extract<BuiltinModuleDefinition, { name: M }>['actions'][number];
@@ -211,10 +213,10 @@ function hasListProcessing(options: ProcessListOptions): boolean {
  *
  * - 对象列表：交由 {@link processData} 完整处理。
  * - 基本类型数组：仅 `limit` 生效（按数量截断），避免破坏原始元素。
- * - 单条对象：只有 `pick` 生效。
+ * - 单条对象：应用 `convertSingle`，再应用 `pick`。
  * - 其他形态原样返回。
  */
-function applyProcessing(data: unknown, options: ProcessListOptions): unknown {
+function applyProcessing(data: unknown, options: RequestProcessOptions): unknown {
   if (Array.isArray(data)) {
     if (!hasListProcessing(options)) return data;
     if (data.every(isRecord)) {
@@ -232,8 +234,8 @@ function applyProcessing(data: unknown, options: ProcessListOptions): unknown {
     const limit = Number(options.limit);
     return Number.isFinite(limit) && limit >= 0 ? data.slice(0, Math.floor(limit)) : data;
   }
-  if (isRecord(data) && options.pick && options.pick.length > 0) {
-    return processData(data, { pick: options.pick });
+  if (isRecord(data) && (options.convertSingle || (options.pick && options.pick.length > 0))) {
+    return processData(data, { convert: options.convertSingle, pick: options.pick });
   }
   return data;
 }
@@ -242,7 +244,7 @@ function applyProcessing(data: unknown, options: ProcessListOptions): unknown {
 function normalizeResponse<T>(
   command: ReturnType<typeof resolveActionRequest>,
   raw: unknown,
-  options: ProcessListOptions,
+  options: RequestProcessOptions,
 ): ResponseData<T> {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
     return { status: 'success', data: raw as T };
@@ -348,7 +350,7 @@ export async function request<T = unknown>(
   }
 
   // limit 现归入本地处理选项；本次调用优先，缺省回落到全局默认。
-  const processOptions: ProcessListOptions = { ...options, limit: options.limit ?? globals.limit };
+  const processOptions: RequestProcessOptions = { ...options, limit: options.limit ?? globals.limit };
   const response = normalizeResponse<T>(command, raw, processOptions);
   if (response.status === 'fail' && (options.throwOnFail ?? globals.throwOnFail)) {
     throw new ZentaoError('E_API_FAILED', { message: response.message ?? '' }, response);

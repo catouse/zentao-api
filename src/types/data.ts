@@ -19,23 +19,23 @@ export interface DataRecordFilterGroup {
   conditions: DataRecordFilter[];
 }
 
-/** 排序表达式，格式为 `字段:asc|desc`。 */
-export type SortExpr = `${string}:${'asc' | 'desc'}`;
+/** 排序表达式；推荐 `字段:asc|desc`，兼容 `字段_asc|desc`。 */
+export type SortExpr = `${string}:${'asc' | 'desc'}` | `${string}_${'asc' | 'desc'}`;
 
 /** 自定义排序比较函数。 */
 export type SortFn = (a: DataRecord, b: DataRecord) => number;
 
 /** {@link processData} 处理列表时的选项；执行顺序为 转换 → 过滤 → 搜索 → 排序 → 限制数量 → 摘取。 */
 export interface ProcessListOptions {
-  /** 转换函数，用于对列表中的每条记录进行转换。 */
+  /** 列表转换函数，在过滤前对记录数组整体执行。 */
   convert?: (records: DataRecord[]) => DataRecord[];
-  /** 过滤表达式列表，例如 `["status=active", "pri>=2"]`，多条之间按 AND 组合。 */
+  /** 过滤表达式组，如 `["status=active,pri>=2", "assignedTo.id=5"]`；组内 AND、组间 OR，`=` 与 `:` 均表示相等。 */
   filter?: string[];
-  /** 模糊搜索关键词组，组内空格分隔为 OR，多组之间按 AND 组合。 */
+  /** 模糊搜索关键词组，如 `["登录,超时", "注册,失败"]`；组内 AND、组间 OR。 */
   search?: string[];
   /** 限定搜索字段，缺省时搜索全部字段。 */
   searchFields?: string[];
-  /** 排序表达式，多个字段以英文逗号分隔，例如 `pri:desc,id:asc`。 */
+  /** 排序表达式，多个字段以英文逗号分隔；推荐 `pri:desc,id:asc`，兼容 `pri_desc,id_asc`。 */
   sort?: string;
   /** 限制返回列表数量，在排序后、摘取前截断；不改变服务端页大小。 */
   limit?: string;

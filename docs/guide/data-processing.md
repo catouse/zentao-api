@@ -1,10 +1,10 @@
 # 本地数据处理
 
-`request()` 在归一化服务端响应后，可对返回的列表（或单条对象）做本地处理：**过滤、模糊搜索、排序、限制数量、字段摘取**。这些处理在 SDK 内存中完成，不改变服务端请求参数或返回的页大小。
+`request()` 在归一化服务端响应后，可对返回的列表（或单条对象）做本地处理：**转换、过滤、模糊搜索、排序、限制数量、字段摘取**。这些处理在 SDK 内存中完成，不改变服务端请求参数或返回的页大小。
 
 处理按固定顺序执行：
 
-> 过滤 `filter` → 搜索 `search` → 排序 `sort` → 限制数量 `limit` → 摘取 `pick`
+> 转换 `convert` / `convertSingle` → 过滤 `filter` → 搜索 `search` → 排序 `sort` → 限制数量 `limit` → 摘取 `pick`
 
 所有选项都通过 `request()` 的第三个参数传入。为方便 CLI 透传，`limit` 以字符串形式表示。
 
@@ -13,7 +13,7 @@ const bugs = await request(
   'bug/list',
   { productID: 1, recPerPage: 100 },
   {
-    filter: ['status=active', 'pri>=2'],
+    filter: ['status=active,pri>=2'],
     search: ['登录'],
     sort: 'pri:desc,id:asc',
     limit: '10',
@@ -24,21 +24,23 @@ const bugs = await request(
 
 ## 过滤 filter
 
-`filter` 是一组过滤表达式，多条之间按 **AND** 组合。表达式格式为 `字段 运算符 值`，字段名支持用 `.` 访问子字段。
+`filter` 是一组过滤表达式。单个表达式内以逗号分隔的条件按 **AND** 组合，多个表达式之间按 **OR** 组合。表达式格式为 `字段 运算符 值`，字段名支持用 `.` 访问子字段。
 
 ```ts
 const result = await request(
   'bug/list',
   { productID: 1 },
-  { filter: ['status=active', 'pri>=2', 'assignedTo.id=5'] },
+  { filter: ['status=active,pri>=2', 'assignedTo.id=5'] },
 );
 ```
+
+上例表示「状态为 active 且优先级不低于 2，或者指派人为 5」。需要在值中保留逗号时，可使用引号；数组字面量中的逗号也不会被当作条件分隔符。
 
 支持的运算符：
 
 | 运算符 | 含义 | 示例 |
 | --- | --- | --- |
-| `=` / `!=` | 等于 / 不等于 | `status=active` |
+| `=` / `:` / `!=` | 等于（`:` 为兼容写法）/ 不等于 | `status=active` |
 | `>` / `<` / `>=` / `<=` | 数值或字符串比较 | `pri>=2` |
 | `~` / `!~` | 包含 / 不包含（大小写不敏感） | `title~登录` |
 
@@ -53,11 +55,11 @@ const result = await request(
 
 ## 模糊搜索 search
 
-`search` 对记录做大小写不敏感的关键词匹配。每个元素是一个关键词串，**组内以空白分隔为 OR**，**多组之间按 AND 组合**。
+`search` 对记录做大小写不敏感的关键词匹配。每个元素是一个关键词组，**组内以逗号分隔为 AND**，**多个组之间按 OR 组合**。缺省搜索时会递归包含嵌套对象与数组中的原始值。
 
 ```ts
-// （登录 或 注册）且 超时
-{ search: ['登录 注册', '超时'] }
+// （登录 且 超时）或（注册 且 失败）
+{ search: ['登录,超时', '注册,失败'] }
 ```
 
 缺省搜索全部字段。可用 `searchFields` 限定参与搜索的字段（同样支持 `.` 子字段）：
@@ -68,7 +70,7 @@ const result = await request(
 
 ## 排序 sort
 
-`sort` 为单个字符串，多个排序字段以英文逗号分隔，按先后顺序生效。每个字段格式为 `字段:asc|desc`，省略方向时默认 `asc`。
+`sort` 为单个字符串，多个排序字段以英文逗号分隔，按先后顺序生效。每个字段推荐使用 `字段:asc|desc`，省略方向时默认 `asc`；同时兼容 `字段_asc|desc` 写法。
 
 ```ts
 // 先按优先级降序，优先级相同再按 id 升序
@@ -140,4 +142,13 @@ const result = processData(list, {
 });
 ```
 
-`processData` 处理单条对象时仅支持 `pick`；`filterData` / `searchData` / `sortData` 等单步函数则提供更细粒度的入参（如条件组、自定义比较函数），适合需要程序化构造处理逻辑的场景。
+`processData` 处理单条对象时支持 `convert` 与 `pick`。通过 `request()` 处理单条对象时，使用签名明确的 `convertSingle`：
+
+```ts
+const bug = await request('bug/123', {}, {
+  convertSingle: (record) => ({ ...record, title: String(record.title).trim() }),
+  pick: ['id', 'title'],
+});
+```
+
+`filterData` / `searchData` / `sortData` 等单步函数提供更细粒度的入参（如结构化条件组、自定义比较函数），适合需要程序化构造处理逻辑的场景。
