@@ -2,7 +2,7 @@
 
 # Interface: ProcessListOptions
 
-[processData](../functions/processData.md) 处理列表时的选项；执行顺序为 过滤 → 搜索 → 排序 → 限制数量 → 摘取。
+[processData](../functions/processData.md) 处理列表时的选项；执行顺序为 转换 → 过滤 → 搜索 → 排序 → 限制数量 → 摘取。
 
 ## Extended by
 
@@ -12,6 +12,7 @@
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
+| <a id="property-convert"></a> `convert?` | (`records`) => [`DataRecord`](../type-aliases/DataRecord.md)[] | 转换函数，用于对列表中的每条记录进行转换。 |
 | <a id="property-filter"></a> `filter?` | `string`[] | 过滤表达式列表，例如 `["status=active", "pri>=2"]`，多条之间按 AND 组合。 |
 | <a id="property-limit"></a> `limit?` | `string` | 限制返回列表数量，在排序后、摘取前截断；不改变服务端页大小。 |
 | <a id="property-pick"></a> `pick?` | `string`[] | 摘取字段路径列表。 |

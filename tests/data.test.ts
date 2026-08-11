@@ -112,6 +112,17 @@ describe('sortData', () => {
 });
 
 describe('processData', () => {
+  test('converts list data before filtering and picking', () => {
+    const result = processData(records, {
+      convert: (items) => items.map(({ id, pri }) => ({ id, score: Number(pri) * 10 })),
+      filter: ['score>=20'],
+      sort: 'score:desc',
+      pick: ['id'],
+    });
+
+    expect(result).toEqual([{ id: 1 }, { id: 3 }]);
+  });
+
   test('list pipeline: filter -> search -> sort -> pick', () => {
     const result = processData(records, {
       filter: ['status=active'],
@@ -156,6 +167,13 @@ describe('processData', () => {
       id: 1,
       assignedTo: { name: 'Alice' },
     });
+  });
+
+  test('converts a single object before picking fields', () => {
+    expect(processData(records[0], {
+      convert: (record) => ({ ...record, label: `#${record.id}: ${record.title}` }),
+      pick: ['label'],
+    })).toEqual({ label: '#1: Login bug' });
   });
 
   test('single object without pick returns a shallow copy', () => {

@@ -531,6 +531,63 @@ describe('high-level request', () => {
     }
   });
 
+  test('converts list data before applying local processing', async () => {
+    const server = createMockServer(() =>
+      Response.json({
+        status: 'success',
+        products: [
+          { id: 1, name: 'Alpha', pri: 1 },
+          { id: 2, name: 'Beta', pri: 3 },
+          { id: 3, name: 'Gamma', pri: 2 },
+        ],
+      }),
+    );
+
+    try {
+      const client = new ZentaoClient({ baseUrl: server.url.toString() });
+      setGlobalOptions({ client });
+
+      const response = await request('product/list', {}, {
+        convert: (records) => records.map((record) => ({
+          id: record.id,
+          score: Number(record.pri) * 10,
+        })),
+        filter: ['score>=20'],
+        sort: 'score:desc',
+        pick: ['id'],
+      });
+
+      expect(response.data).toEqual([{ id: 2 }, { id: 3 }]);
+    } finally {
+      server.stop();
+    }
+  });
+
+  test('applies convert without other local processing options', async () => {
+    const server = createMockServer(() =>
+      Response.json({
+        status: 'success',
+        products: [{ id: 1, name: 'Alpha' }],
+      }),
+    );
+
+    try {
+      const client = new ZentaoClient({ baseUrl: server.url.toString() });
+      setGlobalOptions({ client });
+
+      const response = await request('product/list', {}, {
+        convert: (records) => records.map((record) => ({
+          id: record.id,
+          label: String(record.name).toUpperCase(),
+        })),
+      });
+
+      expect(response.data).toEqual([{ id: 1, label: 'ALPHA' }]);
+    } finally {
+      server.stop();
+    }
+  });
+
   test('applies pick to a single object response', async () => {
     let receivedPathname = '';
     const server = createMockServer((req) => {

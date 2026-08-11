@@ -197,6 +197,7 @@ function extractApiCode(record: Record<string, unknown>): string | number | unde
 /** 判断本次调用是否携带了需要本地处理列表的选项。 */
 function hasListProcessing(options: ProcessListOptions): boolean {
   return Boolean(
+    options.convert ||
     (options.filter && options.filter.length > 0) ||
     (options.search && options.search.length > 0) ||
     options.sort ||
@@ -206,7 +207,7 @@ function hasListProcessing(options: ProcessListOptions): boolean {
 }
 
 /**
- * 对归一化后的业务数据应用本地处理（过滤 → 搜索 → 排序 → 限制数量 → 摘取）。
+ * 对归一化后的业务数据应用本地处理（转换 → 过滤 → 搜索 → 排序 → 限制数量 → 摘取）。
  *
  * - 对象列表：交由 {@link processData} 完整处理。
  * - 基本类型数组：仅 `limit` 生效（按数量截断），避免破坏原始元素。
@@ -218,6 +219,7 @@ function applyProcessing(data: unknown, options: ProcessListOptions): unknown {
     if (!hasListProcessing(options)) return data;
     if (data.every(isRecord)) {
       return processData(data as DataRecord[], {
+        convert: options.convert,
         filter: options.filter,
         search: options.search,
         searchFields: options.searchFields,

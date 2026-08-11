@@ -25,8 +25,10 @@ export type SortExpr = `${string}:${'asc' | 'desc'}`;
 /** 自定义排序比较函数。 */
 export type SortFn = (a: DataRecord, b: DataRecord) => number;
 
-/** {@link processData} 处理列表时的选项；执行顺序为 过滤 → 搜索 → 排序 → 限制数量 → 摘取。 */
+/** {@link processData} 处理列表时的选项；执行顺序为 转换 → 过滤 → 搜索 → 排序 → 限制数量 → 摘取。 */
 export interface ProcessListOptions {
+  /** 转换函数，用于对列表中的每条记录进行转换。 */
+  convert?: (records: DataRecord[]) => DataRecord[];
   /** 过滤表达式列表，例如 `["status=active", "pri>=2"]`，多条之间按 AND 组合。 */
   filter?: string[];
   /** 模糊搜索关键词组，组内空格分隔为 OR，多组之间按 AND 组合。 */
@@ -41,8 +43,10 @@ export interface ProcessListOptions {
   pick?: string[];
 }
 
-/** {@link processData} 处理单条对象时的选项。 */
+/** {@link processData} 处理单条对象时的选项；执行顺序为 转换 → 摘取。 */
 export interface ProcessSingleOptions {
+  /** 转换函数，用于对对象进行转换。 */
+  convert?: (record: DataRecord) => DataRecord;
   /** 摘取字段路径列表。 */
   pick?: string[];
 }

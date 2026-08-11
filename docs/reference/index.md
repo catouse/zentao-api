@@ -27,8 +27,8 @@
 | [ModuleActionResponse](interfaces/ModuleActionResponse.md) | 模块动作响应定义。 |
 | [ModuleDefinition](interfaces/ModuleDefinition.md) | 禅道模块定义，由多个动作组成。 |
 | [Pager](interfaces/Pager.md) | 禅道 API 原始分页结构。 |
-| [ProcessListOptions](interfaces/ProcessListOptions.md) | [processData](functions/processData.md) 处理列表时的选项；执行顺序为 过滤 → 搜索 → 排序 → 限制数量 → 摘取。 |
-| [ProcessSingleOptions](interfaces/ProcessSingleOptions.md) | [processData](functions/processData.md) 处理单条对象时的选项。 |
+| [ProcessListOptions](interfaces/ProcessListOptions.md) | [processData](functions/processData.md) 处理列表时的选项；执行顺序为 转换 → 过滤 → 搜索 → 排序 → 限制数量 → 摘取。 |
+| [ProcessSingleOptions](interfaces/ProcessSingleOptions.md) | [processData](functions/processData.md) 处理单条对象时的选项；执行顺序为 转换 → 摘取。 |
 | [RequestOptions](interfaces/RequestOptions.md) | 高阶 `request("moduleName")` / `request("moduleName/methodName")` / `request("moduleName/<objectID>")` 的单次调用选项。 |
 | [ResponseData](interfaces/ResponseData.md) | 高阶 `request()` 归一化后的返回数据。 |
 | [ServerConfig](interfaces/ServerConfig.md) | 禅道 `?mode=getconfig` 返回的服务端配置。 |
@@ -90,7 +90,7 @@
 | [getProfileKey](functions/getProfileKey.md) | 根据 profile 的账号和禅道站点地址生成稳定 key。 |
 | [pickFields](functions/pickFields.md) | 对列表中的每条对象摘取指定字段。 |
 | [pickFieldsSingle](functions/pickFieldsSingle.md) | 从单条对象中摘取指定字段，支持通过 `.` 访问子字段，保留嵌套结构。 |
-| [processData](functions/processData.md) | 处理单条对象：仅支持字段摘取。 |
+| [processData](functions/processData.md) | 处理单条对象：按 转换 → 摘取 的顺序执行。 |
 | [request](functions/request.md) | 按模块名或模块动作名请求禅道 API。 |
 | [searchData](functions/searchData.md) | 对列表做大小写不敏感的模糊匹配。 |
 | [setGlobalOptions](functions/setGlobalOptions.md) | 以浅合并的方式更新全局选项。 |
