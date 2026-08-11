@@ -33,4 +33,5 @@ export {
   getModuleActionParams,
   getModuleNames,
   isModuleName,
+  getObjectProps,
 } from './query.js';

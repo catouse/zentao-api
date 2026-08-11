@@ -19,6 +19,7 @@ export {
   getModule,
   getModuleAction,
   getModuleActionParams,
+  getObjectProps,
 } from './modules/registry.js';
 export {
   request,

@@ -1,4 +1,5 @@
 import type { ModuleAction, ModuleActionParam, ModuleActionParamRole, ModuleDefinition } from '../types/index.js';
+import { objectProps } from './object-props.js';
 import { getModuleMapState, getModulesState } from './registry-store.js';
 
 /**
@@ -123,4 +124,14 @@ export function getModuleNames(): string[] {
  */
 export function isModuleName(moduleName: string): boolean {
   return getModuleMapState().has(moduleName.toLowerCase());
+}
+
+/**
+ * 获取对象属性。
+ *
+ * @param objectType - 对象类型。
+ * @returns 对象属性。
+ */
+export function getObjectProps(objectType: string): Record<string, string> {
+  return objectProps[objectType];
 }
