@@ -1,0 +1,4 @@
+interface:
+  display_name: "发布版本"
+  short_description: "准备并验证 zentao-api 新版本、提交变更并创建 Git 标签"
+  default_prompt: "使用 $release 为 zentao-api 准备一个新版本并创建发布提交与 Git 标签。"
