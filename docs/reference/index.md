@@ -85,6 +85,7 @@
 | [getModuleAction](functions/getModuleAction.md) | 获取指定模块下的某个动作。 |
 | [getModuleActionParams](functions/getModuleActionParams.md) | 获取指定模块下的某个动作的参数。 |
 | [getModuleNames](functions/getModuleNames.md) | 返回当前运行时注册表中的所有模块名。 |
+| [getObjectProps](functions/getObjectProps.md) | 获取对象属性。 |
 | [getProfile](functions/getProfile.md) | 获取指定 profile。 |
 | [getProfileKey](functions/getProfileKey.md) | 根据 profile 的账号和禅道站点地址生成稳定 key。 |
 | [pickFields](functions/pickFields.md) | 对列表中的每条对象摘取指定字段。 |

@@ -272,6 +272,10 @@
         "link": "/reference/functions/getModuleNames.md"
       },
       {
+        "text": "getObjectProps",
+        "link": "/reference/functions/getObjectProps.md"
+      },
+      {
         "text": "getProfile",
         "link": "/reference/functions/getProfile.md"
       },
