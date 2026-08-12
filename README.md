@@ -108,6 +108,8 @@ const client = await ZentaoClient.fromProfile('admin@https://zentao.example.com'
 | `getModule(name)` | 获取模块定义 |
 | `getModuleAction(module, action)` | 获取指定动作定义 |
 | `getModuleNames()` | 获取所有已注册模块名 |
+| `getModuleActionParams` | 获取指定动作参数定义 |
+| `getObjectProps` | 获取指定对象类型属性定义 |
 | `setGlobalOptions(options)` | 设置全局默认选项 |
 | `getGlobalOptions()` | 获取当前全局选项 |
 
