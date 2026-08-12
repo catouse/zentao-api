@@ -42,6 +42,10 @@
         "link": "/reference/interfaces/DefineModulesOptions.md"
       },
       {
+        "text": "ExportRegistryOptions",
+        "link": "/reference/interfaces/ExportRegistryOptions.md"
+      },
+      {
         "text": "GlobalOptions",
         "link": "/reference/interfaces/GlobalOptions.md"
       },
@@ -148,6 +152,14 @@
         "link": "/reference/type-aliases/ErrorCode.md"
       },
       {
+        "text": "ExportedModuleAction",
+        "link": "/reference/type-aliases/ExportedModuleAction.md"
+      },
+      {
+        "text": "ExportedModuleDefinition",
+        "link": "/reference/type-aliases/ExportedModuleDefinition.md"
+      },
+      {
         "text": "HttpMethod",
         "link": "/reference/type-aliases/HttpMethod.md"
       },
@@ -238,6 +250,10 @@
       {
         "text": "deleteProfile",
         "link": "/reference/functions/deleteProfile.md"
+      },
+      {
+        "text": "exportRegistry",
+        "link": "/reference/functions/exportRegistry.md"
       },
       {
         "text": "extendModuleAction",

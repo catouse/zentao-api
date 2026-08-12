@@ -17,6 +17,7 @@
 | [DataRecordFilter](interfaces/DataRecordFilter.md) | 单条过滤条件，字段名支持 `.` 访问子字段。 |
 | [DataRecordFilterGroup](interfaces/DataRecordFilterGroup.md) | 一组过滤条件，组内按 `operator` 组合；多组之间按 AND 组合。 |
 | [DefineModulesOptions](interfaces/DefineModulesOptions.md) | [defineModules](functions/defineModules.md) 的选项。 |
+| [ExportRegistryOptions](interfaces/ExportRegistryOptions.md) | [exportRegistry](functions/exportRegistry.md) 的选项。 |
 | [GlobalOptions](interfaces/GlobalOptions.md) | SDK 进程级全局默认选项，供高阶 [request](functions/request.md) 调用复用。 |
 | [LoginResponse](interfaces/LoginResponse.md) | 登录接口响应结构。 |
 | [ModuleAction](interfaces/ModuleAction.md) | 禅道模块中的单个 API 动作定义。 |
@@ -47,6 +48,8 @@
 | [ClientResponseType](type-aliases/ClientResponseType.md) | 响应体解析方式。 |
 | [DataRecord](type-aliases/DataRecord.md) | 本地数据处理的基础记录类型，对应一条对象数据。 |
 | [ErrorCode](type-aliases/ErrorCode.md) | SDK 已知错误码，对应 [ERRORS](variables/ERRORS.md) 的 key。 |
+| [ExportedModuleAction](type-aliases/ExportedModuleAction.md) | 导出的模块动作定义。 |
+| [ExportedModuleDefinition](type-aliases/ExportedModuleDefinition.md) | 导出的模块定义。 |
 | [HttpMethod](type-aliases/HttpMethod.md) | SDK 支持的 HTTP 方法。 |
 | [ListPagerInfo](type-aliases/ListPagerInfo.md) | 列表分页信息别名。 |
 | [ModuleActionMethod](type-aliases/ModuleActionMethod.md) | 模块动作使用的 HTTP 方法；兼容生成定义中的小写方法。 |
@@ -77,6 +80,7 @@
 | [defineModuleActions](functions/defineModuleActions.md) | 为已存在的模块追加或覆盖动作。 |
 | [defineModules](functions/defineModules.md) | 注册或扩展模块定义。 |
 | [deleteProfile](functions/deleteProfile.md) | 删除指定 profile。 |
+| [exportRegistry](functions/exportRegistry.md) | 导出注册表。 |
 | [extendModuleAction](functions/extendModuleAction.md) | 扩展已存在的模块动作。 |
 | [filterData](functions/filterData.md) | 按条件组过滤列表，多组之间按 AND 组合。 |
 | [getAllProfiles](functions/getAllProfiles.md) | 列出本地保存的所有 profile。 |
