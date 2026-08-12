@@ -1,24 +1,168 @@
 # zentao-api
 
 [![npm version](https://img.shields.io/npm/v/zentao-api)](https://www.npmjs.com/package/zentao-api)
-[![license](https://img.shields.io/npm/l/zentao-api)](./LICENSE)
-[![node](https://img.shields.io/node/v/zentao-api)](https://nodejs.org)
+[![Node.js](https://img.shields.io/node/v/zentao-api)](https://nodejs.org)
+[![license](https://img.shields.io/npm/l/zentao-api)](https://github.com/easysoft/zentao-api/blob/main/LICENSE)
 
 Browser & Node.js SDK for [ZenTao](https://www.zentao.net) (禅道) API v2.
 
-`zentao-api` 是一个面向禅道 API v2 的轻量 JavaScript/TypeScript SDK，可用于 Node.js 18+、浏览器打包工具以及 CDN/script 标签场景。
+`zentao-api` 是一个零运行时依赖的 JavaScript/TypeScript SDK，提供底层 REST 客户端和基于模块注册表的高阶请求接口，可运行在 Node.js 18+、Bun、浏览器打包工具及 CDN/script 标签环境中。
 
----
+[快速开始](#快速开始) · [调用方式](#两种调用方式) · [浏览器](#浏览器) · [完整文档](#文档)
 
-## 安装 / Install
+## 特性
+
+- 两层 API：使用 `ZentaoClient` 直接调用 REST 路径，或使用 `request("module/action")` 自动组装路径、查询参数和请求体。
+- 完整类型提示：内置请求名、参数和 `data` 返回值可由 TypeScript 自动推导。
+- 统一响应结构：自动提取业务数据和分页信息，稳定返回 `ResponseData<T>`。
+- 覆盖禅道常用模块：产品、项目、执行、需求、任务、Bug、测试、版本、发布等。
+- 内置本地数据处理：支持转换、过滤、搜索、排序、限制数量和字段摘取。
+- 可扩展模块注册表、持久化 Profile、稳定错误码及 Node.js 自签名证书支持。
+
+## 安装
 
 ```sh
 npm install zentao-api
 ```
 
-## 快速开始 / Quick Start
+使用 Bun：
 
-### 创建客户端
+```sh
+bun add zentao-api
+```
+
+包采用 ESM，并自带 TypeScript 类型定义。Node.js 需要 18 或更高版本。
+
+## 快速开始
+
+推荐通过 `ZentaoClient.init()` 配置全局客户端，再使用高阶 `request()` 调用内置模块：
+
+```ts
+import { ZentaoClient, request } from 'zentao-api';
+
+ZentaoClient.init({
+  baseUrl: 'https://zentao.example.com',
+  token: 'your-token',
+});
+
+const result = await request('product/list', {
+  browseType: 'all',
+  recPerPage: 20,
+  pageID: 1,
+});
+
+console.log(result.data);         // 产品列表
+console.log(result.pager?.total); // 总记录数
+```
+
+`baseUrl` 填写禅道站点根地址；SDK 会自动拼接 `/api.php/v2`，并在后续请求中注入 `Token` 请求头。
+
+### 使用账号密码登录
+
+没有 token 时，可以先登录。`ZentaoClient.init()` 返回的实例同时也是 `request()` 使用的全局客户端：
+
+```ts
+import { ZentaoClient, request } from 'zentao-api';
+
+const client = ZentaoClient.init({
+  baseUrl: 'https://zentao.example.com',
+});
+
+await client.login('admin', 'password');
+
+const products = await request('product/list');
+```
+
+请从环境变量或安全配置中读取账号、密码和 token，不要将凭据提交到代码仓库。
+
+## 两种调用方式
+
+| 调用方式 | 适合场景 | 返回值 |
+| --- | --- | --- |
+| `request("module/action")` | 调用注册表中的常用禅道 API，自动处理参数与分页 | 统一的 `ResponseData<T>` |
+| `ZentaoClient` | 调用尚未注册的路径、上传文件或读取二进制响应 | 禅道原始响应体 |
+
+### 高阶模块请求
+
+请求名支持三种写法：
+
+```ts
+await request('product');      // product/list
+await request('product/list'); // 显式动作名
+await request('product/1');    // product/get，且对象 ID 为 1
+```
+
+带作用域的列表可以传产品、项目或执行 ID，SDK 会自动选择实际路径：
+
+```ts
+const bugs = await request('bug/list', {
+  productID: 1,
+  browseType: 'unclosed',
+});
+
+// 也可以显式指定作用域：
+const projectBugs = await request('bug/list', {
+  scope: 'projects',
+  scopeID: 8,
+});
+```
+
+单次调用选项会覆盖全局选项。下面的处理只作用于 SDK 返回的 `data`，不会改变服务端数据：
+
+```ts
+const bugs = await request(
+  'bug/list',
+  { productID: 1, recPerPage: 100 },
+  {
+    filter: ['status=active,pri>=2'],
+    search: ['登录'],
+    sort: 'pri:desc,id:asc',
+    limit: '10',
+    pick: ['id', 'title', 'pri'],
+  },
+);
+```
+
+更多过滤语法和处理顺序见[本地数据处理指南](https://github.com/easysoft/zentao-api/blob/main/docs/guide/data-processing.md)。
+
+### 统一返回结构
+
+除非启用 `raw`，`request()` 始终返回以下结构：
+
+```ts
+interface ResponseData<T> {
+  status: 'success' | 'fail';
+  message?: string;
+  data?: T;
+  pager?: {
+    total: number;
+    page: number;
+    recPerPage: number;
+  };
+}
+```
+
+内置请求会自动推导参数和数据类型；自定义调用也可以显式收窄 `data`：
+
+```ts
+interface ProductSummary {
+  id: number;
+  name: string;
+}
+
+const result = await request<ProductSummary[]>('product/list', {});
+result.data?.forEach((product) => console.log(product.name));
+```
+
+需要完整服务端响应时，传入 `{ raw: true }`。此时会跳过响应归一化、本地数据处理和 `throwOnFail`：
+
+```ts
+const raw = await request('product/list', {}, { raw: true });
+```
+
+### 底层 REST 客户端
+
+`ZentaoClient` 适合直接调用 API v2 路径：
 
 ```ts
 import { ZentaoClient } from 'zentao-api';
@@ -26,117 +170,146 @@ import { ZentaoClient } from 'zentao-api';
 const client = new ZentaoClient({
   baseUrl: 'https://zentao.example.com',
   token: 'your-token',
+  timeout: 10_000,
 });
 
 const products = await client.get('/products');
+const product = await client.get('/products/1');
+const created = await client.post('/products', { name: '新产品' });
 ```
 
-`baseUrl` 是禅道站点根地址。SDK 会在内部追加 `/api.php/v2`。
+通用 `client.request()` 还支持自定义请求头、查询参数、`AbortSignal`、`FormData`，以及 `text`、`arrayBuffer`、`blob`、`response` 等响应类型。
 
-### 账号密码登录
+## 配置
 
-如果还没有 token，可以使用账号密码登录：
+### 客户端选项
+
+| 选项 | 类型 | 说明 |
+| --- | --- | --- |
+| `baseUrl` | `string` | 禅道站点根地址；SDK 自动处理 `/api.php/v2`。 |
+| `token` | `string` | 禅道 API Token；也可稍后通过 `login()` 获取。 |
+| `timeout` | `number` | 默认请求超时时间，单位为毫秒，默认 `10000`。 |
+| `insecure` | `boolean` | 跳过 TLS 证书校验，仅支持 Node.js 运行时。 |
+
+### 全局选项
 
 ```ts
-const client = new ZentaoClient('https://zentao.example.com');
-const token = await client.login('admin', 'password');
+import { setGlobalOptions } from 'zentao-api';
+
+setGlobalOptions({
+  recPerPage: '50',
+  limit: '20',
+  timeout: 30_000,
+  throwOnFail: true,
+  autoFill: false,
+});
 ```
 
-### 全局客户端与模块请求
+常用全局选项包括 `client`、`recPerPage`、`limit`、`timeout`、`insecure`、`persistProfiles`、`throwOnFail` 和 `autoFill`。优先级通常为：单次调用选项 > 全局选项 > 客户端默认值。
+
+### 持久化 Profile
+
+Profile 默认不会写入。先启用 `persistProfiles`，登录成功后才会保存站点、账号、token 和客户端配置：
 
 ```ts
-import { ZentaoClient, request, setGlobalOptions } from 'zentao-api';
+import { ZentaoClient, setGlobalOptions } from 'zentao-api';
 
-ZentaoClient.init({
+setGlobalOptions({ persistProfiles: true });
+
+const client = ZentaoClient.init({
   baseUrl: 'https://zentao.example.com',
-  token: 'your-token',
 });
 
-setGlobalOptions({ recPerPage: '50' });
-
-const result = await request('product/list', {});
+await client.login('admin', 'password');
 ```
 
-请求名支持三种写法：
-
-```ts
-await request('product');      // 默认调用 product/list
-await request('product/list'); // 显式调用模块动作
-await request('product/1');    // 详情快捷写法，等价于 product/get + id=1
-```
-
-单次调用的选项会覆盖全局选项：
-
-```ts
-const result = await request('bug/list', { product: 1 }, { limit: 10 });
-```
-
-### 从本地 Profile 恢复
-
-SDK 支持将登录信息持久化到本地（Node.js: `~/.config/zentao/zentao.json`，浏览器: `localStorage`），后续可直接恢复客户端：
+后续可以恢复当前 Profile；如需继续调用高阶 `request()`，再把恢复的客户端设为全局客户端：
 
 ```ts
 const client = await ZentaoClient.fromProfile();
+setGlobalOptions({ client });
+
 // 或指定 profile key
-const client = await ZentaoClient.fromProfile('admin@https://zentao.example.com');
+const another = await ZentaoClient.fromProfile(
+  'admin@https://zentao.example.com',
+);
 ```
 
-## API 概览
+| 环境 | 存储位置 |
+| --- | --- |
+| Node.js / Bun | `~/.config/zentao/zentao.json` |
+| 浏览器 | `localStorage` |
 
-### ZentaoClient
-
-| 方法 | 说明 |
-|------|------|
-| `client.get<T>(path)` | GET 请求 |
-| `client.post<T>(path, body)` | POST 请求 |
-| `client.put<T>(path, body)` | PUT 请求 |
-| `client.delete<T>(path)` | DELETE 请求 |
-| `client.login(account, password)` | 账号密码登录，返回 token |
-| `client.request(path, options?)` | 通用请求（底层方法） |
-| `ZentaoClient.init(options)` | 创建全局单例客户端 |
-| `ZentaoClient.create(options)` | 工厂方法创建客户端 |
-| `ZentaoClient.fromProfile(key?)` | 从持久化 profile 恢复客户端 |
-
-### 模块请求
-
-| 函数 | 说明 |
-|------|------|
-| `request(name, params?, options?)` | 按 `"module"`、`"module/action"` 或 `"module/<objectID>"` 调用已注册模块 |
-| `defineModules(modules, options?)` | 注册或扩展模块定义 |
-| `defineModuleActions(module, actions)` | 为已有模块追加或替换动作 |
-| `extendModuleAction(module, action, patch)` | 深度合并补丁，或用回调改写已有动作 |
-| `getModule(name)` | 获取模块定义 |
-| `getModuleAction(module, action)` | 获取指定动作定义 |
-| `getModuleNames()` | 获取所有已注册模块名 |
-| `getModuleActionParams` | 获取指定动作参数定义 |
-| `getObjectProps` | 获取指定对象类型属性定义 |
-| `setGlobalOptions(options)` | 设置全局默认选项 |
-| `getGlobalOptions()` | 获取当前全局选项 |
+Profile 包含可直接调用 API 的 token，请按敏感凭据保护其存储位置。
 
 ## 错误处理
 
-SDK 所有传输层错误均通过 `ZentaoError` 抛出，包含稳定的错误码：
+HTTP、网络、超时、参数、模块解析和 Profile 错误会统一抛出带稳定错误码的 `ZentaoError`：
 
 ```ts
-import { ZentaoError } from 'zentao-api';
+import { request, ZentaoError } from 'zentao-api';
 
 try {
-  await client.get('/products');
+  await request('bug/resolve', {
+    bugID: 1001,
+    resolution: 'fixed',
+  }, {
+    throwOnFail: true,
+  });
 } catch (error) {
   if (error instanceof ZentaoError) {
-    console.error(error.code);    // e.g. 'E_HTTP_ERROR', 'E_TIMEOUT', 'E_NETWORK_ERROR'
+    console.error(error.code);    // 例如 E_HTTP_ERROR、E_TIMEOUT
     console.error(error.message);
+    console.error(error.details);
   }
 }
 ```
 
-> **注意**：服务端返回 `{ status: "fail" }` 时 SDK 默认不会抛出异常，按原始响应内容返回。需要把业务失败转为异常时，可在单次请求或全局选项中启用 `throwOnFail`。HTTP/网络/超时等传输层错误始终会抛出 `ZentaoError`。
+禅道返回 `{ status: "fail" }` 属于业务失败，默认仍作为 `ResponseData` 返回；只有启用单次或全局 `throwOnFail` 后，才会抛出 `E_API_FAILED`。HTTP、网络和超时等传输层错误始终抛出异常。
 
-## 扩展模块
+## 浏览器
 
-生成的模块定义来自 `scripts/update-registry.ts`。你可以在调用 `request()` 前扩展模块，或新增、替换动作。
+Vite、Webpack、Rspack 等打包工具可以从包根导入；需要显式选择浏览器入口时使用 `zentao-api/browser`：
 
-### 新增模块
+```ts
+import { ZentaoClient, request } from 'zentao-api/browser';
+```
+
+使用 script 标签时，UMD 构建会将公共 API 暴露到 `window.ZentaoAPI`：
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/zentao-api@latest/dist/browser/zentao-api.global.js"></script>
+<script>
+  const client = new window.ZentaoAPI.ZentaoClient({
+    baseUrl: 'https://zentao.example.com',
+    token: 'your-token',
+  });
+
+  console.log(window.ZentaoAPI.VERSION);
+</script>
+```
+
+> 浏览器直连要求禅道服务器允许 CORS，并会向前端暴露 token；敏感场景请通过后端代理。`insecure` 仅适用于 Node.js，在浏览器中使用会抛出 `E_INSECURE_BROWSER`。
+
+## 模块注册表与扩展
+
+可以在运行时查看 SDK 当前支持的模块、动作和参数：
+
+```ts
+import {
+  getModuleAction,
+  getModuleActionParams,
+  getModuleNames,
+  getObjectProps,
+} from 'zentao-api';
+
+const modules = getModuleNames();
+const action = getModuleAction('bug', 'create');
+const params = getModuleActionParams('bug', 'create');
+const labels = getObjectProps('bug');
+```
+
+未注册的 API 可以新增为自定义模块：
 
 ```ts
 import { defineModules } from 'zentao-api';
@@ -147,164 +320,59 @@ defineModules({
     {
       name: 'list',
       type: 'list',
-      method: 'GET',
       path: '/custom',
-      resultType: 'list',
       resultGetter: 'items',
     },
   ],
 });
 ```
 
-### 为已有模块追加动作
-
-```ts
-import { defineModuleActions } from 'zentao-api';
-
-defineModuleActions('bug', {
-  name: 'archive',
-  type: 'action',
-  method: 'PUT',
-  path: '/bugs/{bugID}/archive',
-  pathParams: { bugID: 'Bug ID' },
-  resultType: 'text',
-});
-```
-
-### 微调已有动作
-
-只想改动作的个别字段（而不是整体替换）时，用 `extendModuleAction`。传入补丁对象会与原动作**深度合并**：普通对象递归合并，数组及其他值整体替换，`undefined` 的键会被忽略。
+只需修改已有动作的个别字段时，使用 `extendModuleAction()`；补丁对象会深度合并，数组会整体替换：
 
 ```ts
 import { extendModuleAction } from 'zentao-api';
 
-// 改写 task/list 的 URL
 extendModuleAction('task', 'list', {
   path: '/executions/{executionID}/tasks',
-  pathParams: { executionID: '执行ID' },
+  pathParams: { executionID: '执行 ID' },
 });
 ```
 
-需要基于现有定义做条件改写时，可传入回调。回调收到当前动作的深克隆，返回值作为**完整**动作定义直接取代原动作（不再合并）：
+`defineModuleActions()` 可追加或整体替换单个动作，`defineModules(module, { replace: true })` 可整体替换同名模块。请确保扩展代码在第一次调用 `request()` 前执行。
 
-```ts
-extendModuleAction('execution', 'create', (action) => {
-  const required = action.requestBody!.schema?.required;
-  if (Array.isArray(required) && !required.includes('products')) {
-    required.push('products');
-  }
-  return action;
-});
-```
+## 文档
 
-### 合并与替换
+- [快速开始](https://github.com/easysoft/zentao-api/blob/main/docs/guide/index.md)
+- [安装与配置](https://github.com/easysoft/zentao-api/blob/main/docs/guide/installation.md)
+- [常见 API 示例](https://github.com/easysoft/zentao-api/blob/main/docs/guide/examples.md)
+- [Profile 与错误处理](https://github.com/easysoft/zentao-api/blob/main/docs/guide/profiles-and-errors.md)
+- [SDK API Reference](https://github.com/easysoft/zentao-api/tree/main/docs/reference)
+- [ZenTao 模块与动作列表](https://github.com/easysoft/zentao-api/tree/main/docs/zentao-api)
+- [变更日志](https://github.com/easysoft/zentao-api/blob/main/CHANGES.md)
 
-同名模块默认**合并**定义：同名动作会替换，未知动作会追加。如需**整体替换**模块，传入 `{ replace: true }`：
+## 开发与贡献
 
-```ts
-defineModules(myModule, { replace: true });
-```
-
-如果扩展定义拆分在多个文件中，请在应用启动入口中显式导入这些文件，确保它们在调用 `request()` 前完成注册。
-
-## TypeScript 支持
-
-SDK 提供完整的 TypeScript 类型定义，所有公共类型均可直接导入：
-
-```ts
-import type {
-  ZentaoClientOptions,
-  ModuleDefinition,
-  ModuleAction,
-  ResponseData,
-  RequestOptions,
-} from 'zentao-api';
-```
-
-## 浏览器
-
-浏览器打包工具可以正常导入这个包：
-
-```ts
-import { ZentaoClient } from 'zentao-api';
-```
-
-如果使用 script 标签，请使用浏览器构建包，并从 `window.ZentaoAPI` 读取 API：
-
-```html
-<script src="https://cdn.jsdelivr.net/npm/zentao-api@latest/dist/browser/zentao-api.global.js"></script>
-<script>
-  console.log(window.ZentaoAPI.VERSION, window.ZentaoAPI.BUILD);
-  const client = new window.ZentaoAPI.ZentaoClient('https://zentao.example.com');
-</script>
-```
-
-> **CORS**：浏览器直接请求要求禅道服务器允许 CORS。浏览器代码也会把 token 暴露给前端；如果这不可接受，请使用后端代理。
->
-> **TLS**：`insecure` TLS 选项仅适用于 Node.js，在浏览器运行时会抛出错误。
-
-## 测试
-
-本仓库开发依赖管理仅使用 [Bun](https://bun.sh)（`bun install`）。请勿使用 npm / pnpm / yarn，以免生成其它 lockfile。
+本仓库只使用 [Bun](https://bun.sh) 管理开发依赖，请勿使用 npm、pnpm 或 yarn 安装仓库依赖，以免生成额外 lockfile。
 
 ```sh
-bun test              # 单元测试
-bun run test:coverage # 含覆盖率的单元测试
-bun run check         # 完整 CI 流程：测试 + 类型检查 + 注册表 + 构建 + 冒烟测试
+bun install
+bun test                  # 单元测试
+bun run test:real         # 真实禅道环境集成测试
+bun run docs:dev          # 生成并预览文档站
+bun run check             # 完整 CI：测试、类型检查、注册表、构建、冒烟测试
 ```
 
-### 真实环境测试
+`bun run test:real` 会依次读取 `.env.local` 和 `env.local`，需要配置 `ZENTAO_URL`（或 `ZENTAO_BASE_URL`），以及 `ZENTAO_TOKEN` 或 `ZENTAO_ACCOUNT` / `ZENTAO_PASSWORD`。使用 `bun run test:real -- --keep-test-data` 可保留测试创建的数据。
 
-真实环境测试需要连接到运行中的禅道实例，不包含在默认 `bun test` 中：
+模块注册表由 `data/zentao-openapi.json` 生成。请勿手动编辑 `src/modules/generated.ts`；更新规范后运行：
 
 ```sh
-bun run test:real
-bun run test:real -- --keep-test-data   # 保留临时数据以便手动检查
+bun run scripts/update-registry.ts
+bun run docs:generate
 ```
 
-测试会优先读取 `.env.local`，如果不存在则读取 `env.local`。支持的环境变量：
+提交代码前请确保 `bun run check` 通过。欢迎提交 Issue 和 Pull Request。
 
-| 变量 | 说明 | 默认值 |
-|------|------|--------|
-| `ZENTAO_URL` | 禅道站点地址 | *(必填)* |
-| `ZENTAO_ACCOUNT` | 登录账号 | *(必填)* |
-| `ZENTAO_PASSWORD` | 登录密码 | *(必填)* |
-| `ZENTAO_TOKEN` | 直接提供 Token（替代账号密码） | — |
-| `ZENTAO_REVIEWER` | 需求评审人（未设置时复用 `ZENTAO_ACCOUNT`） | — |
-| `ZENTAO_KEEP_TEST_DATA` | 保留临时测试数据 | `false` |
-| `ZENTAO_TIMEOUT` | 请求超时（ms） | `30000` |
-| `ZENTAO_INSECURE` | 跳过 TLS 证书验证 | `false` |
+## License
 
-## 项目结构
-
-```
-zentao-api/
-├── src/
-│   ├── client/         # ZentaoClient 核心实现
-│   ├── modules/        # 模块注册表与解析逻辑
-│   │   ├── generated.ts  # 自动生成，勿手动编辑
-│   │   ├── registry.ts   # 运行时注册表
-│   │   └── resolve.ts    # 路径模板与参数解析
-│   ├── request/        # 高阶请求函数
-│   ├── profiles/       # 本地 profile 持久化
-│   ├── misc/           # 错误、全局选项、环境检测
-│   ├── types/          # TypeScript 类型定义
-│   ├── utils/          # 通用工具函数
-│   └── index.ts        # 公共 API 入口
-├── scripts/            # 构建与代码生成脚本
-├── tests/              # 单元测试与真实环境测试
-├── data/               # OpenAPI 规范文件
-└── dist/               # 构建产物
-```
-
-## 贡献
-
-欢迎贡献代码！请确保提交前通过完整检查：
-
-```sh
-bun run check
-```
-
-## 许可证 / License
-
-[MIT](./LICENSE)
+[MIT](https://github.com/easysoft/zentao-api/blob/main/LICENSE)
