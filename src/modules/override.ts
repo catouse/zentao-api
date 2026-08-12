@@ -131,4 +131,33 @@ export function applyBuiltinOverrides(): void {
       return action;
     });
   });
+
+  // 修改 BUG 列表选项
+  extendModuleAction('bug', 'list', (action) => {
+    const params = action.params;
+    const browseTypeParam = params?.find((param) => param.name === 'browseType');
+    if (browseTypeParam && browseTypeParam.options?.length) {
+      const options = browseTypeParam.options;
+      const assignedtomeOption = options.find(x => x.value === 'assignedtome');
+      if (assignedtomeOption) {
+        browseTypeParam.options = [
+          ...options.filter(x => x !== assignedtomeOption),
+          {
+            ...assignedtomeOption,
+            value: 'assigntome',
+          }
+        ];
+      }
+      if (!browseTypeParam.options.some(x => x.value === 'resolvedbyme')) {
+        browseTypeParam.options = [
+          ...browseTypeParam.options,
+          {
+            value: 'resolvedbyme',
+            label: '由我解决',
+          }
+        ];
+      }
+    }
+    return action;
+  });
 }
