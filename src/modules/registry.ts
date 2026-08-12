@@ -35,3 +35,10 @@ export {
   isModuleName,
   getObjectProps,
 } from './query.js';
+
+export {
+  type ExportRegistryOptions,
+  type ExportedModuleAction,
+  type ExportedModuleDefinition,
+  exportRegistry,
+} from './export.js';
