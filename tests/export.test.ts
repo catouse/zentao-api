@@ -19,9 +19,16 @@ function defineExportFixture(): void {
         name: 'create',
         type: 'create',
         path: '/export-fixtures',
+        resultGetter: (data) => data,
+        pagerGetter: () => ({
+          pageID: 1,
+          recPerPage: 20,
+          recTotal: 1,
+        }),
         requestBody: {
           schema: {
             type: 'object',
+            transform: () => 'transformed',
             required: ['name'],
             properties: {
               name: { type: 'string', description: 'Fixture name' },
@@ -57,17 +64,35 @@ describe('exportRegistry', () => {
       },
     ]);
     expect(Object.hasOwn(action, 'requestBody')).toBe(false);
+    expect(Object.hasOwn(action, 'resultGetter')).toBe(false);
+    expect(Object.hasOwn(action, 'pagerGetter')).toBe(false);
   });
 
-  test('returns original module definitions in raw mode', () => {
+  test('keeps the raw module shape while removing functions by default', () => {
     defineExportFixture();
 
     const registry = exportRegistry({ raw: true });
     const module: ModuleDefinition = registry['export-fixture'];
+    const schema = module.actions[0].requestBody!.schema;
 
-    expect(module).toBe(getModule('export-fixture')!);
     expect(module.actions[0].requestBody).toBeDefined();
     expect(Object.hasOwn(module.actions[0], 'bodyParams')).toBe(false);
+    expect(Object.hasOwn(module.actions[0], 'resultGetter')).toBe(false);
+    expect(Object.hasOwn(module.actions[0], 'pagerGetter')).toBe(false);
+    expect(Object.hasOwn(schema, 'transform')).toBe(false);
+  });
+
+  test('preserves function properties when jsonSafe is disabled', () => {
+    defineExportFixture();
+
+    const registry = exportRegistry({ raw: true, jsonSafe: false });
+    const module = registry['export-fixture'];
+    const schema = module.actions[0].requestBody!.schema;
+
+    expect(module).toBe(getModule('export-fixture')!);
+    expect(module.actions[0].resultGetter).toBeFunction();
+    expect(module.actions[0].pagerGetter).toBeFunction();
+    expect(schema.transform).toBeFunction();
   });
 
   test('does not install the browser global when importing the main entry', () => {
