@@ -68,7 +68,7 @@ await request('product/1');    // 详情快捷写法，等价于 product/get + i
 单次调用的选项会覆盖全局选项：
 
 ```ts
-const result = await request('bug/list', { product: 1 }, { limit: '10' });
+const result = await request('bug/list', { product: 1 }, { limit: 10 });
 ```
 
 ### 从本地 Profile 恢复

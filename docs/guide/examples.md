@@ -121,7 +121,7 @@ const bytes = await client.request<ArrayBuffer>('/files/42', {
 const bugs = await request(
   'bug/list',
   { productID: 1, recPerPage: 100 },
-  { limit: '10' },
+  { limit: 10 },
 );
 
 console.log(bugs.data);

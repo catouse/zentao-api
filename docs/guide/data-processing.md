@@ -16,7 +16,7 @@ const bugs = await request(
     filter: ['status=active,pri>=2'],
     search: ['登录'],
     sort: 'pri:desc,id:asc',
-    limit: '10',
+    limit: 10,
     pick: ['id', 'title', 'pri'],
   },
 );
@@ -87,7 +87,7 @@ const result = await request(
 const bugs = await request(
   'bug/list',
   { productID: 1, recPerPage: 100 },
-  { limit: '10' },
+  { limit: 10 },
 );
 ```
 
