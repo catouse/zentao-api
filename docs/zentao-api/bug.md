@@ -32,7 +32,7 @@ Bug管理，支持获取Bug列表，支持获取产品/项目/执行下的Bug、
 
 | 参数 | 类型 | 必填 | 默认值 | 说明 |
 | --- | --- | --- | --- | --- |
-| `browseType` | string | 否 | `unclosed` | 状态，默认是unclosed<br>`all` 全部<br>`unclosed` 未关闭<br>`assignedtome` 指派给我<br>`openedbyme` 我创建<br>`assignedbyme` 由我指派 |
+| `browseType` | string | 否 | `unclosed` | 状态，默认是unclosed<br>`all` 全部<br>`unclosed` 未关闭<br>`openedbyme` 我创建<br>`assignedbyme` 由我指派<br>`assigntome` 指派给我<br>`resolvedbyme` 由我解决 |
 | `orderBy` | string | 否 |  | 排序<br>`id_asc` ID 升序<br>`id_desc` ID 降序<br>`title_asc` 标题 升序<br>`title_desc` 标题 降序<br>`status_asc` 状态 升序<br>`status_desc` 状态 降序 |
 | `recPerPage` | number | 否 |  | 每页数量，不超过1000 |
 | `pageID` | number | 否 |  | 页码，从第1页开始 |

@@ -1,5 +1,11 @@
 # 变更日志
 
+## 0.5.4 - 2026-08-12
+
+### 修复
+
+- 修正 `bug/list` 的 `browseType` 选项：将错误的 `assignedtome` 改为 `assigntome`，并补充“由我解决”（`resolvedbyme`）筛选项。
+
 ## 0.5.3 - 2026-08-12
 
 ### 新增
