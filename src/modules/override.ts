@@ -117,6 +117,49 @@ export function applyBuiltinOverrides(): void {
     });
   });
 
+  // execution-create 支持创建阶段
+  extendModuleAction('execution', 'create', (action) => {
+    const properties = action.requestBody!.schema?.properties as Record<string, unknown>;
+    if(properties) {
+      if (!properties.type) {
+        properties.type = {
+          type: 'string',
+          description: '类型(sprint 迭代，敏捷项目用 | stage 阶段，瀑布/IPD 用 | kanban 看板)',
+        };
+      }
+      if (!properties.attribute) {
+        properties.attribute = {
+          type: 'string',
+          description: [
+            '阶段属性：mix - 综合（父阶段可挂不同类型子阶段）',
+            'request - 需求（不关联需求、不测、不构建、不导入 Bug）',
+            'design - 设计（不测、不构建、不 DevOps）',
+            'dev - 开发（功能完整，可需求、任务、测试、构建）',
+            'qa - 测试（同上，偏测试）',
+            'release - 发布（同上，偏发布）',
+            'review - 总结评审（最严：不关联需求、不测、不构建）',
+            'other - 其他（无上述专项限制）'
+          ].join(' | '),
+        };
+      }
+      if (!properties.milestone) {
+        properties.milestone = {
+          type: 'integer',
+          description: '是否里程碑(0 否| 1 是)',
+          format: 'int32'
+        };
+      }
+      if (!properties.parent) {
+        properties.parent = {
+          type: 'integer',
+          description: '父级项目',
+          format: 'int32'
+        };
+      }
+    }
+    return action;
+  });
+
   // 为 task/create|update 补充 parent 字段（创建子任务）
   ['create', 'update'].forEach((actionName) => {
     extendModuleAction('task', actionName, (action) => {
