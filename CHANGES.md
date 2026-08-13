@@ -1,5 +1,11 @@
 # 变更日志
 
+## 0.5.5 - 2026-08-13
+
+### 新增
+
+- `execution/create` 请求体补充 `type`、`attribute`、`milestone`、`parent` 字段，支持创建瀑布/IPD 阶段。
+
 ## 0.5.4 - 2026-08-12
 
 ### 修复
