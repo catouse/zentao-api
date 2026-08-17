@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, test } from 'bun:test';
 import {
   ZentaoClient,
@@ -13,6 +14,12 @@ import {
   type ModuleDefinition,
 } from '../src/index';
 import { resetModuleDefinitions } from '../src/modules/registry';
+
+interface ApiActionMapping {
+  module: string;
+  name: string;
+  [property: string]: unknown;
+}
 
 function createMockServer(handler: (req: Request) => Response | Promise<Response>) {
   return Bun.serve({
@@ -40,16 +47,41 @@ describe('module registry', () => {
     expect(getModuleAction('product', 'list')!.path).toBe('/products');
   });
 
-  test('uses mapped names for conflicting generated actions', () => {
+  test('applies API mappings to modules, names, and action properties', () => {
+    const actionMap = JSON.parse(
+      readFileSync(new URL('../scripts/zentao-api-map.json', import.meta.url), 'utf-8'),
+    ) as Record<string, ApiActionMapping>;
+
+    for (const [api, mapping] of Object.entries(actionMap)) {
+      const separator = api.indexOf(' ');
+      const sourceMethod = api.slice(0, separator);
+      const sourcePath = api.slice(separator + 1);
+      const action = getModuleAction(mapping.module, mapping.name);
+      const expectedPath = typeof mapping.path === 'string' ? mapping.path : sourcePath;
+      const expectedMethod = typeof mapping.method === 'string' ? mapping.method : sourceMethod;
+
+      expect(action, api).toBeDefined();
+      expect(action!.path, api).toBe(expectedPath);
+      expect(action!.method?.toLowerCase(), api).toBe(
+        expectedMethod.toLowerCase(),
+      );
+
+      const { module: _module, ...actionProperties } = mapping;
+      for (const [property, value] of Object.entries(actionProperties)) {
+        expect((action as unknown as Record<string, unknown>)[property], `${api} ${property}`).toEqual(value);
+      }
+    }
+
     const my = getModule('my')!;
     expect(new Set(my.actions.map(action => action.name)).size).toBe(my.actions.length);
-    expect(getModuleAction('my', 'my-todos')!.path).toBe('/my/todos');
-    expect(getModuleAction('my', 'my-tasks')!.path).toBe('/my/tasks');
+    expect(getModuleAction('my', 'todos')!.path).toBe('/my/todos');
+    expect(getModuleAction('my', 'tasks')!.path).toBe('/my/tasks');
 
     const project = getModule('project')!;
     expect(new Set(project.actions.map(action => action.name)).size).toBe(project.actions.length);
-    expect(getModuleAction('project', 'project-team')!.path).toBe('/projects/team');
-    expect(getModuleAction('project', 'project-close')!.path).toBe('/projects/{projectID}/close');
+    expect(getModuleAction('project', 'team')!.path).toBe('/projects/team');
+    expect(getModuleAction('project', 'close')!.path).toBe('/projects/{projectID}/close');
+    expect(getModuleAction('project', 'createStory')!.path).toBe('/projects/{projectID}/stories');
   });
 
   test('getObjectProps returns Chinese labels for OpenAPI object modules', () => {

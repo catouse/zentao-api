@@ -386,7 +386,7 @@ export const BUILTIN_MODULES = [
     {
         name: 'product',
         display: '产品',
-        description: '产品管理，支持获取产品列表、创建产品、关闭产品、获取产品详情、修改产品、删除产品',
+        description: '产品管理，支持获取产品列表、创建产品、关闭产品、创建产品的需求模块、创建产品的Bug模块、创建产品的用例模块、获取产品详情、修改产品、删除产品',
         actions: [
             {
                 name: 'list',
@@ -506,7 +506,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'product-close',
+                name: 'close',
                 display: '关闭产品',
                 type: 'create',
                 method: 'post',
@@ -524,6 +524,90 @@ export const BUILTIN_MODULES = [
                             "comment": {
                                 "type": "string",
                                 "description": "备注"
+                            }
+                        }
+                    },
+                },
+            }, {
+                name: 'createStoryModule',
+                display: '创建产品的需求模块',
+                type: 'create',
+                method: 'post',
+                path: '/products/{productID}/story/modules',
+                resultType: 'object',
+                pathParams: {
+                    productID: '产品ID',
+                },
+                requestBody: {
+                    required: true,
+                    type: 'object',
+                    schema: {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "模块名称"
+                            },
+                            "parentID": {
+                                "type": "integer",
+                                "description": "父模块",
+                                "format": "int32"
+                            }
+                        }
+                    },
+                },
+            }, {
+                name: 'createBugModule',
+                display: '创建产品的Bug模块',
+                type: 'create',
+                method: 'post',
+                path: '/products/{productID}/bug/modules',
+                resultType: 'object',
+                pathParams: {
+                    productID: '产品ID',
+                },
+                requestBody: {
+                    required: true,
+                    type: 'object',
+                    schema: {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "模块名称"
+                            },
+                            "parentID": {
+                                "type": "integer",
+                                "description": "父模块",
+                                "format": "int32"
+                            }
+                        }
+                    },
+                },
+            }, {
+                name: 'createTestcaseModule',
+                display: '创建产品的用例模块',
+                type: 'create',
+                method: 'post',
+                path: '/products/{productID}/testcase/modules',
+                resultType: 'object',
+                pathParams: {
+                    productID: '产品ID',
+                },
+                requestBody: {
+                    required: true,
+                    type: 'object',
+                    schema: {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "模块名称"
+                            },
+                            "parentID": {
+                                "type": "integer",
+                                "description": "父模块",
+                                "format": "int32"
                             }
                         }
                     },
@@ -627,7 +711,7 @@ export const BUILTIN_MODULES = [
     {
         name: 'project',
         display: '项目',
-        description: '项目管理，支持获取项目列表、获取项目团队列表、创建项目、关闭项目、修改项目、删除项目、维护项目成员',
+        description: '项目管理，支持获取项目列表、获取项目团队列表、创建项目、关闭项目、创建项目需求、创建项目Bug、创建项目任务、修改项目、删除项目、维护项目成员',
         actions: [
             {
                 name: 'list',
@@ -698,7 +782,7 @@ export const BUILTIN_MODULES = [
                     },
                 ],
             }, {
-                name: 'project-team',
+                name: 'team',
                 display: '获取项目团队列表',
                 type: 'list',
                 method: 'get',
@@ -775,7 +859,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'project-close',
+                name: 'close',
                 display: '关闭项目',
                 type: 'create',
                 method: 'post',
@@ -801,6 +885,185 @@ export const BUILTIN_MODULES = [
                         },
                         "required": [
                             "realEnd"
+                        ]
+                    },
+                },
+            }, {
+                name: 'createStory',
+                display: '创建项目需求',
+                type: 'create',
+                method: 'post',
+                path: '/projects/{projectID}/stories',
+                resultType: 'object',
+                pathParams: {
+                    projectID: '项目ID',
+                },
+                requestBody: {
+                    required: true,
+                    type: 'object',
+                    schema: {
+                        "type": "object",
+                        "properties": {
+                            "productID": {
+                                "type": "integer",
+                                "description": "所属产品；项目型项目可不传，产品型项目必须传",
+                                "format": "int32"
+                            },
+                            "title": {
+                                "type": "string",
+                                "description": "需求标题"
+                            },
+                            "spec": {
+                                "type": "string",
+                                "description": "需求描述"
+                            },
+                            "pri": {
+                                "type": "integer",
+                                "description": "优先级",
+                                "format": "int32"
+                            },
+                            "category": {
+                                "type": "string",
+                                "description": "类别"
+                            },
+                            "reviewer": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "description": "评审人"
+                            }
+                        },
+                        "required": [
+                            "title"
+                        ]
+                    },
+                },
+            }, {
+                name: 'createBug',
+                display: '创建项目Bug',
+                type: 'create',
+                method: 'post',
+                path: '/projects/{projectID}/bugs',
+                resultType: 'object',
+                pathParams: {
+                    projectID: '项目ID',
+                },
+                requestBody: {
+                    required: true,
+                    type: 'object',
+                    schema: {
+                        "type": "object",
+                        "properties": {
+                            "productID": {
+                                "type": "integer",
+                                "description": "所属产品；项目型项目可不传，产品型项目必须传",
+                                "format": "int32"
+                            },
+                            "title": {
+                                "type": "string",
+                                "description": "Bug标题"
+                            },
+                            "openedBuild": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "description": "影响版本，主干是trunk，其他版本使用版本ID"
+                            },
+                            "severity": {
+                                "type": "integer",
+                                "description": "严重程度",
+                                "format": "int32"
+                            },
+                            "pri": {
+                                "type": "integer",
+                                "description": "优先级",
+                                "format": "int32"
+                            },
+                            "type": {
+                                "type": "string",
+                                "description": "Bug类型"
+                            },
+                            "steps": {
+                                "type": "string",
+                                "description": "重现步骤"
+                            }
+                        },
+                        "required": [
+                            "title",
+                            "openedBuild"
+                        ]
+                    },
+                },
+            }, {
+                name: 'createTask',
+                display: '创建项目任务',
+                type: 'create',
+                method: 'post',
+                path: '/projects/{projectID}/tasks',
+                resultType: 'object',
+                pathParams: {
+                    projectID: '项目ID',
+                },
+                requestBody: {
+                    required: true,
+                    type: 'object',
+                    schema: {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "任务名称"
+                            },
+                            "executionID": {
+                                "type": "integer",
+                                "description": "所属执行；无执行项目可不传，有执行项目必须传",
+                                "format": "int32"
+                            },
+                            "type": {
+                                "type": "string",
+                                "description": "任务类型"
+                            },
+                            "assignedTo": {
+                                "type": "string",
+                                "description": "指派给"
+                            },
+                            "estStarted": {
+                                "type": "string",
+                                "description": "预计开始"
+                            },
+                            "deadline": {
+                                "type": "string",
+                                "description": "截止日期"
+                            },
+                            "pri": {
+                                "type": "integer",
+                                "description": "优先级",
+                                "format": "int32"
+                            },
+                            "estimate": {
+                                "type": "number",
+                                "description": "预计工时",
+                                "format": "float"
+                            },
+                            "module": {
+                                "type": "integer",
+                                "description": "所属模块",
+                                "format": "int32"
+                            },
+                            "story": {
+                                "type": "integer",
+                                "description": "相关需求",
+                                "format": "int32"
+                            },
+                            "desc": {
+                                "type": "string",
+                                "description": "任务描述"
+                            }
+                        },
+                        "required": [
+                            "name"
                         ]
                     },
                 },
@@ -942,7 +1205,7 @@ export const BUILTIN_MODULES = [
     {
         name: 'execution',
         display: '执行',
-        description: '执行管理，支持获取执行列表、获取执行团队列表、创建执行（迭代/阶段/看板）、关闭执行、获取执行详情、修改执行、删除执行、维护执行成员',
+        description: '执行管理，支持获取执行列表、获取执行团队列表、创建执行（迭代/阶段/看板）、关闭执行、创建执行的任务模块、获取执行详情、修改执行、删除执行、维护执行成员',
         actions: [
             {
                 name: 'list',
@@ -1013,7 +1276,7 @@ export const BUILTIN_MODULES = [
                     },
                 ],
             }, {
-                name: 'execution-team',
+                name: 'team',
                 display: '获取执行团队列表',
                 type: 'list',
                 method: 'get',
@@ -1125,7 +1388,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'execution-close',
+                name: 'close',
                 display: '关闭执行',
                 type: 'create',
                 method: 'post',
@@ -1152,6 +1415,34 @@ export const BUILTIN_MODULES = [
                         "required": [
                             "realEnd"
                         ]
+                    },
+                },
+            }, {
+                name: 'createTaskModule',
+                display: '创建执行的任务模块',
+                type: 'create',
+                method: 'post',
+                path: '/executions/{executionID}/task/modules',
+                resultType: 'object',
+                pathParams: {
+                    executionID: '执行ID',
+                },
+                requestBody: {
+                    required: true,
+                    type: 'object',
+                    schema: {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "模块名称"
+                            },
+                            "parentID": {
+                                "type": "integer",
+                                "description": "父模块",
+                                "format": "int32"
+                            }
+                        }
                     },
                 },
             }, {
@@ -1526,7 +1817,7 @@ export const BUILTIN_MODULES = [
     {
         name: 'story',
         display: '需求',
-        description: '需求管理，支持产品的需求模块树、创建需求、创建项目需求、创建产品的需求模块、获取需求详情、修改需求、修改需求模块、删除需求、删除需求模块、激活需求、变更需求、关闭需求',
+        description: '需求管理，支持产品的需求模块树、创建需求、获取需求详情、修改需求、修改需求模块、删除需求、删除需求模块、激活需求、变更需求、关闭需求',
         actions: [
             {
                 name: 'list',
@@ -1623,85 +1914,6 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'project-createStory',
-                display: '创建项目需求',
-                type: 'create',
-                method: 'post',
-                path: '/projects/{projectID}/stories',
-                resultType: 'object',
-                pathParams: {
-                    projectID: '项目ID',
-                },
-                requestBody: {
-                    required: true,
-                    type: 'object',
-                    schema: {
-                        "type": "object",
-                        "properties": {
-                            "productID": {
-                                "type": "integer",
-                                "description": "所属产品；项目型项目可不传，产品型项目必须传",
-                                "format": "int32"
-                            },
-                            "title": {
-                                "type": "string",
-                                "description": "需求标题"
-                            },
-                            "spec": {
-                                "type": "string",
-                                "description": "需求描述"
-                            },
-                            "pri": {
-                                "type": "integer",
-                                "description": "优先级",
-                                "format": "int32"
-                            },
-                            "category": {
-                                "type": "string",
-                                "description": "类别"
-                            },
-                            "reviewer": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string"
-                                },
-                                "description": "评审人"
-                            }
-                        },
-                        "required": [
-                            "title"
-                        ]
-                    },
-                },
-            }, {
-                name: 'product-createStoryModule',
-                display: '创建产品的需求模块',
-                type: 'create',
-                method: 'post',
-                path: '/products/{productID}/story/modules',
-                resultType: 'object',
-                pathParams: {
-                    productID: '产品ID',
-                },
-                requestBody: {
-                    required: true,
-                    type: 'object',
-                    schema: {
-                        "type": "object",
-                        "properties": {
-                            "name": {
-                                "type": "string",
-                                "description": "模块名称"
-                            },
-                            "parentID": {
-                                "type": "integer",
-                                "description": "父模块",
-                                "format": "int32"
-                            }
-                        }
-                    },
-                },
-            }, {
                 name: 'get',
                 display: '获取需求详情',
                 type: 'get',
@@ -1771,7 +1983,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'story-updateModule',
+                name: 'updateModule',
                 display: '修改需求模块',
                 type: 'update',
                 method: 'put',
@@ -1809,7 +2021,7 @@ export const BUILTIN_MODULES = [
                     storyID: '需求ID',
                 },
             }, {
-                name: 'story-deleteModule',
+                name: 'deleteModule',
                 display: '删除需求模块',
                 type: 'delete',
                 method: 'delete',
@@ -2579,7 +2791,7 @@ export const BUILTIN_MODULES = [
     {
         name: 'bug',
         display: 'Bug',
-        description: 'Bug管理，支持产品的Bug模块树、创建Bug、创建项目Bug、创建产品的Bug模块、获取Bug详情、修改Bug、修改Bug模块、删除Bug、删除Bug模块、激活Bug、关闭Bug、解决Bug',
+        description: 'Bug管理，支持产品的Bug模块树、创建Bug、获取Bug详情、修改Bug、修改Bug模块、删除Bug、删除Bug模块、激活Bug、关闭Bug、解决Bug',
         actions: [
             {
                 name: 'list',
@@ -2664,91 +2876,6 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'project-createBug',
-                display: '创建项目Bug',
-                type: 'create',
-                method: 'post',
-                path: '/projects/{projectID}/bugs',
-                resultType: 'object',
-                pathParams: {
-                    projectID: '项目ID',
-                },
-                requestBody: {
-                    required: true,
-                    type: 'object',
-                    schema: {
-                        "type": "object",
-                        "properties": {
-                            "productID": {
-                                "type": "integer",
-                                "description": "所属产品；项目型项目可不传，产品型项目必须传",
-                                "format": "int32"
-                            },
-                            "title": {
-                                "type": "string",
-                                "description": "Bug标题"
-                            },
-                            "openedBuild": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string"
-                                },
-                                "description": "影响版本，主干是trunk，其他版本使用版本ID"
-                            },
-                            "severity": {
-                                "type": "integer",
-                                "description": "严重程度",
-                                "format": "int32"
-                            },
-                            "pri": {
-                                "type": "integer",
-                                "description": "优先级",
-                                "format": "int32"
-                            },
-                            "type": {
-                                "type": "string",
-                                "description": "Bug类型"
-                            },
-                            "steps": {
-                                "type": "string",
-                                "description": "重现步骤"
-                            }
-                        },
-                        "required": [
-                            "title",
-                            "openedBuild"
-                        ]
-                    },
-                },
-            }, {
-                name: 'product-createBugModule',
-                display: '创建产品的Bug模块',
-                type: 'create',
-                method: 'post',
-                path: '/products/{productID}/bug/modules',
-                resultType: 'object',
-                pathParams: {
-                    productID: '产品ID',
-                },
-                requestBody: {
-                    required: true,
-                    type: 'object',
-                    schema: {
-                        "type": "object",
-                        "properties": {
-                            "name": {
-                                "type": "string",
-                                "description": "模块名称"
-                            },
-                            "parentID": {
-                                "type": "integer",
-                                "description": "父模块",
-                                "format": "int32"
-                            }
-                        }
-                    },
-                },
-            }, {
                 name: 'get',
                 display: '获取Bug详情',
                 type: 'get',
@@ -2827,7 +2954,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'bug-updateModule',
+                name: 'updateModule',
                 display: '修改Bug模块',
                 type: 'update',
                 method: 'put',
@@ -2865,7 +2992,7 @@ export const BUILTIN_MODULES = [
                     bugID: 'Bug ID',
                 },
             }, {
-                name: 'bug-deleteModule',
+                name: 'deleteModule',
                 display: '删除Bug模块',
                 type: 'delete',
                 method: 'delete',
@@ -2981,7 +3108,7 @@ export const BUILTIN_MODULES = [
     {
         name: 'testcase',
         display: '测试用例',
-        description: '测试用例管理，支持产品的用例模块树、创建测试用例、创建产品的用例模块、获取测试用例详情、修改测试用例、修改用例模块、删除测试用例、删除用例模块',
+        description: '测试用例管理，支持产品的用例模块树、创建测试用例、获取测试用例详情、修改测试用例、修改用例模块、删除测试用例、删除用例模块',
         actions: [
             {
                 name: 'list',
@@ -3075,34 +3202,6 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'product-createTestcaseModule',
-                display: '创建产品的用例模块',
-                type: 'create',
-                method: 'post',
-                path: '/products/{productID}/testcase/modules',
-                resultType: 'object',
-                pathParams: {
-                    productID: '产品ID',
-                },
-                requestBody: {
-                    required: true,
-                    type: 'object',
-                    schema: {
-                        "type": "object",
-                        "properties": {
-                            "name": {
-                                "type": "string",
-                                "description": "模块名称"
-                            },
-                            "parentID": {
-                                "type": "integer",
-                                "description": "父模块",
-                                "format": "int32"
-                            }
-                        }
-                    },
-                },
-            }, {
                 name: 'get',
                 display: '获取测试用例详情',
                 type: 'get',
@@ -3184,7 +3283,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'testcase-updateModule',
+                name: 'updateModule',
                 display: '修改用例模块',
                 type: 'update',
                 method: 'put',
@@ -3222,7 +3321,7 @@ export const BUILTIN_MODULES = [
                     caseID: '测试用例ID',
                 },
             }, {
-                name: 'testcase-deleteModule',
+                name: 'deleteModule',
                 display: '删除用例模块',
                 type: 'delete',
                 method: 'delete',
@@ -3239,7 +3338,7 @@ export const BUILTIN_MODULES = [
     {
         name: 'task',
         display: '任务',
-        description: '任务管理，支持执行的任务模块树、创建任务、创建项目任务、创建执行的任务模块、获取任务详情、修改任务、修改任务模块、删除任务、删除任务模块、激活任务、关闭任务、完成任务、启动任务',
+        description: '任务管理，支持执行的任务模块树、创建任务、获取任务详情、修改任务、修改任务模块、删除任务、删除任务模块、激活任务、关闭任务、完成任务、启动任务',
         actions: [
             {
                 name: 'list',
@@ -3319,105 +3418,6 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'project-createTask',
-                display: '创建项目任务',
-                type: 'create',
-                method: 'post',
-                path: '/projects/{projectID}/tasks',
-                resultType: 'object',
-                pathParams: {
-                    projectID: '项目ID',
-                },
-                requestBody: {
-                    required: true,
-                    type: 'object',
-                    schema: {
-                        "type": "object",
-                        "properties": {
-                            "name": {
-                                "type": "string",
-                                "description": "任务名称"
-                            },
-                            "executionID": {
-                                "type": "integer",
-                                "description": "所属执行；无执行项目可不传，有执行项目必须传",
-                                "format": "int32"
-                            },
-                            "type": {
-                                "type": "string",
-                                "description": "任务类型"
-                            },
-                            "assignedTo": {
-                                "type": "string",
-                                "description": "指派给"
-                            },
-                            "estStarted": {
-                                "type": "string",
-                                "description": "预计开始"
-                            },
-                            "deadline": {
-                                "type": "string",
-                                "description": "截止日期"
-                            },
-                            "pri": {
-                                "type": "integer",
-                                "description": "优先级",
-                                "format": "int32"
-                            },
-                            "estimate": {
-                                "type": "number",
-                                "description": "预计工时",
-                                "format": "float"
-                            },
-                            "module": {
-                                "type": "integer",
-                                "description": "所属模块",
-                                "format": "int32"
-                            },
-                            "story": {
-                                "type": "integer",
-                                "description": "相关需求",
-                                "format": "int32"
-                            },
-                            "desc": {
-                                "type": "string",
-                                "description": "任务描述"
-                            }
-                        },
-                        "required": [
-                            "name"
-                        ]
-                    },
-                },
-            }, {
-                name: 'execution-createTaskModule',
-                display: '创建执行的任务模块',
-                type: 'create',
-                method: 'post',
-                path: '/executions/{executionID}/task/modules',
-                resultType: 'object',
-                pathParams: {
-                    executionID: '执行ID',
-                },
-                requestBody: {
-                    required: true,
-                    type: 'object',
-                    schema: {
-                        "type": "object",
-                        "properties": {
-                            "name": {
-                                "type": "string",
-                                "description": "模块名称"
-                            },
-                            "parentID": {
-                                "type": "integer",
-                                "description": "父模块",
-                                "format": "int32"
-                            }
-                        }
-                    },
-                },
-            }, {
                 name: 'get',
                 display: '获取任务详情',
                 type: 'get',
@@ -3491,7 +3491,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'task-updateModule',
+                name: 'updateModule',
                 display: '修改任务模块',
                 type: 'update',
                 method: 'put',
@@ -3529,7 +3529,7 @@ export const BUILTIN_MODULES = [
                     taskID: '任务ID',
                 },
             }, {
-                name: 'task-deleteModule',
+                name: 'deleteModule',
                 display: '删除任务模块',
                 type: 'delete',
                 method: 'delete',
@@ -4519,7 +4519,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'feedback-createBug',
+                name: 'createBug',
                 display: '反馈转Bug',
                 type: 'create',
                 method: 'post',
@@ -4577,7 +4577,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'feedback-createTicket',
+                name: 'createTicket',
                 display: '反馈转工单',
                 type: 'create',
                 method: 'post',
@@ -4623,7 +4623,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'feedback-createTodo',
+                name: 'createTodo',
                 display: '反馈转待办',
                 type: 'create',
                 method: 'post',
@@ -4654,7 +4654,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'feedback-createStory',
+                name: 'createStory',
                 display: '反馈转需求',
                 type: 'create',
                 method: 'post',
@@ -4699,7 +4699,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'feedback-createTask',
+                name: 'createTask',
                 display: '反馈转任务',
                 type: 'create',
                 method: 'post',
@@ -5026,7 +5026,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'ticket-createStory',
+                name: 'createStory',
                 display: '工单转需求',
                 type: 'create',
                 method: 'post',
@@ -5071,7 +5071,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'ticket-createBug',
+                name: 'createBug',
                 display: '工单转Bug',
                 type: 'create',
                 method: 'post',
@@ -6125,7 +6125,7 @@ export const BUILTIN_MODULES = [
                 resultType: 'list',
                 pagerGetter: 'pager',
             }, {
-                name: 'workflow-getContract',
+                name: 'getContract',
                 display: '获取工作流数据详情(以合同为例)',
                 type: 'list',
                 method: 'get',
@@ -6202,7 +6202,7 @@ export const BUILTIN_MODULES = [
         description: '文档管理，支持获取我的文档空间列表、获取团队文档空间列表、获取产品文档空间列表、获取项目文档空间列表、获取我的文档库列表、获取团队文档库列表、获取产品文档库列表、获取项目文档库列表、获取我的文档列表、获取团队文档列表、获取产品文档列表、获取项目文档列表、获取我的文档库目录列表、获取团队文档库目录列表、获取产品文档库目录列表、获取项目文档库目录列表、创建我的文档空间、创建团队文档空间、创建我的文档库、创建团队文档库、创建产品文档库、创建项目文档库、创建我的文档、创建团队文档、创建产品文档、创建项目文档、创建我的文档库目录、创建团队文档库目录、创建产品文档库目录、创建项目文档库目录、获取文档空间详情、获取文档库详情、获取文档详情、修改文档空间、修改文档库、修改文档、修改文档库目录、删除文档空间、删除文档库、删除文档、删除文档库目录',
         actions: [
             {
-                name: 'doc-mySpaces',
+                name: 'mySpaces',
                 display: '获取我的文档空间列表',
                 type: 'list',
                 method: 'get',
@@ -6211,7 +6211,7 @@ export const BUILTIN_MODULES = [
                 pagerGetter: 'pager',
                 resultGetter: 'spaces',
             }, {
-                name: 'doc-teamSpaces',
+                name: 'teamSpaces',
                 display: '获取团队文档空间列表',
                 type: 'list',
                 method: 'get',
@@ -6220,7 +6220,7 @@ export const BUILTIN_MODULES = [
                 pagerGetter: 'pager',
                 resultGetter: 'spaces',
             }, {
-                name: 'doc-productSpaces',
+                name: 'productSpaces',
                 display: '获取产品文档空间列表',
                 type: 'list',
                 method: 'get',
@@ -6229,7 +6229,7 @@ export const BUILTIN_MODULES = [
                 pagerGetter: 'pager',
                 resultGetter: 'spaces',
             }, {
-                name: 'doc-projectSpaces',
+                name: 'projectSpaces',
                 display: '获取项目文档空间列表',
                 type: 'list',
                 method: 'get',
@@ -6238,7 +6238,7 @@ export const BUILTIN_MODULES = [
                 pagerGetter: 'pager',
                 resultGetter: 'spaces',
             }, {
-                name: 'doc-myLibs',
+                name: 'myLibs',
                 display: '获取我的文档库列表',
                 type: 'list',
                 method: 'get',
@@ -6246,8 +6246,11 @@ export const BUILTIN_MODULES = [
                 resultType: 'list',
                 pagerGetter: 'pager',
                 resultGetter: 'libs',
+                pathParams: {
+                    spaceID: '空间ID',
+                },
             }, {
-                name: 'doc-teamLibs',
+                name: 'teamLibs',
                 display: '获取团队文档库列表',
                 type: 'list',
                 method: 'get',
@@ -6255,8 +6258,11 @@ export const BUILTIN_MODULES = [
                 resultType: 'list',
                 pagerGetter: 'pager',
                 resultGetter: 'libs',
+                pathParams: {
+                    spaceID: '空间ID',
+                },
             }, {
-                name: 'doc-productLibs',
+                name: 'productLibs',
                 display: '获取产品文档库列表',
                 type: 'list',
                 method: 'get',
@@ -6264,8 +6270,11 @@ export const BUILTIN_MODULES = [
                 resultType: 'list',
                 pagerGetter: 'pager',
                 resultGetter: 'libs',
+                pathParams: {
+                    productID: '产品ID',
+                },
             }, {
-                name: 'doc-projectLibs',
+                name: 'projectLibs',
                 display: '获取项目文档库列表',
                 type: 'list',
                 method: 'get',
@@ -6273,40 +6282,59 @@ export const BUILTIN_MODULES = [
                 resultType: 'list',
                 pagerGetter: 'pager',
                 resultGetter: 'libs',
+                pathParams: {
+                    projectID: '项目ID',
+                },
             }, {
-                name: 'doc-myDocs',
+                name: 'myDocs',
                 display: '获取我的文档列表',
                 type: 'list',
                 method: 'get',
                 path: '/doc/my/spaces/{spaceID}/libs/{libID}/docs',
                 resultType: 'list',
                 pagerGetter: 'pager',
+                pathParams: {
+                    spaceID: '空间ID',
+                    libID: '文档库ID',
+                },
             }, {
-                name: 'doc-teamDocs',
+                name: 'teamDocs',
                 display: '获取团队文档列表',
                 type: 'list',
                 method: 'get',
                 path: '/doc/team/spaces/{spaceID}/libs/{libID}/docs',
                 resultType: 'list',
                 pagerGetter: 'pager',
+                pathParams: {
+                    spaceID: '空间ID',
+                    libID: '文档库ID',
+                },
             }, {
-                name: 'doc-productDocs',
+                name: 'productDocs',
                 display: '获取产品文档列表',
                 type: 'list',
                 method: 'get',
                 path: '/doc/product/spaces/{productID}/libs/{libID}/docs',
                 resultType: 'list',
                 pagerGetter: 'pager',
+                pathParams: {
+                    productID: '产品ID',
+                    libID: '文档库ID',
+                },
             }, {
-                name: 'doc-projectDocs',
+                name: 'projectDocs',
                 display: '获取项目文档列表',
                 type: 'list',
                 method: 'get',
                 path: '/doc/project/spaces/{projectID}/libs/{libID}/docs',
                 resultType: 'list',
                 pagerGetter: 'pager',
+                pathParams: {
+                    projectID: '项目ID',
+                    libID: '文档库ID',
+                },
             }, {
-                name: 'doc-myModules',
+                name: 'myModules',
                 display: '获取我的文档库目录列表',
                 type: 'list',
                 method: 'get',
@@ -6314,8 +6342,12 @@ export const BUILTIN_MODULES = [
                 resultType: 'list',
                 pagerGetter: 'pager',
                 resultGetter: 'modules',
+                pathParams: {
+                    spaceID: '空间ID',
+                    libID: '文档库ID',
+                },
             }, {
-                name: 'doc-teamModules',
+                name: 'teamModules',
                 display: '获取团队文档库目录列表',
                 type: 'list',
                 method: 'get',
@@ -6323,8 +6355,12 @@ export const BUILTIN_MODULES = [
                 resultType: 'list',
                 pagerGetter: 'pager',
                 resultGetter: 'modules',
+                pathParams: {
+                    spaceID: '空间ID',
+                    libID: '文档库ID',
+                },
             }, {
-                name: 'doc-productModules',
+                name: 'productModules',
                 display: '获取产品文档库目录列表',
                 type: 'list',
                 method: 'get',
@@ -6332,8 +6368,12 @@ export const BUILTIN_MODULES = [
                 resultType: 'list',
                 pagerGetter: 'pager',
                 resultGetter: 'modules',
+                pathParams: {
+                    productID: '产品ID',
+                    libID: '文档库ID',
+                },
             }, {
-                name: 'doc-projectModules',
+                name: 'projectModules',
                 display: '获取项目文档库目录列表',
                 type: 'list',
                 method: 'get',
@@ -6341,8 +6381,12 @@ export const BUILTIN_MODULES = [
                 resultType: 'list',
                 pagerGetter: 'pager',
                 resultGetter: 'modules',
+                pathParams: {
+                    projectID: '项目ID',
+                    libID: '文档库ID',
+                },
             }, {
-                name: 'doc-createMySpace',
+                name: 'createMySpace',
                 display: '创建我的文档空间',
                 type: 'create',
                 method: 'post',
@@ -6365,7 +6409,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'doc-createTeamSpace',
+                name: 'createTeamSpace',
                 display: '创建团队文档空间',
                 type: 'create',
                 method: 'post',
@@ -6388,7 +6432,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'doc-createMyLib',
+                name: 'createMyLib',
                 display: '创建我的文档库',
                 type: 'create',
                 method: 'post',
@@ -6414,7 +6458,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'doc-createTeamLib',
+                name: 'createTeamLib',
                 display: '创建团队文档库',
                 type: 'create',
                 method: 'post',
@@ -6458,7 +6502,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'doc-createProductLib',
+                name: 'createProductLib',
                 display: '创建产品文档库',
                 type: 'create',
                 method: 'post',
@@ -6502,7 +6546,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'doc-createProjectLib',
+                name: 'createProjectLib',
                 display: '创建项目文档库',
                 type: 'create',
                 method: 'post',
@@ -6546,7 +6590,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'doc-createMyDoc',
+                name: 'createMyDoc',
                 display: '创建我的文档',
                 type: 'create',
                 method: 'post',
@@ -6583,7 +6627,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'doc-createTeamDoc',
+                name: 'createTeamDoc',
                 display: '创建团队文档',
                 type: 'create',
                 method: 'post',
@@ -6620,7 +6664,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'doc-createProductDoc',
+                name: 'createProductDoc',
                 display: '创建产品文档',
                 type: 'create',
                 method: 'post',
@@ -6657,7 +6701,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'doc-createProjectDoc',
+                name: 'createProjectDoc',
                 display: '创建项目文档',
                 type: 'create',
                 method: 'post',
@@ -6694,7 +6738,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'doc-createMyModule',
+                name: 'createMyModule',
                 display: '创建我的文档库目录',
                 type: 'create',
                 method: 'post',
@@ -6726,7 +6770,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'doc-createTeamModule',
+                name: 'createTeamModule',
                 display: '创建团队文档库目录',
                 type: 'create',
                 method: 'post',
@@ -6758,7 +6802,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'doc-createProductModule',
+                name: 'createProductModule',
                 display: '创建产品文档库目录',
                 type: 'create',
                 method: 'post',
@@ -6790,7 +6834,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'doc-createProjectModule',
+                name: 'createProjectModule',
                 display: '创建项目文档库目录',
                 type: 'create',
                 method: 'post',
@@ -6822,7 +6866,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'doc-getSpace',
+                name: 'getSpace',
                 display: '获取文档空间详情',
                 type: 'get',
                 method: 'get',
@@ -6833,7 +6877,7 @@ export const BUILTIN_MODULES = [
                     spaceID: '空间ID',
                 },
             }, {
-                name: 'doc-getLib',
+                name: 'getLib',
                 display: '获取文档库详情',
                 type: 'get',
                 method: 'get',
@@ -6855,7 +6899,7 @@ export const BUILTIN_MODULES = [
                     docID: '文档ID',
                 },
             }, {
-                name: 'doc-updateSpace',
+                name: 'updateSpace',
                 display: '修改文档空间',
                 type: 'update',
                 method: 'put',
@@ -6881,7 +6925,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'doc-updateLib',
+                name: 'updateLib',
                 display: '修改文档库',
                 type: 'update',
                 method: 'put',
@@ -6961,7 +7005,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'doc-updateModule',
+                name: 'updateModule',
                 display: '修改文档库目录',
                 type: 'update',
                 method: 'put',
@@ -6987,7 +7031,7 @@ export const BUILTIN_MODULES = [
                     },
                 },
             }, {
-                name: 'doc-deleteSpace',
+                name: 'deleteSpace',
                 display: '删除文档空间',
                 type: 'delete',
                 method: 'delete',
@@ -6997,7 +7041,7 @@ export const BUILTIN_MODULES = [
                     spaceID: '空间ID',
                 },
             }, {
-                name: 'doc-deleteLib',
+                name: 'deleteLib',
                 display: '删除文档库',
                 type: 'delete',
                 method: 'delete',
@@ -7017,7 +7061,7 @@ export const BUILTIN_MODULES = [
                     docID: '文档ID',
                 },
             }, {
-                name: 'doc-deleteModule',
+                name: 'deleteModule',
                 display: '删除文档库目录',
                 type: 'delete',
                 method: 'delete',
@@ -7158,7 +7202,7 @@ export const BUILTIN_MODULES = [
         description: '地盘管理，支持我的待办、指派给我的任务、指派给我的Bug、指派给我的研发需求、指派给我的业务需求、指派给我的用户需求、我负责的的测试单、我参与的项目、指派给我的反馈、指派给我的工单、指派给我的用例、我的会议、指派给我的问题、指派给我的风险',
         actions: [
             {
-                name: 'my-todos',
+                name: 'todos',
                 display: '我的待办',
                 type: 'list',
                 method: 'get',
@@ -7201,7 +7245,7 @@ export const BUILTIN_MODULES = [
                     },
                 ],
             }, {
-                name: 'my-tasks',
+                name: 'tasks',
                 display: '指派给我的任务',
                 type: 'list',
                 method: 'get',
@@ -7271,7 +7315,7 @@ export const BUILTIN_MODULES = [
                     },
                 ],
             }, {
-                name: 'my-bugs',
+                name: 'bugs',
                 display: '指派给我的Bug',
                 type: 'list',
                 method: 'get',
@@ -7340,7 +7384,7 @@ export const BUILTIN_MODULES = [
                     },
                 ],
             }, {
-                name: 'my-stories',
+                name: 'stories',
                 display: '指派给我的研发需求',
                 type: 'list',
                 method: 'get',
@@ -7407,7 +7451,7 @@ export const BUILTIN_MODULES = [
                     },
                 ],
             }, {
-                name: 'my-epics',
+                name: 'epics',
                 display: '指派给我的业务需求',
                 type: 'list',
                 method: 'get',
@@ -7474,7 +7518,7 @@ export const BUILTIN_MODULES = [
                     },
                 ],
             }, {
-                name: 'my-requirements',
+                name: 'requirements',
                 display: '指派给我的用户需求',
                 type: 'list',
                 method: 'get',
@@ -7541,7 +7585,7 @@ export const BUILTIN_MODULES = [
                     },
                 ],
             }, {
-                name: 'my-testtasks',
+                name: 'testtasks',
                 display: '我负责的的测试单',
                 type: 'list',
                 method: 'get',
@@ -7591,7 +7635,7 @@ export const BUILTIN_MODULES = [
                     },
                 ],
             }, {
-                name: 'my-projects',
+                name: 'projects',
                 display: '我参与的项目',
                 type: 'list',
                 method: 'get',
@@ -7641,7 +7685,7 @@ export const BUILTIN_MODULES = [
                     },
                 ],
             }, {
-                name: 'my-feedbacks',
+                name: 'feedbacks',
                 display: '指派给我的反馈',
                 type: 'list',
                 method: 'get',
@@ -7707,7 +7751,7 @@ export const BUILTIN_MODULES = [
                     },
                 ],
             }, {
-                name: 'my-tickets',
+                name: 'tickets',
                 display: '指派给我的工单',
                 type: 'list',
                 method: 'get',
@@ -7774,7 +7818,7 @@ export const BUILTIN_MODULES = [
                     },
                 ],
             }, {
-                name: 'my-testcases',
+                name: 'testcases',
                 display: '指派给我的用例',
                 type: 'list',
                 method: 'get',
@@ -7841,7 +7885,7 @@ export const BUILTIN_MODULES = [
                     },
                 ],
             }, {
-                name: 'my-meetings',
+                name: 'meetings',
                 display: '我的会议',
                 type: 'list',
                 method: 'get',
@@ -7889,7 +7933,7 @@ export const BUILTIN_MODULES = [
                     },
                 ],
             }, {
-                name: 'my-issues',
+                name: 'issues',
                 display: '指派给我的问题',
                 type: 'list',
                 method: 'get',
@@ -7943,7 +7987,7 @@ export const BUILTIN_MODULES = [
                     },
                 ],
             }, {
-                name: 'my-risks',
+                name: 'risks',
                 display: '指派给我的风险',
                 type: 'list',
                 method: 'get',
@@ -8036,25 +8080,32 @@ export type BuiltinActionMeta = {
     product: {
         list: { resultType: 'list' };
         create: { resultType: 'object' };
-        'product-close': { resultType: 'object' };
+        close: { resultType: 'object' };
+        createStoryModule: { resultType: 'object' };
+        createBugModule: { resultType: 'object' };
+        createTestcaseModule: { resultType: 'object' };
         get: { resultType: 'object' };
         update: { resultType: 'object' };
         delete: { resultType: 'text' };
     };
     project: {
         list: { resultType: 'list' };
-        'project-team': { resultType: 'list' };
+        team: { resultType: 'list' };
         create: { resultType: 'object' };
-        'project-close': { resultType: 'object' };
+        close: { resultType: 'object' };
+        createStory: { resultType: 'object' };
+        createBug: { resultType: 'object' };
+        createTask: { resultType: 'object' };
         update: { resultType: 'object' };
         delete: { resultType: 'text' };
         members: { resultType: 'text' };
     };
     execution: {
         list: { resultType: 'list' };
-        'execution-team': { resultType: 'list' };
+        team: { resultType: 'list' };
         create: { resultType: 'object' };
-        'execution-close': { resultType: 'object' };
+        close: { resultType: 'object' };
+        createTaskModule: { resultType: 'object' };
         get: { resultType: 'object' };
         update: { resultType: 'object' };
         delete: { resultType: 'text' };
@@ -8070,13 +8121,11 @@ export type BuiltinActionMeta = {
     story: {
         list: { resultType: 'list' };
         create: { resultType: 'object' };
-        'project-createStory': { resultType: 'object' };
-        'product-createStoryModule': { resultType: 'object' };
         get: { resultType: 'object' };
         update: { resultType: 'object' };
-        'story-updateModule': { resultType: 'object' };
+        updateModule: { resultType: 'object' };
         delete: { resultType: 'text' };
-        'story-deleteModule': { resultType: 'text' };
+        deleteModule: { resultType: 'text' };
         activate: { resultType: 'text' };
         change: { resultType: 'text' };
         close: { resultType: 'text' };
@@ -8104,13 +8153,11 @@ export type BuiltinActionMeta = {
     bug: {
         list: { resultType: 'list' };
         create: { resultType: 'object' };
-        'project-createBug': { resultType: 'object' };
-        'product-createBugModule': { resultType: 'object' };
         get: { resultType: 'object' };
         update: { resultType: 'object' };
-        'bug-updateModule': { resultType: 'object' };
+        updateModule: { resultType: 'object' };
         delete: { resultType: 'text' };
-        'bug-deleteModule': { resultType: 'text' };
+        deleteModule: { resultType: 'text' };
         activate: { resultType: 'text' };
         close: { resultType: 'text' };
         resolve: { resultType: 'text' };
@@ -8118,23 +8165,20 @@ export type BuiltinActionMeta = {
     testcase: {
         list: { resultType: 'list' };
         create: { resultType: 'object' };
-        'product-createTestcaseModule': { resultType: 'object' };
         get: { resultType: 'object' };
         update: { resultType: 'object' };
-        'testcase-updateModule': { resultType: 'object' };
+        updateModule: { resultType: 'object' };
         delete: { resultType: 'text' };
-        'testcase-deleteModule': { resultType: 'text' };
+        deleteModule: { resultType: 'text' };
     };
     task: {
         list: { resultType: 'list' };
         create: { resultType: 'object' };
-        'project-createTask': { resultType: 'object' };
-        'execution-createTaskModule': { resultType: 'object' };
         get: { resultType: 'object' };
         update: { resultType: 'object' };
-        'task-updateModule': { resultType: 'object' };
+        updateModule: { resultType: 'object' };
         delete: { resultType: 'text' };
-        'task-deleteModule': { resultType: 'text' };
+        deleteModule: { resultType: 'text' };
         activate: { resultType: 'text' };
         close: { resultType: 'text' };
         finish: { resultType: 'text' };
@@ -8162,11 +8206,11 @@ export type BuiltinActionMeta = {
     feedback: {
         list: { resultType: 'list' };
         create: { resultType: 'object' };
-        'feedback-createBug': { resultType: 'object' };
-        'feedback-createTicket': { resultType: 'object' };
-        'feedback-createTodo': { resultType: 'object' };
-        'feedback-createStory': { resultType: 'object' };
-        'feedback-createTask': { resultType: 'object' };
+        createBug: { resultType: 'object' };
+        createTicket: { resultType: 'object' };
+        createTodo: { resultType: 'object' };
+        createStory: { resultType: 'object' };
+        createTask: { resultType: 'object' };
         get: { resultType: 'object' };
         update: { resultType: 'object' };
         delete: { resultType: 'text' };
@@ -8176,8 +8220,8 @@ export type BuiltinActionMeta = {
     ticket: {
         list: { resultType: 'list' };
         create: { resultType: 'object' };
-        'ticket-createStory': { resultType: 'object' };
-        'ticket-createBug': { resultType: 'object' };
+        createStory: { resultType: 'object' };
+        createBug: { resultType: 'object' };
         get: { resultType: 'object' };
         update: { resultType: 'object' };
         delete: { resultType: 'text' };
@@ -8214,53 +8258,53 @@ export type BuiltinActionMeta = {
     };
     workflow: {
         list: { resultType: 'list' };
-        'workflow-getContract': { resultType: 'list' };
+        getContract: { resultType: 'list' };
         create: { resultType: 'object' };
         update: { resultType: 'object' };
         delete: { resultType: 'text' };
     };
     doc: {
-        'doc-mySpaces': { resultType: 'list' };
-        'doc-teamSpaces': { resultType: 'list' };
-        'doc-productSpaces': { resultType: 'list' };
-        'doc-projectSpaces': { resultType: 'list' };
-        'doc-myLibs': { resultType: 'list' };
-        'doc-teamLibs': { resultType: 'list' };
-        'doc-productLibs': { resultType: 'list' };
-        'doc-projectLibs': { resultType: 'list' };
-        'doc-myDocs': { resultType: 'list' };
-        'doc-teamDocs': { resultType: 'list' };
-        'doc-productDocs': { resultType: 'list' };
-        'doc-projectDocs': { resultType: 'list' };
-        'doc-myModules': { resultType: 'list' };
-        'doc-teamModules': { resultType: 'list' };
-        'doc-productModules': { resultType: 'list' };
-        'doc-projectModules': { resultType: 'list' };
-        'doc-createMySpace': { resultType: 'object' };
-        'doc-createTeamSpace': { resultType: 'object' };
-        'doc-createMyLib': { resultType: 'object' };
-        'doc-createTeamLib': { resultType: 'object' };
-        'doc-createProductLib': { resultType: 'object' };
-        'doc-createProjectLib': { resultType: 'object' };
-        'doc-createMyDoc': { resultType: 'object' };
-        'doc-createTeamDoc': { resultType: 'object' };
-        'doc-createProductDoc': { resultType: 'object' };
-        'doc-createProjectDoc': { resultType: 'object' };
-        'doc-createMyModule': { resultType: 'object' };
-        'doc-createTeamModule': { resultType: 'object' };
-        'doc-createProductModule': { resultType: 'object' };
-        'doc-createProjectModule': { resultType: 'object' };
-        'doc-getSpace': { resultType: 'object' };
-        'doc-getLib': { resultType: 'object' };
+        mySpaces: { resultType: 'list' };
+        teamSpaces: { resultType: 'list' };
+        productSpaces: { resultType: 'list' };
+        projectSpaces: { resultType: 'list' };
+        myLibs: { resultType: 'list' };
+        teamLibs: { resultType: 'list' };
+        productLibs: { resultType: 'list' };
+        projectLibs: { resultType: 'list' };
+        myDocs: { resultType: 'list' };
+        teamDocs: { resultType: 'list' };
+        productDocs: { resultType: 'list' };
+        projectDocs: { resultType: 'list' };
+        myModules: { resultType: 'list' };
+        teamModules: { resultType: 'list' };
+        productModules: { resultType: 'list' };
+        projectModules: { resultType: 'list' };
+        createMySpace: { resultType: 'object' };
+        createTeamSpace: { resultType: 'object' };
+        createMyLib: { resultType: 'object' };
+        createTeamLib: { resultType: 'object' };
+        createProductLib: { resultType: 'object' };
+        createProjectLib: { resultType: 'object' };
+        createMyDoc: { resultType: 'object' };
+        createTeamDoc: { resultType: 'object' };
+        createProductDoc: { resultType: 'object' };
+        createProjectDoc: { resultType: 'object' };
+        createMyModule: { resultType: 'object' };
+        createTeamModule: { resultType: 'object' };
+        createProductModule: { resultType: 'object' };
+        createProjectModule: { resultType: 'object' };
+        getSpace: { resultType: 'object' };
+        getLib: { resultType: 'object' };
         get: { resultType: 'object' };
-        'doc-updateSpace': { resultType: 'object' };
-        'doc-updateLib': { resultType: 'object' };
+        updateSpace: { resultType: 'object' };
+        updateLib: { resultType: 'object' };
         update: { resultType: 'object' };
-        'doc-updateModule': { resultType: 'object' };
-        'doc-deleteSpace': { resultType: 'text' };
-        'doc-deleteLib': { resultType: 'text' };
+        updateModule: { resultType: 'object' };
+        deleteSpace: { resultType: 'text' };
+        deleteLib: { resultType: 'text' };
         delete: { resultType: 'text' };
-        'doc-deleteModule': { resultType: 'text' };
+        deleteModule: { resultType: 'text' };
     };
     todo: {
         create: { resultType: 'object' };
@@ -8268,20 +8312,20 @@ export type BuiltinActionMeta = {
         delete: { resultType: 'text' };
     };
     my: {
-        'my-todos': { resultType: 'list' };
-        'my-tasks': { resultType: 'list' };
-        'my-bugs': { resultType: 'list' };
-        'my-stories': { resultType: 'list' };
-        'my-epics': { resultType: 'list' };
-        'my-requirements': { resultType: 'list' };
-        'my-testtasks': { resultType: 'list' };
-        'my-projects': { resultType: 'list' };
-        'my-feedbacks': { resultType: 'list' };
-        'my-tickets': { resultType: 'list' };
-        'my-testcases': { resultType: 'list' };
-        'my-meetings': { resultType: 'list' };
-        'my-issues': { resultType: 'list' };
-        'my-risks': { resultType: 'list' };
+        todos: { resultType: 'list' };
+        tasks: { resultType: 'list' };
+        bugs: { resultType: 'list' };
+        stories: { resultType: 'list' };
+        epics: { resultType: 'list' };
+        requirements: { resultType: 'list' };
+        testtasks: { resultType: 'list' };
+        projects: { resultType: 'list' };
+        feedbacks: { resultType: 'list' };
+        tickets: { resultType: 'list' };
+        testcases: { resultType: 'list' };
+        meetings: { resultType: 'list' };
+        issues: { resultType: 'list' };
+        risks: { resultType: 'list' };
     };
 };
 export type BuiltinModuleName = keyof BuiltinActionMeta;

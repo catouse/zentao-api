@@ -1,6 +1,7 @@
 /**
- * Reads data/zentao-openapi.json and generates src/modules/generated.ts
- * containing the generated ModuleDefinition[] array used by the SDK.
+ * Reads data/zentao-openapi.json, applies scripts/zentao-api-map.json, and
+ * generates src/modules/generated.ts containing the ModuleDefinition[] array
+ * used by the SDK.
  *
  * Usage:  bun run scripts/update-registry.ts
  */
@@ -54,13 +55,17 @@ interface OpenAPIDoc {
     paths: Record<string, Record<string, OpenAPIOperation>>;
 }
 
-type ActionNameMap = Record<string, string>;
+interface ActionMapping {
+    module: string;
+    name: string;
+    [property: string]: unknown;
+}
+
+type ActionMap = Record<string, ActionMapping>;
 
 interface OperationReference {
-    method: string;
-    path: string;
     mappingKey: string;
-    mappedName?: string;
+    mapping?: ActionMapping;
 }
 
 interface GeneratedActionRecord {
@@ -135,19 +140,27 @@ function extractColonParams(path: string): string[] {
 }
 
 /** Build the canonical key used by scripts/zentao-api-map.json. */
-function actionNameMapKey(method: string, path: string): string {
+function actionMapKey(method: string, path: string): string {
     return `${method.toLowerCase()} ${colonToBrace(braceToColon(path))}`;
 }
 
-function loadActionNameMap(path: string): ActionNameMap {
+function loadActionMap(path: string): ActionMap {
     const parsed: unknown = JSON.parse(readFileSync(path, 'utf-8'));
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
         throw new Error(`${path} must contain a JSON object.`);
     }
 
-    const result: ActionNameMap = {};
-    for (const [rawKey, rawName] of Object.entries(parsed)) {
-        if (typeof rawName !== 'string' || rawName.trim() === '') {
+    const result: ActionMap = {};
+    for (const [rawKey, rawMapping] of Object.entries(parsed)) {
+        if (!rawMapping || typeof rawMapping !== 'object' || Array.isArray(rawMapping)) {
+            throw new Error(`Invalid action mapping for "${rawKey}" in ${path}; expected an object.`);
+        }
+
+        const { module, name, ...actionProperties } = rawMapping as Record<string, unknown>;
+        if (typeof module !== 'string' || module.trim() === '') {
+            throw new Error(`Invalid module mapping for "${rawKey}" in ${path}.`);
+        }
+        if (typeof name !== 'string' || name.trim() === '') {
             throw new Error(`Invalid action name mapping for "${rawKey}" in ${path}.`);
         }
 
@@ -162,19 +175,24 @@ function loadActionNameMap(path: string): ActionNameMap {
             throw new Error(`Invalid API mapping path "${apiPath}" in ${path}.`);
         }
 
-        result[actionNameMapKey(method, apiPath)] = rawName.trim();
+        const mappingKey = actionMapKey(method, apiPath);
+        if (result[mappingKey]) {
+            throw new Error(`Duplicate API mapping key "${mappingKey}" in ${path}.`);
+        }
+        result[mappingKey] = {
+            module: module.trim().toLowerCase(),
+            name: name.trim(),
+            ...actionProperties,
+        };
     }
     return result;
 }
 
-function operationReference(method: string, path: string, actionNameMap: ActionNameMap): OperationReference {
-    const mappingKey = actionNameMapKey(method, path);
-    const mappedName = actionNameMap[mappingKey];
+function operationReference(method: string, path: string, mapping?: ActionMapping): OperationReference {
+    const mappingKey = actionMapKey(method, path);
     return {
-        method: method.toLowerCase(),
-        path: colonToBrace(path),
         mappingKey,
-        ...(mappedName ? { mappedName } : {}),
+        ...(mapping ? { mapping } : {}),
     };
 }
 
@@ -532,7 +550,7 @@ function parseScopedListPath(path: string): ScopedListInfo | null {
 interface RegistryBuildResult {
     output: string;
     outputPath: string;
-    actionNameMapPath: string;
+    actionMapPath: string;
     actionNameConflicts: ActionNameConflict[];
     moduleCount: number;
     operationCount: number;
@@ -541,14 +559,14 @@ interface RegistryBuildResult {
 function buildRegistry(): RegistryBuildResult {
     const openapiPath = resolve(ROOT, 'data/zentao-openapi.json');
     const outputPath = resolve(ROOT, 'src/modules/generated.ts');
-    const actionNameMapPath = resolve(ROOT, 'scripts/zentao-api-map.json');
+    const actionMapPath = resolve(ROOT, 'scripts/zentao-api-map.json');
 
     const doc: OpenAPIDoc = JSON.parse(readFileSync(openapiPath, 'utf-8'));
-    const actionNameMap = loadActionNameMap(actionNameMapPath);
+    const actionMap = loadActionMap(actionMapPath);
 
-    // Group operations by tag
-    type OpEntry = { path: string; method: string; op: OpenAPIOperation };
-    const tagOps = new Map<string, OpEntry[]>();
+    // Group operations by their mapped module, falling back to the OpenAPI tag.
+    type OpEntry = { path: string; method: string; op: OpenAPIOperation; mapping?: ActionMapping };
+    const moduleOps = new Map<string, OpEntry[]>();
 
     for (const [rawPath, methods] of Object.entries(doc.paths)) {
         const path = braceToColon(rawPath);
@@ -556,23 +574,32 @@ function buildRegistry(): RegistryBuildResult {
             const tag = op.tags?.[0];
             if (!tag || tag === 'Token') continue;
             const tagLower = tag.toLowerCase();
-            if (!tagOps.has(tagLower)) tagOps.set(tagLower, []);
-            tagOps.get(tagLower)!.push({ path, method, op });
+            const mapping = actionMap[actionMapKey(method, path)];
+            const moduleName = mapping?.module ?? tagLower;
+            if (!moduleOps.has(moduleName)) moduleOps.set(moduleName, []);
+            moduleOps.get(moduleName)!.push({ path, method, op, ...(mapping ? { mapping } : {}) });
         }
     }
 
-    // Preserve tag ordering from the spec
-    const tagOrder = doc.tags
+    // Preserve tag ordering from the spec and append mapping-only modules in encounter order.
+    const moduleOrder = doc.tags
         .map(t => t.name.toLowerCase())
-        .filter(t => t !== 'token' && tagOps.has(t));
+        .filter(t => t !== 'token' && moduleOps.has(t));
+    const orderedModules = new Set(moduleOrder);
+    for (const moduleName of moduleOps.keys()) {
+        if (!orderedModules.has(moduleName)) {
+            moduleOrder.push(moduleName);
+            orderedModules.add(moduleName);
+        }
+    }
 
     const modules: string[] = [];
     const actionMetaByModule: Array<{ name: string; actions: Map<string, ClassifiedAction['resultType']> }> = [];
     const actionNameConflicts: ActionNameConflict[] = [];
 
-    for (const tagName of tagOrder) {
-        const ops = tagOps.get(tagName)!;
-        const display = TAG_DISPLAY[tagName] ?? tagName;
+    for (const moduleName of moduleOrder) {
+        const ops = moduleOps.get(moduleName)!;
+        const display = TAG_DISPLAY[moduleName] ?? moduleName;
 
         // Separate scoped lists from direct operations
         const scopedLists: ScopedListInfo[] = [];
@@ -580,15 +607,15 @@ function buildRegistry(): RegistryBuildResult {
         let topLevelListOp: OpEntry | undefined;
 
         for (const entry of ops) {
-            const classification = classifyOperation(entry.method, entry.path, tagName);
+            const classification = classifyOperation(entry.method, entry.path, moduleName);
 
             if (classification.type === 'list') {
                 const scoped = parseScopedListPath(entry.path);
-                if (scoped) {
+                if (scoped && !entry.mapping) {
                     scoped.operation = entry.op;
                     scopedLists.push(scoped);
                 } else {
-                    topLevelListOp = entry;
+                    if (!scoped) topLevelListOp = entry;
                     directOps.push(entry);
                 }
             } else {
@@ -658,7 +685,7 @@ function buildRegistry(): RegistryBuildResult {
             }
             actionBodies.push(body);
             recordAction('list', 'list', scopedLists.map(scoped =>
-                operationReference('get', scoped.originalPath, actionNameMap),
+                operationReference('get', scoped.originalPath),
             ));
         }
 
@@ -666,8 +693,8 @@ function buildRegistry(): RegistryBuildResult {
         // Sort: list, get, create, update, delete, then actions alphabetically
         const typeOrder: Record<string, number> = { list: 0, create: 1, get: 2, update: 3, delete: 4 };
         const sorted = [...directOps].sort((a, b) => {
-            const ca = classifyOperation(a.method, a.path, tagName);
-            const cb = classifyOperation(b.method, b.path, tagName);
+            const ca = classifyOperation(a.method, a.path, moduleName);
+            const cb = classifyOperation(b.method, b.path, moduleName);
             const oa = typeOrder[ca.type] ?? 5;
             const ob = typeOrder[cb.type] ?? 5;
             if (oa !== ob) return oa - ob;
@@ -675,10 +702,10 @@ function buildRegistry(): RegistryBuildResult {
         });
 
         for (const entry of sorted) {
-            const classification = classifyOperation(entry.method, entry.path, tagName);
+            const classification = classifyOperation(entry.method, entry.path, moduleName);
             const { type: actionType, method: actionMethod, resultType } = classification;
-            const reference = operationReference(entry.method, entry.path, actionNameMap);
-            const actionName = reference.mappedName ?? classification.name;
+            const reference = operationReference(entry.method, entry.path, entry.mapping);
+            const actionName = entry.mapping?.name ?? classification.name;
             const summary = entry.op.summary ?? '';
 
             actionDisplayNames.push(summary);
@@ -686,7 +713,7 @@ function buildRegistry(): RegistryBuildResult {
             const bracePath = colonToBrace(entry.path);
 
             const pathParamNames = extractColonParams(entry.path);
-            const relevantPathParams = pathParamNames.filter(() => actionType !== 'list');
+            const relevantPathParams = pathParamNames.filter(() => actionType !== 'list' || Boolean(entry.mapping));
 
             const resultGetter = (actionType === 'list' || actionType === 'get')
                 ? inferResultGetter(entry.op, actionType) : undefined;
@@ -694,57 +721,71 @@ function buildRegistry(): RegistryBuildResult {
             const params = (actionType === 'list') ? buildParams(entry.op.parameters) : undefined;
             const requestBody = buildRequestBody(entry.op);
 
-            let body = ``;
-            body += `                name: '${escapeStr(actionName)}',\n`;
-            body += `                display: '${escapeStr(summary)}',\n`;
-            body += `                type: '${actionType}',\n`;
-            body += `                method: '${actionMethod}',\n`;
-            body += `                path: '${escapeStr(bracePath)}',\n`;
-            body += `                resultType: '${resultType}',\n`;
+            const propertyBlocks = new Map<string, string>();
+            propertyBlocks.set('name', `                name: '${escapeStr(actionName)}',\n`);
+            propertyBlocks.set('display', `                display: '${escapeStr(summary)}',\n`);
+            propertyBlocks.set('type', `                type: '${actionType}',\n`);
+            propertyBlocks.set('method', `                method: '${actionMethod}',\n`);
+            propertyBlocks.set('path', `                path: '${escapeStr(bracePath)}',\n`);
+            propertyBlocks.set('resultType', `                resultType: '${resultType}',\n`);
 
             if (actionType === 'list') {
-                body += `                pagerGetter: 'pager',\n`;
+                propertyBlocks.set('pagerGetter', `                pagerGetter: 'pager',\n`);
             }
             if (resultGetter) {
-                body += `                resultGetter: '${escapeStr(resultGetter)}',\n`;
+                propertyBlocks.set('resultGetter', `                resultGetter: '${escapeStr(resultGetter)}',\n`);
             }
 
             if (relevantPathParams.length > 0) {
-                body += `                pathParams: {\n`;
+                let pathParamsBlock = `                pathParams: {\n`;
                 for (const pp of relevantPathParams) {
-                    body += `                    ${pp}: '${escapeStr(paramDescription(pp))}',\n`;
+                    pathParamsBlock += `                    ${pp}: '${escapeStr(paramDescription(pp))}',\n`;
                 }
-                body += `                },\n`;
+                pathParamsBlock += `                },\n`;
+                propertyBlocks.set('pathParams', pathParamsBlock);
             }
 
             if (params) {
-                body += `                params: [\n`;
-                body += params.map(p => formatParam(p)).join('');
-                body += `                ],\n`;
+                let paramsBlock = `                params: [\n`;
+                paramsBlock += params.map(p => formatParam(p)).join('');
+                paramsBlock += `                ],\n`;
+                propertyBlocks.set('params', paramsBlock);
             }
 
             if (requestBody) {
-                body += `                requestBody: {\n`;
+                let requestBodyBlock = `                requestBody: {\n`;
                 if (requestBody.required) {
-                    body += `                    required: true,\n`;
+                    requestBodyBlock += `                    required: true,\n`;
                 }
-                body += `                    type: 'object',\n`;
-                body += `                    schema: ${indentJson(requestBody.schema, 20)},\n`;
-                body += `                },\n`;
+                requestBodyBlock += `                    type: 'object',\n`;
+                requestBodyBlock += `                    schema: ${indentJson(requestBody.schema, 20)},\n`;
+                requestBodyBlock += `                },\n`;
+                propertyBlocks.set('requestBody', requestBodyBlock);
             }
 
+            for (const [property, value] of Object.entries(entry.mapping ?? {})) {
+                if (property === 'module') continue;
+                propertyBlocks.set(property, formatMappedActionProperty(property, value));
+            }
+
+            const mappedResultType = entry.mapping?.resultType ?? resultType;
+            if (mappedResultType !== 'text' && mappedResultType !== 'object' && mappedResultType !== 'list') {
+                throw new Error(`Invalid resultType in action mapping "${reference.mappingKey}".`);
+            }
+
+            const body = [...propertyBlocks.values()].join('');
             actionBodies.push(body);
-            recordAction(actionName, resultType, [reference]);
+            recordAction(actionName, mappedResultType, [reference]);
         }
 
-        actionNameConflicts.push(...findActionNameConflicts(tagName, generatedActions));
+        actionNameConflicts.push(...findActionNameConflicts(moduleName, generatedActions));
 
         // Compose module description
         const moduleDesc = `${display}管理，支持${actionDisplayNames.join('、')}`;
 
         let moduleStr = `    /* ${display}模块 */\n`;
         moduleStr += `    {\n`;
-        moduleStr += `        name: '${escapeStr(tagName)}',\n`;
+        moduleStr += `        name: '${escapeStr(moduleName)}',\n`;
         moduleStr += `        display: '${escapeStr(display)}',\n`;
         moduleStr += `        description: '${escapeStr(moduleDesc)}',\n`;
         moduleStr += `        actions: [\n`;
@@ -762,7 +803,7 @@ function buildRegistry(): RegistryBuildResult {
         moduleStr += `        ],\n`;
         moduleStr += `    }`;
         modules.push(moduleStr);
-        actionMetaByModule.push({ name: tagName, actions: actionMeta });
+        actionMetaByModule.push({ name: moduleName, actions: actionMeta });
     }
 
     // Assemble final output
@@ -791,10 +832,10 @@ function buildRegistry(): RegistryBuildResult {
     return {
         output,
         outputPath,
-        actionNameMapPath,
+        actionMapPath,
         actionNameConflicts,
-        moduleCount: tagOrder.length,
-        operationCount: tagOrder.map(t => tagOps.get(t)!.length).reduce((a, b) => a + b, 0),
+        moduleCount: moduleOrder.length,
+        operationCount: moduleOrder.map(moduleName => moduleOps.get(moduleName)!.length).reduce((a, b) => a + b, 0),
     };
 }
 
@@ -830,6 +871,14 @@ function formatTypePropertyName(name: string): string {
     return /^[$A-Z_a-z][$\w]*$/.test(name) ? name : `'${escapeStr(name)}'`;
 }
 
+function formatMappedActionProperty(property: string, value: unknown): string {
+    const key = formatTypePropertyName(property);
+    const literal = typeof value === 'string'
+        ? `'${escapeStr(value)}'`
+        : indentJson(value, 16);
+    return `                ${key}: ${literal},\n`;
+}
+
 function indentJson(obj: unknown, baseIndent: number): string {
     const json = JSON.stringify(obj, null, 4);
     const indent = ' '.repeat(baseIndent);
@@ -847,14 +896,14 @@ function reportActionNameConflicts(result: RegistryBuildResult): void {
         console.warn(`   ${conflict.moduleName}/${conflict.actionName}`);
         for (const action of conflict.actions) {
             for (const operation of action.operations) {
-                const mappingStatus = operation.mappedName
-                    ? ` -> ${operation.mappedName}`
+                const mappingStatus = operation.mapping
+                    ? ` -> ${operation.mapping.module}/${operation.mapping.name}`
                     : ' (no mapping)';
                 console.warn(`     - ${operation.mappingKey}${mappingStatus}`);
             }
         }
     }
-    console.warn(`Add or update mappings in ${result.actionNameMapPath} so action names are unique within each module.`);
+    console.warn(`Add or update mappings in ${result.actionMapPath} so action names are unique within each module.`);
 }
 
 function main() {
