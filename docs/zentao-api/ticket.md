@@ -8,8 +8,8 @@
 | --- | --- | --- | --- |
 | `list` | 获取工单列表，支持获取产品下的工单 | `GET` | `/products/{productID}/tickets` |
 | `create` | 创建工单 | `POST` | `/tickets` |
-| `ticket-createStory` | 工单转需求 | `POST` | `/tickets/{ticketID}/stories` |
-| `ticket-createBug` | 工单转Bug | `POST` | `/tickets/{ticketID}/bugs` |
+| `createStory` | 工单转需求 | `POST` | `/tickets/{ticketID}/stories` |
+| `createBug` | 工单转Bug | `POST` | `/tickets/{ticketID}/bugs` |
 | `get` | 获取工单详情 | `GET` | `/tickets/{ticketID}` |
 | `update` | 修改工单 | `PUT` | `/tickets/{ticketID}` |
 | `delete` | 删除工单 | `DELETE` | `/tickets/{ticketID}` |
@@ -174,7 +174,7 @@ const result = await request("ticket/create", {
 ```
 ## 工单转需求
 
-- SDK 调用：`request("ticket/ticket-createStory", params)`
+- SDK 调用：`request("ticket/createStory", params)`
 - HTTP：`POST /tickets/{ticketID}/stories`
 - 动作类型：`create`
 
@@ -249,7 +249,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("ticket/ticket-createStory", {
+const result = await request("ticket/createStory", {
   "ticketID": 1,
   "productID": 1,
   "title": "<string>",
@@ -260,7 +260,7 @@ const result = await request("ticket/ticket-createStory", {
 ```
 ## 工单转Bug
 
-- SDK 调用：`request("ticket/ticket-createBug", params)`
+- SDK 调用：`request("ticket/createBug", params)`
 - HTTP：`POST /tickets/{ticketID}/bugs`
 - 动作类型：`create`
 
@@ -352,7 +352,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("ticket/ticket-createBug", {
+const result = await request("ticket/createBug", {
   "ticketID": 1,
   "productID": 1,
   "title": "<string>",

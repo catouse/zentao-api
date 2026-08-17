@@ -6,24 +6,24 @@
 
 | SDK 动作 | 说明 | 方法 | 路径 |
 | --- | --- | --- | --- |
-| `my-todos` | 我的待办 | `GET` | `/my/todos` |
-| `my-tasks` | 指派给我的任务 | `GET` | `/my/tasks` |
-| `my-bugs` | 指派给我的Bug | `GET` | `/my/bugs` |
-| `my-stories` | 指派给我的研发需求 | `GET` | `/my/stories` |
-| `my-epics` | 指派给我的业务需求 | `GET` | `/my/epics` |
-| `my-requirements` | 指派给我的用户需求 | `GET` | `/my/requirements` |
-| `my-testtasks` | 我负责的的测试单 | `GET` | `/my/testtasks` |
-| `my-projects` | 我参与的项目 | `GET` | `/my/projects` |
-| `my-feedbacks` | 指派给我的反馈 | `GET` | `/my/feedbacks` |
-| `my-tickets` | 指派给我的工单 | `GET` | `/my/tickets` |
-| `my-testcases` | 指派给我的用例 | `GET` | `/my/testcases` |
-| `my-meetings` | 我的会议 | `GET` | `/my/meetings` |
-| `my-issues` | 指派给我的问题 | `GET` | `/my/issues` |
-| `my-risks` | 指派给我的风险 | `GET` | `/my/risks` |
+| `todos` | 我的待办 | `GET` | `/my/todos` |
+| `tasks` | 指派给我的任务 | `GET` | `/my/tasks` |
+| `bugs` | 指派给我的Bug | `GET` | `/my/bugs` |
+| `stories` | 指派给我的研发需求 | `GET` | `/my/stories` |
+| `epics` | 指派给我的业务需求 | `GET` | `/my/epics` |
+| `requirements` | 指派给我的用户需求 | `GET` | `/my/requirements` |
+| `testtasks` | 我负责的的测试单 | `GET` | `/my/testtasks` |
+| `projects` | 我参与的项目 | `GET` | `/my/projects` |
+| `feedbacks` | 指派给我的反馈 | `GET` | `/my/feedbacks` |
+| `tickets` | 指派给我的工单 | `GET` | `/my/tickets` |
+| `testcases` | 指派给我的用例 | `GET` | `/my/testcases` |
+| `meetings` | 我的会议 | `GET` | `/my/meetings` |
+| `issues` | 指派给我的问题 | `GET` | `/my/issues` |
+| `risks` | 指派给我的风险 | `GET` | `/my/risks` |
 
 ## 我的待办
 
-- SDK 调用：`request("my/my-todos", params)`
+- SDK 调用：`request("my/todos", params)`
 - HTTP：`GET /my/todos`
 - 动作类型：`list`
 
@@ -55,7 +55,7 @@
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/my-todos", {
+const result = await request("my/todos", {
   "browseType": "all",
   "orderBy": "<string>",
   "recPerPage": 1,
@@ -64,7 +64,7 @@ const result = await request("my/my-todos", {
 ```
 ## 指派给我的任务
 
-- SDK 调用：`request("my/my-tasks", params)`
+- SDK 调用：`request("my/tasks", params)`
 - HTTP：`GET /my/tasks`
 - 动作类型：`list`
 
@@ -98,7 +98,7 @@ const result = await request("my/my-todos", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/my-tasks", {
+const result = await request("my/tasks", {
   "browseType": "all",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -109,7 +109,7 @@ const result = await request("my/my-tasks", {
 ```
 ## 指派给我的Bug
 
-- SDK 调用：`request("my/my-bugs", params)`
+- SDK 调用：`request("my/bugs", params)`
 - HTTP：`GET /my/bugs`
 - 动作类型：`list`
 
@@ -143,7 +143,7 @@ const result = await request("my/my-tasks", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/my-bugs", {
+const result = await request("my/bugs", {
   "browseType": "all",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -154,7 +154,7 @@ const result = await request("my/my-bugs", {
 ```
 ## 指派给我的研发需求
 
-- SDK 调用：`request("my/my-stories", params)`
+- SDK 调用：`request("my/stories", params)`
 - HTTP：`GET /my/stories`
 - 动作类型：`list`
 
@@ -188,7 +188,7 @@ const result = await request("my/my-bugs", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/my-stories", {
+const result = await request("my/stories", {
   "browseType": "allstory",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -199,7 +199,7 @@ const result = await request("my/my-stories", {
 ```
 ## 指派给我的业务需求
 
-- SDK 调用：`request("my/my-epics", params)`
+- SDK 调用：`request("my/epics", params)`
 - HTTP：`GET /my/epics`
 - 动作类型：`list`
 
@@ -233,7 +233,7 @@ const result = await request("my/my-stories", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/my-epics", {
+const result = await request("my/epics", {
   "browseType": "allstory",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -244,7 +244,7 @@ const result = await request("my/my-epics", {
 ```
 ## 指派给我的用户需求
 
-- SDK 调用：`request("my/my-requirements", params)`
+- SDK 调用：`request("my/requirements", params)`
 - HTTP：`GET /my/requirements`
 - 动作类型：`list`
 
@@ -278,7 +278,7 @@ const result = await request("my/my-epics", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/my-requirements", {
+const result = await request("my/requirements", {
   "browseType": "allstory",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -289,7 +289,7 @@ const result = await request("my/my-requirements", {
 ```
 ## 我负责的的测试单
 
-- SDK 调用：`request("my/my-testtasks", params)`
+- SDK 调用：`request("my/testtasks", params)`
 - HTTP：`GET /my/testtasks`
 - 动作类型：`list`
 
@@ -321,7 +321,7 @@ const result = await request("my/my-requirements", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/my-testtasks", {
+const result = await request("my/testtasks", {
   "browseType": "all",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -330,7 +330,7 @@ const result = await request("my/my-testtasks", {
 ```
 ## 我参与的项目
 
-- SDK 调用：`request("my/my-projects", params)`
+- SDK 调用：`request("my/projects", params)`
 - HTTP：`GET /my/projects`
 - 动作类型：`list`
 
@@ -362,7 +362,7 @@ const result = await request("my/my-testtasks", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/my-projects", {
+const result = await request("my/projects", {
   "browseType": "all",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -371,7 +371,7 @@ const result = await request("my/my-projects", {
 ```
 ## 指派给我的反馈
 
-- SDK 调用：`request("my/my-feedbacks", params)`
+- SDK 调用：`request("my/feedbacks", params)`
 - HTTP：`GET /my/feedbacks`
 - 动作类型：`list`
 
@@ -405,7 +405,7 @@ const result = await request("my/my-projects", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/my-feedbacks", {
+const result = await request("my/feedbacks", {
   "browseType": "all",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -416,7 +416,7 @@ const result = await request("my/my-feedbacks", {
 ```
 ## 指派给我的工单
 
-- SDK 调用：`request("my/my-tickets", params)`
+- SDK 调用：`request("my/tickets", params)`
 - HTTP：`GET /my/tickets`
 - 动作类型：`list`
 
@@ -450,7 +450,7 @@ const result = await request("my/my-feedbacks", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/my-tickets", {
+const result = await request("my/tickets", {
   "browseType": "all",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -461,7 +461,7 @@ const result = await request("my/my-tickets", {
 ```
 ## 指派给我的用例
 
-- SDK 调用：`request("my/my-testcases", params)`
+- SDK 调用：`request("my/testcases", params)`
 - HTTP：`GET /my/testcases`
 - 动作类型：`list`
 
@@ -495,7 +495,7 @@ const result = await request("my/my-tickets", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/my-testcases", {
+const result = await request("my/testcases", {
   "browseType": "all",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -506,7 +506,7 @@ const result = await request("my/my-testcases", {
 ```
 ## 我的会议
 
-- SDK 调用：`request("my/my-meetings", params)`
+- SDK 调用：`request("my/meetings", params)`
 - HTTP：`GET /my/meetings`
 - 动作类型：`list`
 
@@ -537,7 +537,7 @@ const result = await request("my/my-testcases", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/my-meetings", {
+const result = await request("my/meetings", {
   "browseType": "all",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -546,7 +546,7 @@ const result = await request("my/my-meetings", {
 ```
 ## 指派给我的问题
 
-- SDK 调用：`request("my/my-issues", params)`
+- SDK 调用：`request("my/issues", params)`
 - HTTP：`GET /my/issues`
 - 动作类型：`list`
 
@@ -577,7 +577,7 @@ const result = await request("my/my-meetings", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/my-issues", {
+const result = await request("my/issues", {
   "browseType": "all",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -586,7 +586,7 @@ const result = await request("my/my-issues", {
 ```
 ## 指派给我的风险
 
-- SDK 调用：`request("my/my-risks", params)`
+- SDK 调用：`request("my/risks", params)`
 - HTTP：`GET /my/risks`
 - 动作类型：`list`
 
@@ -619,7 +619,7 @@ const result = await request("my/my-issues", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/my-risks", {
+const result = await request("my/risks", {
   "browseType": "all",
   "orderBy": "id_asc",
   "recPerPage": 1,

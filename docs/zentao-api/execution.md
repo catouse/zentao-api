@@ -1,15 +1,16 @@
 # 执行 (execution)
 
-执行管理，支持获取执行列表、获取执行团队列表、创建执行（迭代/阶段/看板）、关闭执行、获取执行详情、修改执行、删除执行、维护执行成员
+执行管理，支持获取执行列表、获取执行团队列表、创建执行（迭代/阶段/看板）、关闭执行、创建执行的任务模块、获取执行详情、修改执行、删除执行、维护执行成员
 
 ## 动作概览
 
 | SDK 动作 | 说明 | 方法 | 路径 |
 | --- | --- | --- | --- |
 | `list` | 获取执行列表 | `GET` | `/executions` |
-| `execution-team` | 获取执行团队列表 | `GET` | `/executions/team` |
+| `team` | 获取执行团队列表 | `GET` | `/executions/team` |
 | `create` | 创建执行（迭代/阶段/看板） | `POST` | `/executions` |
-| `execution-close` | 关闭执行 | `POST` | `/executions/{executionID}/close` |
+| `close` | 关闭执行 | `POST` | `/executions/{executionID}/close` |
+| `createTaskModule` | 创建执行的任务模块 | `POST` | `/executions/{executionID}/task/modules` |
 | `get` | 获取执行详情 | `GET` | `/executions/{executionID}` |
 | `update` | 修改执行 | `PUT` | `/executions/{executionID}` |
 | `delete` | 删除执行 | `DELETE` | `/executions/{executionID}` |
@@ -62,7 +63,7 @@ const result = await request("execution/list", {
 ```
 ## 获取执行团队列表
 
-- SDK 调用：`request("execution/execution-team", params)`
+- SDK 调用：`request("execution/team", params)`
 - HTTP：`GET /executions/team`
 - 动作类型：`list`
 
@@ -91,7 +92,7 @@ const result = await request("execution/list", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("execution/execution-team", {
+const result = await request("execution/team", {
   "executionID": "<string>"
 });
 ```
@@ -272,7 +273,7 @@ const result = await request("execution/create", {
 ```
 ## 关闭执行
 
-- SDK 调用：`request("execution/execution-close", params)`
+- SDK 调用：`request("execution/close", params)`
 - HTTP：`POST /executions/{executionID}/close`
 - 动作类型：`create`
 
@@ -329,10 +330,73 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("execution/execution-close", {
+const result = await request("execution/close", {
   "executionID": 1,
   "realEnd": "<string>",
   "comment": "<string>"
+});
+```
+## 创建执行的任务模块
+
+- SDK 调用：`request("execution/createTaskModule", params)`
+- HTTP：`POST /executions/{executionID}/task/modules`
+- 动作类型：`create`
+
+### 路径参数
+
+| 参数 | 说明 |
+| --- | --- |
+| `executionID` | 执行ID |
+
+### 查询参数
+
+无查询参数。
+
+### 请求体
+
+请求体必填：是
+
+Schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "模块名称"
+    },
+    "parentID": {
+      "type": "integer",
+      "description": "父模块",
+      "format": "int32"
+    }
+  }
+}
+```
+
+示例:
+
+```json
+{
+  "name": "<string>",
+  "parentID": 1
+}
+```
+
+### 返回值
+
+- 返回形态：`object`
+
+### SDK 示例
+
+```ts
+import { request } from 'zentao-api';
+
+const result = await request("execution/createTaskModule", {
+  "executionID": 1,
+  "name": "<string>",
+  "parentID": 1
 });
 ```
 ## 获取执行详情

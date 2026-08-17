@@ -1,6 +1,6 @@
 # 产品 (product)
 
-产品管理，支持获取产品列表、创建产品、关闭产品、获取产品详情、修改产品、删除产品
+产品管理，支持获取产品列表、创建产品、关闭产品、创建产品的需求模块、创建产品的Bug模块、创建产品的用例模块、获取产品详情、修改产品、删除产品
 
 ## 动作概览
 
@@ -8,7 +8,10 @@
 | --- | --- | --- | --- |
 | `list` | 获取产品列表 | `GET` | `/products` |
 | `create` | 创建产品 | `POST` | `/products` |
-| `product-close` | 关闭产品 | `POST` | `/products/{productID}/close` |
+| `close` | 关闭产品 | `POST` | `/products/{productID}/close` |
+| `createStoryModule` | 创建产品的需求模块 | `POST` | `/products/{productID}/story/modules` |
+| `createBugModule` | 创建产品的Bug模块 | `POST` | `/products/{productID}/bug/modules` |
+| `createTestcaseModule` | 创建产品的用例模块 | `POST` | `/products/{productID}/testcase/modules` |
 | `get` | 获取产品详情 | `GET` | `/products/{productID}` |
 | `update` | 修改产品 | `PUT` | `/products/{productID}` |
 | `delete` | 删除产品 | `DELETE` | `/products/{productID}` |
@@ -183,7 +186,7 @@ const result = await request("product/create", {
 ```
 ## 关闭产品
 
-- SDK 调用：`request("product/product-close", params)`
+- SDK 调用：`request("product/close", params)`
 - HTTP：`POST /products/{productID}/close`
 - 动作类型：`create`
 
@@ -232,9 +235,198 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("product/product-close", {
+const result = await request("product/close", {
   "productID": 1,
   "comment": "<string>"
+});
+```
+## 创建产品的需求模块
+
+- SDK 调用：`request("product/createStoryModule", params)`
+- HTTP：`POST /products/{productID}/story/modules`
+- 动作类型：`create`
+
+### 路径参数
+
+| 参数 | 说明 |
+| --- | --- |
+| `productID` | 产品ID |
+
+### 查询参数
+
+无查询参数。
+
+### 请求体
+
+请求体必填：是
+
+Schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "模块名称"
+    },
+    "parentID": {
+      "type": "integer",
+      "description": "父模块",
+      "format": "int32"
+    }
+  }
+}
+```
+
+示例:
+
+```json
+{
+  "name": "<string>",
+  "parentID": 1
+}
+```
+
+### 返回值
+
+- 返回形态：`object`
+
+### SDK 示例
+
+```ts
+import { request } from 'zentao-api';
+
+const result = await request("product/createStoryModule", {
+  "productID": 1,
+  "name": "<string>",
+  "parentID": 1
+});
+```
+## 创建产品的Bug模块
+
+- SDK 调用：`request("product/createBugModule", params)`
+- HTTP：`POST /products/{productID}/bug/modules`
+- 动作类型：`create`
+
+### 路径参数
+
+| 参数 | 说明 |
+| --- | --- |
+| `productID` | 产品ID |
+
+### 查询参数
+
+无查询参数。
+
+### 请求体
+
+请求体必填：是
+
+Schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "模块名称"
+    },
+    "parentID": {
+      "type": "integer",
+      "description": "父模块",
+      "format": "int32"
+    }
+  }
+}
+```
+
+示例:
+
+```json
+{
+  "name": "<string>",
+  "parentID": 1
+}
+```
+
+### 返回值
+
+- 返回形态：`object`
+
+### SDK 示例
+
+```ts
+import { request } from 'zentao-api';
+
+const result = await request("product/createBugModule", {
+  "productID": 1,
+  "name": "<string>",
+  "parentID": 1
+});
+```
+## 创建产品的用例模块
+
+- SDK 调用：`request("product/createTestcaseModule", params)`
+- HTTP：`POST /products/{productID}/testcase/modules`
+- 动作类型：`create`
+
+### 路径参数
+
+| 参数 | 说明 |
+| --- | --- |
+| `productID` | 产品ID |
+
+### 查询参数
+
+无查询参数。
+
+### 请求体
+
+请求体必填：是
+
+Schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "模块名称"
+    },
+    "parentID": {
+      "type": "integer",
+      "description": "父模块",
+      "format": "int32"
+    }
+  }
+}
+```
+
+示例:
+
+```json
+{
+  "name": "<string>",
+  "parentID": 1
+}
+```
+
+### 返回值
+
+- 返回形态：`object`
+
+### SDK 示例
+
+```ts
+import { request } from 'zentao-api';
+
+const result = await request("product/createTestcaseModule", {
+  "productID": 1,
+  "name": "<string>",
+  "parentID": 1
 });
 ```
 ## 获取产品详情

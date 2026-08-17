@@ -8,11 +8,11 @@
 | --- | --- | --- | --- |
 | `list` | 获取反馈列表，支持获取产品下的反馈 | `GET` | `/products/{productID}/feedbacks` |
 | `create` | 创建反馈 | `POST` | `/feedbacks` |
-| `feedback-createBug` | 反馈转Bug | `POST` | `/feedbacks/{feedbackID}/bugs` |
-| `feedback-createTicket` | 反馈转工单 | `POST` | `/feedbacks/{feedbackID}/tickets` |
-| `feedback-createTodo` | 反馈转待办 | `POST` | `/feedbacks/{feedbackID}/todos` |
-| `feedback-createStory` | 反馈转需求 | `POST` | `/feedbacks/{feedbackID}/stories` |
-| `feedback-createTask` | 反馈转任务 | `POST` | `/feedbacks/{feedbackID}/tasks` |
+| `createBug` | 反馈转Bug | `POST` | `/feedbacks/{feedbackID}/bugs` |
+| `createTicket` | 反馈转工单 | `POST` | `/feedbacks/{feedbackID}/tickets` |
+| `createTodo` | 反馈转待办 | `POST` | `/feedbacks/{feedbackID}/todos` |
+| `createStory` | 反馈转需求 | `POST` | `/feedbacks/{feedbackID}/stories` |
+| `createTask` | 反馈转任务 | `POST` | `/feedbacks/{feedbackID}/tasks` |
 | `get` | 获取反馈详情 | `GET` | `/feedbacks/{feedbackID}` |
 | `update` | 修改反馈 | `PUT` | `/feedbacks/{feedbackID}` |
 | `delete` | 删除反馈 | `DELETE` | `/feedbacks/{feedbackID}` |
@@ -164,7 +164,7 @@ const result = await request("feedback/create", {
 ```
 ## 反馈转Bug
 
-- SDK 调用：`request("feedback/feedback-createBug", params)`
+- SDK 调用：`request("feedback/createBug", params)`
 - HTTP：`POST /feedbacks/{feedbackID}/bugs`
 - 动作类型：`create`
 
@@ -256,7 +256,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("feedback/feedback-createBug", {
+const result = await request("feedback/createBug", {
   "feedbackID": 1,
   "productID": 1,
   "title": "<string>",
@@ -271,7 +271,7 @@ const result = await request("feedback/feedback-createBug", {
 ```
 ## 反馈转工单
 
-- SDK 调用：`request("feedback/feedback-createTicket", params)`
+- SDK 调用：`request("feedback/createTicket", params)`
 - HTTP：`POST /feedbacks/{feedbackID}/tickets`
 - 动作类型：`create`
 
@@ -347,7 +347,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("feedback/feedback-createTicket", {
+const result = await request("feedback/createTicket", {
   "feedbackID": 1,
   "product": 1,
   "module": 1,
@@ -358,7 +358,7 @@ const result = await request("feedback/feedback-createTicket", {
 ```
 ## 反馈转待办
 
-- SDK 调用：`request("feedback/feedback-createTodo", params)`
+- SDK 调用：`request("feedback/createTodo", params)`
 - HTTP：`POST /feedbacks/{feedbackID}/todos`
 - 动作类型：`create`
 
@@ -416,7 +416,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("feedback/feedback-createTodo", {
+const result = await request("feedback/createTodo", {
   "feedbackID": 1,
   "date": "<string>",
   "name": "<string>"
@@ -424,7 +424,7 @@ const result = await request("feedback/feedback-createTodo", {
 ```
 ## 反馈转需求
 
-- SDK 调用：`request("feedback/feedback-createStory", params)`
+- SDK 调用：`request("feedback/createStory", params)`
 - HTTP：`POST /feedbacks/{feedbackID}/stories`
 - 动作类型：`create`
 
@@ -499,7 +499,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("feedback/feedback-createStory", {
+const result = await request("feedback/createStory", {
   "feedbackID": 1,
   "productID": 1,
   "title": "<string>",
@@ -510,7 +510,7 @@ const result = await request("feedback/feedback-createStory", {
 ```
 ## 反馈转任务
 
-- SDK 调用：`request("feedback/feedback-createTask", params)`
+- SDK 调用：`request("feedback/createTask", params)`
 - HTTP：`POST /feedbacks/{feedbackID}/tasks`
 - 动作类型：`create`
 
@@ -594,7 +594,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("feedback/feedback-createTask", {
+const result = await request("feedback/createTask", {
   "feedbackID": 1,
   "executionID": 1,
   "name": "<string>",

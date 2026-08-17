@@ -1,6 +1,6 @@
 # 任务 (task)
 
-任务管理，支持执行的任务模块树、创建任务、创建项目任务、创建执行的任务模块、获取任务详情、修改任务、修改任务模块、删除任务、删除任务模块、激活任务、关闭任务、完成任务、启动任务
+任务管理，支持执行的任务模块树、创建任务、获取任务详情、修改任务、修改任务模块、删除任务、删除任务模块、激活任务、关闭任务、完成任务、启动任务
 
 ## 动作概览
 
@@ -8,13 +8,11 @@
 | --- | --- | --- | --- |
 | `list` | 执行的任务模块树 | `GET` | `/executions/{executionID}/tasks` |
 | `create` | 创建任务 | `POST` | `/tasks` |
-| `project-createTask` | 创建项目任务 | `POST` | `/projects/{projectID}/tasks` |
-| `execution-createTaskModule` | 创建执行的任务模块 | `POST` | `/executions/{executionID}/task/modules` |
 | `get` | 获取任务详情 | `GET` | `/tasks/{taskID}` |
 | `update` | 修改任务 | `PUT` | `/tasks/{taskID}` |
-| `task-updateModule` | 修改任务模块 | `PUT` | `/task/modules/{moduleID}` |
+| `updateModule` | 修改任务模块 | `PUT` | `/task/modules/{moduleID}` |
 | `delete` | 删除任务 | `DELETE` | `/tasks/{taskID}` |
-| `task-deleteModule` | 删除任务模块 | `DELETE` | `/task/modules/{moduleID}` |
+| `deleteModule` | 删除任务模块 | `DELETE` | `/task/modules/{moduleID}` |
 | `activate` | 激活任务 | `PUT` | `/tasks/{taskID}/activate` |
 | `close` | 关闭任务 | `PUT` | `/tasks/{taskID}/close` |
 | `finish` | 完成任务 | `PUT` | `/tasks/{taskID}/finish` |
@@ -183,193 +181,6 @@ const result = await request("task/create", {
   "parent": 1
 });
 ```
-## 创建项目任务
-
-- SDK 调用：`request("task/project-createTask", params)`
-- HTTP：`POST /projects/{projectID}/tasks`
-- 动作类型：`create`
-
-### 路径参数
-
-| 参数 | 说明 |
-| --- | --- |
-| `projectID` | 项目ID |
-
-### 查询参数
-
-无查询参数。
-
-### 请求体
-
-请求体必填：是
-
-Schema:
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "name": {
-      "type": "string",
-      "description": "任务名称"
-    },
-    "executionID": {
-      "type": "integer",
-      "description": "所属执行；无执行项目可不传，有执行项目必须传",
-      "format": "int32"
-    },
-    "type": {
-      "type": "string",
-      "description": "任务类型"
-    },
-    "assignedTo": {
-      "type": "string",
-      "description": "指派给"
-    },
-    "estStarted": {
-      "type": "string",
-      "description": "预计开始"
-    },
-    "deadline": {
-      "type": "string",
-      "description": "截止日期"
-    },
-    "pri": {
-      "type": "integer",
-      "description": "优先级",
-      "format": "int32"
-    },
-    "estimate": {
-      "type": "number",
-      "description": "预计工时",
-      "format": "float"
-    },
-    "module": {
-      "type": "integer",
-      "description": "所属模块",
-      "format": "int32"
-    },
-    "story": {
-      "type": "integer",
-      "description": "相关需求",
-      "format": "int32"
-    },
-    "desc": {
-      "type": "string",
-      "description": "任务描述"
-    }
-  },
-  "required": [
-    "name"
-  ]
-}
-```
-
-示例:
-
-```json
-{
-  "name": "<string>",
-  "executionID": 1,
-  "type": "<string>",
-  "assignedTo": "<string>",
-  "estStarted": "<string>",
-  "deadline": "<string>",
-  "pri": 1,
-  "estimate": 1,
-  "module": 1,
-  "story": 1,
-  "desc": "<string>"
-}
-```
-
-### 返回值
-
-- 返回形态：`object`
-
-### SDK 示例
-
-```ts
-import { request } from 'zentao-api';
-
-const result = await request("task/project-createTask", {
-  "projectID": 1,
-  "name": "<string>",
-  "executionID": 1,
-  "type": "<string>",
-  "assignedTo": "<string>",
-  "estStarted": "<string>",
-  "deadline": "<string>",
-  "pri": 1,
-  "estimate": 1,
-  "module": 1,
-  "story": 1,
-  "desc": "<string>"
-});
-```
-## 创建执行的任务模块
-
-- SDK 调用：`request("task/execution-createTaskModule", params)`
-- HTTP：`POST /executions/{executionID}/task/modules`
-- 动作类型：`create`
-
-### 路径参数
-
-| 参数 | 说明 |
-| --- | --- |
-| `executionID` | 执行ID |
-
-### 查询参数
-
-无查询参数。
-
-### 请求体
-
-请求体必填：是
-
-Schema:
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "name": {
-      "type": "string",
-      "description": "模块名称"
-    },
-    "parentID": {
-      "type": "integer",
-      "description": "父模块",
-      "format": "int32"
-    }
-  }
-}
-```
-
-示例:
-
-```json
-{
-  "name": "<string>",
-  "parentID": 1
-}
-```
-
-### 返回值
-
-- 返回形态：`object`
-
-### SDK 示例
-
-```ts
-import { request } from 'zentao-api';
-
-const result = await request("task/execution-createTaskModule", {
-  "executionID": 1,
-  "name": "<string>",
-  "parentID": 1
-});
-```
 ## 获取任务详情
 
 - SDK 调用：`request("task/get", params)`
@@ -526,7 +337,7 @@ const result = await request("task/update", {
 ```
 ## 修改任务模块
 
-- SDK 调用：`request("task/task-updateModule", params)`
+- SDK 调用：`request("task/updateModule", params)`
 - HTTP：`PUT /task/modules/{moduleID}`
 - 动作类型：`update`
 
@@ -581,7 +392,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("task/task-updateModule", {
+const result = await request("task/updateModule", {
   "moduleID": 1,
   "name": "<string>",
   "parent": 1
@@ -622,7 +433,7 @@ const result = await request("task/delete", {
 ```
 ## 删除任务模块
 
-- SDK 调用：`request("task/task-deleteModule", params)`
+- SDK 调用：`request("task/deleteModule", params)`
 - HTTP：`DELETE /task/modules/{moduleID}`
 - 动作类型：`delete`
 
@@ -649,7 +460,7 @@ const result = await request("task/delete", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("task/task-deleteModule", {
+const result = await request("task/deleteModule", {
   "moduleID": 1
 });
 ```

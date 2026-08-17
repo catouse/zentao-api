@@ -7,7 +7,7 @@
 | SDK 动作 | 说明 | 方法 | 路径 |
 | --- | --- | --- | --- |
 | `list` | 获取工作流数据列表(以合同为例) | `GET` | `/workflow/contract` |
-| `workflow-getContract` | 获取工作流数据详情(以合同为例) | `GET` | `/workflow/contract/1` |
+| `getContract` | 获取工作流数据详情(以合同为例) | `GET` | `/workflow/contract/1` |
 | `create` | 创建工作流数据(以合同为例) | `POST` | `/workflow/contract` |
 | `update` | 修改工作流数据(以合同为例) | `PUT` | `/workflow/contract/{contractID}` |
 | `delete` | 删除工作流事项(以合同为例) | `DELETE` | `/workflow/contract/{contractID}` |
@@ -44,7 +44,7 @@ const result = await request("workflow/list");
 ```
 ## 获取工作流数据详情(以合同为例)
 
-- SDK 调用：`request("workflow/workflow-getContract", params)`
+- SDK 调用：`request("workflow/getContract", params)`
 - HTTP：`GET /workflow/contract/1`
 - 动作类型：`list`
 
@@ -70,7 +70,7 @@ const result = await request("workflow/list");
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("workflow/workflow-getContract");
+const result = await request("workflow/getContract");
 ```
 ## 创建工作流数据(以合同为例)
 

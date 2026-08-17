@@ -1,6 +1,6 @@
 # 测试用例 (testcase)
 
-测试用例管理，支持产品的用例模块树、创建测试用例、创建产品的用例模块、获取测试用例详情、修改测试用例、修改用例模块、删除测试用例、删除用例模块
+测试用例管理，支持产品的用例模块树、创建测试用例、获取测试用例详情、修改测试用例、修改用例模块、删除测试用例、删除用例模块
 
 ## 动作概览
 
@@ -8,12 +8,11 @@
 | --- | --- | --- | --- |
 | `list` | 产品的用例模块树 | `GET` | `/products/{productID}/testcase/modules` |
 | `create` | 创建测试用例 | `POST` | `/testcases` |
-| `product-createTestcaseModule` | 创建产品的用例模块 | `POST` | `/products/{productID}/testcase/modules` |
 | `get` | 获取测试用例详情 | `GET` | `/testcases/{caseID}` |
 | `update` | 修改测试用例 | `PUT` | `/testcases/{caseID}` |
-| `testcase-updateModule` | 修改用例模块 | `PUT` | `/testcase/modules/{moduleID}` |
+| `updateModule` | 修改用例模块 | `PUT` | `/testcase/modules/{moduleID}` |
 | `delete` | 删除测试用例 | `DELETE` | `/testcases/{caseID}` |
-| `testcase-deleteModule` | 删除用例模块 | `DELETE` | `/testcase/modules/{moduleID}` |
+| `deleteModule` | 删除用例模块 | `DELETE` | `/testcase/modules/{moduleID}` |
 
 ## 产品的用例模块树
 
@@ -195,69 +194,6 @@ const result = await request("testcase/create", {
   "execution": 1
 });
 ```
-## 创建产品的用例模块
-
-- SDK 调用：`request("testcase/product-createTestcaseModule", params)`
-- HTTP：`POST /products/{productID}/testcase/modules`
-- 动作类型：`create`
-
-### 路径参数
-
-| 参数 | 说明 |
-| --- | --- |
-| `productID` | 产品ID |
-
-### 查询参数
-
-无查询参数。
-
-### 请求体
-
-请求体必填：是
-
-Schema:
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "name": {
-      "type": "string",
-      "description": "模块名称"
-    },
-    "parentID": {
-      "type": "integer",
-      "description": "父模块",
-      "format": "int32"
-    }
-  }
-}
-```
-
-示例:
-
-```json
-{
-  "name": "<string>",
-  "parentID": 1
-}
-```
-
-### 返回值
-
-- 返回形态：`object`
-
-### SDK 示例
-
-```ts
-import { request } from 'zentao-api';
-
-const result = await request("testcase/product-createTestcaseModule", {
-  "productID": 1,
-  "name": "<string>",
-  "parentID": 1
-});
-```
 ## 获取测试用例详情
 
 - SDK 调用：`request("testcase/get", params)`
@@ -425,7 +361,7 @@ const result = await request("testcase/update", {
 ```
 ## 修改用例模块
 
-- SDK 调用：`request("testcase/testcase-updateModule", params)`
+- SDK 调用：`request("testcase/updateModule", params)`
 - HTTP：`PUT /testcase/modules/{moduleID}`
 - 动作类型：`update`
 
@@ -480,7 +416,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("testcase/testcase-updateModule", {
+const result = await request("testcase/updateModule", {
   "moduleID": 1,
   "name": "<string>",
   "parent": 1
@@ -521,7 +457,7 @@ const result = await request("testcase/delete", {
 ```
 ## 删除用例模块
 
-- SDK 调用：`request("testcase/testcase-deleteModule", params)`
+- SDK 调用：`request("testcase/deleteModule", params)`
 - HTTP：`DELETE /testcase/modules/{moduleID}`
 - 动作类型：`delete`
 
@@ -548,7 +484,7 @@ const result = await request("testcase/delete", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("testcase/testcase-deleteModule", {
+const result = await request("testcase/deleteModule", {
   "moduleID": 1
 });
 ```

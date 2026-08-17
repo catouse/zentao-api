@@ -1,15 +1,18 @@
 # 项目 (project)
 
-项目管理，支持获取项目列表、获取项目团队列表、创建项目、关闭项目、修改项目、删除项目、维护项目成员
+项目管理，支持获取项目列表、获取项目团队列表、创建项目、关闭项目、创建项目需求、创建项目Bug、创建项目任务、修改项目、删除项目、维护项目成员
 
 ## 动作概览
 
 | SDK 动作 | 说明 | 方法 | 路径 |
 | --- | --- | --- | --- |
 | `list` | 获取项目列表 | `GET` | `/projects` |
-| `project-team` | 获取项目团队列表 | `GET` | `/projects/team` |
+| `team` | 获取项目团队列表 | `GET` | `/projects/team` |
 | `create` | 创建项目 | `POST` | `/projects` |
-| `project-close` | 关闭项目 | `POST` | `/projects/{projectID}/close` |
+| `close` | 关闭项目 | `POST` | `/projects/{projectID}/close` |
+| `createStory` | 创建项目需求 | `POST` | `/projects/{projectID}/stories` |
+| `createBug` | 创建项目Bug | `POST` | `/projects/{projectID}/bugs` |
+| `createTask` | 创建项目任务 | `POST` | `/projects/{projectID}/tasks` |
 | `update` | 修改项目 | `PUT` | `/projects/{projectID}` |
 | `delete` | 删除项目 | `DELETE` | `/projects/{projectID}` |
 | `members` | 维护项目成员 | `PUT` | `/projects/{projectID}/members` |
@@ -61,7 +64,7 @@ const result = await request("project/list", {
 ```
 ## 获取项目团队列表
 
-- SDK 调用：`request("project/project-team", params)`
+- SDK 调用：`request("project/team", params)`
 - HTTP：`GET /projects/team`
 - 动作类型：`list`
 
@@ -90,7 +93,7 @@ const result = await request("project/list", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("project/project-team", {
+const result = await request("project/team", {
   "projectID": "<string>"
 });
 ```
@@ -207,7 +210,7 @@ const result = await request("project/create", {
 ```
 ## 关闭项目
 
-- SDK 调用：`request("project/project-close", params)`
+- SDK 调用：`request("project/close", params)`
 - HTTP：`POST /projects/{projectID}/close`
 - 动作类型：`create`
 
@@ -264,10 +267,338 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("project/project-close", {
+const result = await request("project/close", {
   "projectID": 1,
   "realEnd": "<string>",
   "comment": "<string>"
+});
+```
+## 创建项目需求
+
+- SDK 调用：`request("project/createStory", params)`
+- HTTP：`POST /projects/{projectID}/stories`
+- 动作类型：`create`
+
+### 路径参数
+
+| 参数 | 说明 |
+| --- | --- |
+| `projectID` | 项目ID |
+
+### 查询参数
+
+无查询参数。
+
+### 请求体
+
+请求体必填：是
+
+Schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "productID": {
+      "type": "integer",
+      "description": "所属产品；项目型项目可不传，产品型项目必须传",
+      "format": "int32"
+    },
+    "title": {
+      "type": "string",
+      "description": "需求标题"
+    },
+    "spec": {
+      "type": "string",
+      "description": "需求描述"
+    },
+    "pri": {
+      "type": "integer",
+      "description": "优先级",
+      "format": "int32"
+    },
+    "category": {
+      "type": "string",
+      "description": "类别"
+    },
+    "reviewer": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "评审人"
+    }
+  },
+  "required": [
+    "title"
+  ]
+}
+```
+
+示例:
+
+```json
+{
+  "productID": 1,
+  "title": "<string>",
+  "spec": "<string>",
+  "pri": 1,
+  "category": "<string>",
+  "reviewer": [
+    "<string>"
+  ]
+}
+```
+
+### 返回值
+
+- 返回形态：`object`
+
+### SDK 示例
+
+```ts
+import { request } from 'zentao-api';
+
+const result = await request("project/createStory", {
+  "projectID": 1,
+  "productID": 1,
+  "title": "<string>",
+  "spec": "<string>",
+  "pri": 1,
+  "category": "<string>",
+  "reviewer": [
+    "<string>"
+  ]
+});
+```
+## 创建项目Bug
+
+- SDK 调用：`request("project/createBug", params)`
+- HTTP：`POST /projects/{projectID}/bugs`
+- 动作类型：`create`
+
+### 路径参数
+
+| 参数 | 说明 |
+| --- | --- |
+| `projectID` | 项目ID |
+
+### 查询参数
+
+无查询参数。
+
+### 请求体
+
+请求体必填：是
+
+Schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "productID": {
+      "type": "integer",
+      "description": "所属产品；项目型项目可不传，产品型项目必须传",
+      "format": "int32"
+    },
+    "title": {
+      "type": "string",
+      "description": "Bug标题"
+    },
+    "openedBuild": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "影响版本，主干是trunk，其他版本使用版本ID"
+    },
+    "severity": {
+      "type": "integer",
+      "description": "严重程度",
+      "format": "int32"
+    },
+    "pri": {
+      "type": "integer",
+      "description": "优先级",
+      "format": "int32"
+    },
+    "type": {
+      "type": "string",
+      "description": "Bug类型"
+    },
+    "steps": {
+      "type": "string",
+      "description": "重现步骤"
+    }
+  },
+  "required": [
+    "title",
+    "openedBuild"
+  ]
+}
+```
+
+示例:
+
+```json
+{
+  "productID": 1,
+  "title": "<string>",
+  "openedBuild": [
+    "<string>"
+  ],
+  "severity": 1,
+  "pri": 1,
+  "type": "<string>",
+  "steps": "<string>"
+}
+```
+
+### 返回值
+
+- 返回形态：`object`
+
+### SDK 示例
+
+```ts
+import { request } from 'zentao-api';
+
+const result = await request("project/createBug", {
+  "projectID": 1,
+  "productID": 1,
+  "title": "<string>",
+  "openedBuild": [
+    "<string>"
+  ],
+  "severity": 1,
+  "pri": 1,
+  "type": "<string>",
+  "steps": "<string>"
+});
+```
+## 创建项目任务
+
+- SDK 调用：`request("project/createTask", params)`
+- HTTP：`POST /projects/{projectID}/tasks`
+- 动作类型：`create`
+
+### 路径参数
+
+| 参数 | 说明 |
+| --- | --- |
+| `projectID` | 项目ID |
+
+### 查询参数
+
+无查询参数。
+
+### 请求体
+
+请求体必填：是
+
+Schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "任务名称"
+    },
+    "executionID": {
+      "type": "integer",
+      "description": "所属执行；无执行项目可不传，有执行项目必须传",
+      "format": "int32"
+    },
+    "type": {
+      "type": "string",
+      "description": "任务类型"
+    },
+    "assignedTo": {
+      "type": "string",
+      "description": "指派给"
+    },
+    "estStarted": {
+      "type": "string",
+      "description": "预计开始"
+    },
+    "deadline": {
+      "type": "string",
+      "description": "截止日期"
+    },
+    "pri": {
+      "type": "integer",
+      "description": "优先级",
+      "format": "int32"
+    },
+    "estimate": {
+      "type": "number",
+      "description": "预计工时",
+      "format": "float"
+    },
+    "module": {
+      "type": "integer",
+      "description": "所属模块",
+      "format": "int32"
+    },
+    "story": {
+      "type": "integer",
+      "description": "相关需求",
+      "format": "int32"
+    },
+    "desc": {
+      "type": "string",
+      "description": "任务描述"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}
+```
+
+示例:
+
+```json
+{
+  "name": "<string>",
+  "executionID": 1,
+  "type": "<string>",
+  "assignedTo": "<string>",
+  "estStarted": "<string>",
+  "deadline": "<string>",
+  "pri": 1,
+  "estimate": 1,
+  "module": 1,
+  "story": 1,
+  "desc": "<string>"
+}
+```
+
+### 返回值
+
+- 返回形态：`object`
+
+### SDK 示例
+
+```ts
+import { request } from 'zentao-api';
+
+const result = await request("project/createTask", {
+  "projectID": 1,
+  "name": "<string>",
+  "executionID": 1,
+  "type": "<string>",
+  "assignedTo": "<string>",
+  "estStarted": "<string>",
+  "deadline": "<string>",
+  "pri": 1,
+  "estimate": 1,
+  "module": 1,
+  "story": 1,
+  "desc": "<string>"
 });
 ```
 ## 修改项目

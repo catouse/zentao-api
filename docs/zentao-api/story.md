@@ -1,6 +1,6 @@
 # 需求 (story)
 
-需求管理，支持产品的需求模块树、创建需求、创建项目需求、创建产品的需求模块、获取需求详情、修改需求、修改需求模块、删除需求、删除需求模块、激活需求、变更需求、关闭需求
+需求管理，支持产品的需求模块树、创建需求、获取需求详情、修改需求、修改需求模块、删除需求、删除需求模块、激活需求、变更需求、关闭需求
 
 ## 动作概览
 
@@ -8,13 +8,11 @@
 | --- | --- | --- | --- |
 | `list` | 产品的需求模块树 | `GET` | `/products/{productID}/story/modules` |
 | `create` | 创建需求 | `POST` | `/stories` |
-| `project-createStory` | 创建项目需求 | `POST` | `/projects/{projectID}/stories` |
-| `product-createStoryModule` | 创建产品的需求模块 | `POST` | `/products/{productID}/story/modules` |
 | `get` | 获取需求详情 | `GET` | `/stories/{storyID}` |
 | `update` | 修改需求 | `PUT` | `/stories/{storyID}` |
-| `story-updateModule` | 修改需求模块 | `PUT` | `/story/modules/{moduleID}` |
+| `updateModule` | 修改需求模块 | `PUT` | `/story/modules/{moduleID}` |
 | `delete` | 删除需求 | `DELETE` | `/stories/{storyID}` |
-| `story-deleteModule` | 删除需求模块 | `DELETE` | `/story/modules/{moduleID}` |
+| `deleteModule` | 删除需求模块 | `DELETE` | `/story/modules/{moduleID}` |
 | `activate` | 激活需求 | `PUT` | `/stories/{storyID}/activate` |
 | `change` | 变更需求 | `PUT` | `/stories/{storyID}/change` |
 | `close` | 关闭需求 | `PUT` | `/stories/{storyID}/close` |
@@ -198,167 +196,6 @@ const result = await request("story/create", {
   "execution": 1
 });
 ```
-## 创建项目需求
-
-- SDK 调用：`request("story/project-createStory", params)`
-- HTTP：`POST /projects/{projectID}/stories`
-- 动作类型：`create`
-
-### 路径参数
-
-| 参数 | 说明 |
-| --- | --- |
-| `projectID` | 项目ID |
-
-### 查询参数
-
-无查询参数。
-
-### 请求体
-
-请求体必填：是
-
-Schema:
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "productID": {
-      "type": "integer",
-      "description": "所属产品；项目型项目可不传，产品型项目必须传",
-      "format": "int32"
-    },
-    "title": {
-      "type": "string",
-      "description": "需求标题"
-    },
-    "spec": {
-      "type": "string",
-      "description": "需求描述"
-    },
-    "pri": {
-      "type": "integer",
-      "description": "优先级",
-      "format": "int32"
-    },
-    "category": {
-      "type": "string",
-      "description": "类别"
-    },
-    "reviewer": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "description": "评审人"
-    }
-  },
-  "required": [
-    "title"
-  ]
-}
-```
-
-示例:
-
-```json
-{
-  "productID": 1,
-  "title": "<string>",
-  "spec": "<string>",
-  "pri": 1,
-  "category": "<string>",
-  "reviewer": [
-    "<string>"
-  ]
-}
-```
-
-### 返回值
-
-- 返回形态：`object`
-
-### SDK 示例
-
-```ts
-import { request } from 'zentao-api';
-
-const result = await request("story/project-createStory", {
-  "projectID": 1,
-  "productID": 1,
-  "title": "<string>",
-  "spec": "<string>",
-  "pri": 1,
-  "category": "<string>",
-  "reviewer": [
-    "<string>"
-  ]
-});
-```
-## 创建产品的需求模块
-
-- SDK 调用：`request("story/product-createStoryModule", params)`
-- HTTP：`POST /products/{productID}/story/modules`
-- 动作类型：`create`
-
-### 路径参数
-
-| 参数 | 说明 |
-| --- | --- |
-| `productID` | 产品ID |
-
-### 查询参数
-
-无查询参数。
-
-### 请求体
-
-请求体必填：是
-
-Schema:
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "name": {
-      "type": "string",
-      "description": "模块名称"
-    },
-    "parentID": {
-      "type": "integer",
-      "description": "父模块",
-      "format": "int32"
-    }
-  }
-}
-```
-
-示例:
-
-```json
-{
-  "name": "<string>",
-  "parentID": 1
-}
-```
-
-### 返回值
-
-- 返回形态：`object`
-
-### SDK 示例
-
-```ts
-import { request } from 'zentao-api';
-
-const result = await request("story/product-createStoryModule", {
-  "productID": 1,
-  "name": "<string>",
-  "parentID": 1
-});
-```
 ## 获取需求详情
 
 - SDK 调用：`request("story/get", params)`
@@ -506,7 +343,7 @@ const result = await request("story/update", {
 ```
 ## 修改需求模块
 
-- SDK 调用：`request("story/story-updateModule", params)`
+- SDK 调用：`request("story/updateModule", params)`
 - HTTP：`PUT /story/modules/{moduleID}`
 - 动作类型：`update`
 
@@ -561,7 +398,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("story/story-updateModule", {
+const result = await request("story/updateModule", {
   "moduleID": 1,
   "name": "<string>",
   "parent": 1
@@ -602,7 +439,7 @@ const result = await request("story/delete", {
 ```
 ## 删除需求模块
 
-- SDK 调用：`request("story/story-deleteModule", params)`
+- SDK 调用：`request("story/deleteModule", params)`
 - HTTP：`DELETE /story/modules/{moduleID}`
 - 动作类型：`delete`
 
@@ -629,7 +466,7 @@ const result = await request("story/delete", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("story/story-deleteModule", {
+const result = await request("story/deleteModule", {
   "moduleID": 1
 });
 ```
