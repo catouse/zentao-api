@@ -6,6 +6,7 @@ import {
   extendModuleAction,
   getModule,
   getModuleAction,
+  getObjectProps,
   request,
   setGlobalOptions,
   type ModuleAction,
@@ -37,6 +38,26 @@ describe('module registry', () => {
   test('gets generated module and action definitions', () => {
     expect(getModule('product')!.name).toBe('product');
     expect(getModuleAction('product', 'list')!.path).toBe('/products');
+  });
+
+  test('getObjectProps returns Chinese labels for OpenAPI object modules', () => {
+    const objectModules = [
+      'user', 'program', 'product', 'project', 'execution', 'productplan',
+      'story', 'epic', 'requirement', 'bug', 'testcase', 'task',
+      'feedback', 'ticket', 'system',
+      'build', 'testtask', 'release', 'file',
+    ];
+    for (const name of objectModules) {
+      const props = getObjectProps(name);
+      expect(props, name).toBeDefined();
+      expect(Object.keys(props).length, name).toBeGreaterThan(0);
+      for (const [field, label] of Object.entries(props)) {
+        expect(label.length, `${name}.${field}`).toBeGreaterThan(0);
+      }
+    }
+    expect(getObjectProps('product').projects).toBe('关联项目数');
+    expect(getObjectProps('project').teamMembers).toBe('团队成员');
+    expect(getObjectProps('execution').projectName).toBe('所属项目');
   });
 
   test('classifies OpenAPI brace-style detail paths as get', () => {
