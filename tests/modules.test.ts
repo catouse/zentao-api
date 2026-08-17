@@ -44,7 +44,7 @@ describe('module registry', () => {
     const objectModules = [
       'user', 'program', 'product', 'project', 'execution', 'productplan',
       'story', 'epic', 'requirement', 'bug', 'testcase', 'task',
-      'feedback', 'ticket', 'system',
+      'issue', 'risk', 'meeting', 'feedback', 'ticket', 'system',
       'build', 'testtask', 'release', 'file',
     ];
     for (const name of objectModules) {
@@ -58,6 +58,11 @@ describe('module registry', () => {
     expect(getObjectProps('product').projects).toBe('关联项目数');
     expect(getObjectProps('project').teamMembers).toBe('团队成员');
     expect(getObjectProps('execution').projectName).toBe('所属项目');
+    expect(getObjectProps('issue').title).toBe('问题名称');
+    expect(getObjectProps('issue').objectID).toBe('关联对象');
+    expect(getObjectProps('issue').approvedDate).toBe('审批日期');
+    expect(getObjectProps('risk').name).toBe('风险名称');
+    expect(getObjectProps('meeting').name).toBe('会议名称');
   });
 
   test('classifies OpenAPI brace-style detail paths as get', () => {
