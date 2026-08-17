@@ -2,16 +2,9 @@
 
 # Type Alias: RequestParamsFor\<Name\>
 
-> **RequestParamsFor**\<`Name`\> = `PathParams`\<`ActionOfRequest`\<`Name`\>\> & `QueryParams`\<`ActionOfRequest`\<`Name`\>\> & `BodyParams`\<`ActionOfRequest`\<`Name`\>\> & `object` & `Record`\<`string`, `unknown`\>
+> **RequestParamsFor**\<`Name`\> = `Record`\<`string`, `unknown`\>
 
-根据内置请求名推导出的参数类型。
-
-## Type Declaration
-
-| Name | Type |
-| ------ | ------ |
-| `page?` | `string` \| `number` |
-| `recPerPage?` | `string` \| `number` |
+根据内置请求名推导出的参数类型。字段细节以运行时 registry 为准，这里保持可扩展。
 
 ## Type Parameters
 

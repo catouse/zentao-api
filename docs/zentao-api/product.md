@@ -1,6 +1,6 @@
 # 产品 (product)
 
-产品管理，支持获取产品列表、创建产品、获取产品详情、修改产品、删除产品
+产品管理，支持获取产品列表、创建产品、关闭产品、获取产品详情、修改产品、删除产品
 
 ## 动作概览
 
@@ -8,6 +8,7 @@
 | --- | --- | --- | --- |
 | `list` | 获取产品列表 | `GET` | `/products` |
 | `create` | 创建产品 | `POST` | `/products` |
+| `create` | 关闭产品 | `POST` | `/products/{productID}/close` |
 | `get` | 获取产品详情 | `GET` | `/products/{productID}` |
 | `update` | 修改产品 | `PUT` | `/products/{productID}` |
 | `delete` | 删除产品 | `DELETE` | `/products/{productID}` |
@@ -178,6 +179,62 @@ const result = await request("product/create", {
   "QD": "<string>",
   "RD": "<string>",
   "acl": "<string>"
+});
+```
+## 关闭产品
+
+- SDK 调用：`request("product/create", params)`
+- HTTP：`POST /products/{productID}/close`
+- 动作类型：`create`
+
+### 路径参数
+
+| 参数 | 说明 |
+| --- | --- |
+| `productID` | 产品ID |
+
+### 查询参数
+
+无查询参数。
+
+### 请求体
+
+请求体必填：是
+
+Schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "comment": {
+      "type": "string",
+      "description": "备注"
+    }
+  }
+}
+```
+
+示例:
+
+```json
+{
+  "comment": "<string>"
+}
+```
+
+### 返回值
+
+- 返回形态：`object`
+
+### SDK 示例
+
+```ts
+import { request } from 'zentao-api';
+
+const result = await request("product/create", {
+  "productID": 1,
+  "comment": "<string>"
 });
 ```
 ## 获取产品详情

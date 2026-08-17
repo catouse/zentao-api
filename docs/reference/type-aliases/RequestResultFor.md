@@ -2,7 +2,7 @@
 
 # Type Alias: RequestResultFor\<Name\>
 
-> **RequestResultFor**\<`Name`\> = `ActionOfRequest`\<`Name`\> *extends* `object` ? [`DataRecord`](DataRecord.md)[] : `ActionOfRequest`\<`Name`\> *extends* `object` ? [`DataRecord`](DataRecord.md) : `unknown`
+> **RequestResultFor**\<`Name`\> = `ActionMetaOf`\<`Name`\> *extends* `object` ? [`DataRecord`](DataRecord.md)[] : `ActionMetaOf`\<`Name`\> *extends* `object` ? [`DataRecord`](DataRecord.md) : `unknown`
 
 根据内置请求名推导出的 `ResponseData.data` 类型。
 

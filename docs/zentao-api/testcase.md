@@ -1,38 +1,33 @@
 # 测试用例 (testcase)
 
-测试用例管理，支持获取测试用例列表，支持获取产品/项目/执行下的测试用例、创建测试用例、获取测试用例详情、修改测试用例、删除测试用例
+测试用例管理，支持产品的用例模块树、创建测试用例、创建产品的用例模块、获取测试用例详情、修改测试用例、修改用例模块、删除测试用例、删除用例模块
 
 ## 动作概览
 
 | SDK 动作 | 说明 | 方法 | 路径 |
 | --- | --- | --- | --- |
-| `list` | 获取测试用例列表，支持获取产品/项目/执行下的测试用例 | `GET` | `/{scope}/{scopeID}/testcases` |
+| `list` | 产品的用例模块树 | `GET` | `/products/{productID}/testcase/modules` |
 | `create` | 创建测试用例 | `POST` | `/testcases` |
+| `create` | 创建产品的用例模块 | `POST` | `/products/{productID}/testcase/modules` |
 | `get` | 获取测试用例详情 | `GET` | `/testcases/{caseID}` |
-| `update` | 修改测试用例 | `PUT` | `/testcases/{testcasID}` |
-| `delete` | 删除测试用例 | `DELETE` | `/testcases/{testcasID}` |
+| `update` | 修改测试用例 | `PUT` | `/testcases/{caseID}` |
+| `update` | 修改用例模块 | `PUT` | `/testcase/modules/{moduleID}` |
+| `delete` | 删除测试用例 | `DELETE` | `/testcases/{caseID}` |
+| `delete` | 删除用例模块 | `DELETE` | `/testcase/modules/{moduleID}` |
 
-## 获取测试用例列表，支持获取产品/项目/执行下的测试用例
+## 产品的用例模块树
 
 - SDK 调用：`request("testcase/list", params)`
-- HTTP：`GET /{scope}/{scopeID}/testcases`
+- HTTP：`GET /products/{productID}/testcase/modules`
 - 动作类型：`list`
 
 ### 路径参数
 
-| 参数 | 说明 |
-| --- | --- |
-| `scope` | 测试用例所属范围 |
-| `scopeID` | 所属范围ID |
+无路径参数。
 
 ### 查询参数
 
-| 参数 | 类型 | 必填 | 默认值 | 说明 |
-| --- | --- | --- | --- | --- |
-| `browseType` | string | 否 | `all` | 状态，默认是all<br>`all` 全部<br>`wait` 未关闭<br>`needconfirm` 需求变动 |
-| `orderBy` | string | 否 |  | 排序<br>`id_asc` ID 升序<br>`id_desc` ID 降序<br>`title_asc` 标题 升序<br>`title_desc` 标题 降序<br>`status_asc` 状态 升序<br>`status_desc` 状态 降序 |
-| `recPerPage` | number | 否 |  | 每页数量，不超过1000 |
-| `pageID` | number | 否 |  | 页码，从第1页开始 |
+无查询参数。
 
 ### 请求体
 
@@ -41,7 +36,6 @@
 ### 返回值
 
 - 返回形态：`list`
-- 结果字段：`testcases`
 - 分页字段：`pager`
 
 ### SDK 示例
@@ -49,14 +43,7 @@
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("testcase/list", {
-  "scope": "<string>",
-  "scopeID": 1,
-  "browseType": "all",
-  "orderBy": "id_asc",
-  "recPerPage": 1,
-  "pageID": 1
-});
+const result = await request("testcase/list");
 ```
 ## 创建测试用例
 
@@ -119,21 +106,21 @@ Schema:
       "items": {
         "type": "string"
       },
-      "description": "用例步骤"
+      "description": "用例步骤, 如果是嵌套用例，可以通过key表示嵌套关系 {\"1\": \"分组1\", \"1.1\": \"子分组1.1\", \"1.1.1\": \"步骤1.1.1\"}"
     },
     "expects": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "用例步骤期望"
+      "description": "用例步骤期望, 如果是嵌套用例步骤，可以通过key表示嵌套关系 {\"1\": \"\", \"1.1\": \"\", \"1.1.1\": \"步骤1.1.1的期望\"}"
     },
     "stepType": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "用例步骤类型(step 步骤 | group 父级步骤)"
+      "description": "用例步骤类型(step 步骤 | group 父级步骤), 如果是嵌套用例步骤，可以通过key表示嵌套关系 {\"1\": \"group\", \"1.1\": \"group\", \"1.1.1\": \"step\"}"
     },
     "project": {
       "type": "integer",
@@ -208,6 +195,69 @@ const result = await request("testcase/create", {
   "execution": 1
 });
 ```
+## 创建产品的用例模块
+
+- SDK 调用：`request("testcase/create", params)`
+- HTTP：`POST /products/{productID}/testcase/modules`
+- 动作类型：`create`
+
+### 路径参数
+
+| 参数 | 说明 |
+| --- | --- |
+| `productID` | 产品ID |
+
+### 查询参数
+
+无查询参数。
+
+### 请求体
+
+请求体必填：是
+
+Schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "模块名称"
+    },
+    "parentID": {
+      "type": "integer",
+      "description": "父模块",
+      "format": "int32"
+    }
+  }
+}
+```
+
+示例:
+
+```json
+{
+  "name": "<string>",
+  "parentID": 1
+}
+```
+
+### 返回值
+
+- 返回形态：`object`
+
+### SDK 示例
+
+```ts
+import { request } from 'zentao-api';
+
+const result = await request("testcase/create", {
+  "productID": 1,
+  "name": "<string>",
+  "parentID": 1
+});
+```
 ## 获取测试用例详情
 
 - SDK 调用：`request("testcase/get", params)`
@@ -245,14 +295,14 @@ const result = await request("testcase/get", {
 ## 修改测试用例
 
 - SDK 调用：`request("testcase/update", params)`
-- HTTP：`PUT /testcases/{testcasID}`
+- HTTP：`PUT /testcases/{caseID}`
 - 动作类型：`update`
 
 ### 路径参数
 
 | 参数 | 说明 |
 | --- | --- |
-| `testcasID` | 测试用例ID |
+| `caseID` | 测试用例ID |
 
 ### 查询参数
 
@@ -272,7 +322,7 @@ Schema:
       "type": "string",
       "description": "用例标题"
     },
-    "moudule": {
+    "module": {
       "type": "integer",
       "description": "所属模块",
       "format": "int32"
@@ -300,21 +350,21 @@ Schema:
       "items": {
         "type": "string"
       },
-      "description": "用例步骤"
+      "description": "用例步骤, 如果是嵌套用例，可以通过key表示嵌套关系 {\"1\": \"分组1\", \"1.1\": \"子分组1.1\", \"1.1.1\": \"步骤1.1.1\"}"
     },
     "expects": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "用例步骤期望"
+      "description": "用例步骤期望, 如果是嵌套用例步骤，可以通过key表示嵌套关系 {\"1\": \"\", \"1.1\": \"\", \"1.1.1\": \"步骤1.1.1的期望\"}"
     },
     "stepType": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "用例步骤类型(step 步骤 | group 父级步骤)"
+      "description": "用例步骤类型(step 步骤 | group 父级步骤), 如果是嵌套用例步骤，可以通过key表示嵌套关系 {\"1\": \"group\", \"1.1\": \"group\", \"1.1.1\": \"step\"}"
     }
   },
   "required": [
@@ -328,7 +378,7 @@ Schema:
 ```json
 {
   "title": "<string>",
-  "moudule": 1,
+  "module": 1,
   "story": 1,
   "pri": 1,
   "type": "<string>",
@@ -355,9 +405,9 @@ Schema:
 import { request } from 'zentao-api';
 
 const result = await request("testcase/update", {
-  "testcasID": 1,
+  "caseID": 1,
   "title": "<string>",
-  "moudule": 1,
+  "module": 1,
   "story": 1,
   "pri": 1,
   "type": "<string>",
@@ -373,17 +423,80 @@ const result = await request("testcase/update", {
   ]
 });
 ```
+## 修改用例模块
+
+- SDK 调用：`request("testcase/update", params)`
+- HTTP：`PUT /testcase/modules/{moduleID}`
+- 动作类型：`update`
+
+### 路径参数
+
+| 参数 | 说明 |
+| --- | --- |
+| `moduleID` | 模块ID |
+
+### 查询参数
+
+无查询参数。
+
+### 请求体
+
+请求体必填：是
+
+Schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "模块名称"
+    },
+    "parent": {
+      "type": "integer",
+      "description": "父模块",
+      "format": "int32"
+    }
+  }
+}
+```
+
+示例:
+
+```json
+{
+  "name": "<string>",
+  "parent": 1
+}
+```
+
+### 返回值
+
+- 返回形态：`object`
+
+### SDK 示例
+
+```ts
+import { request } from 'zentao-api';
+
+const result = await request("testcase/update", {
+  "moduleID": 1,
+  "name": "<string>",
+  "parent": 1
+});
+```
 ## 删除测试用例
 
 - SDK 调用：`request("testcase/delete", params)`
-- HTTP：`DELETE /testcases/{testcasID}`
+- HTTP：`DELETE /testcases/{caseID}`
 - 动作类型：`delete`
 
 ### 路径参数
 
 | 参数 | 说明 |
 | --- | --- |
-| `testcasID` | 测试用例ID |
+| `caseID` | 测试用例ID |
 
 ### 查询参数
 
@@ -403,6 +516,39 @@ const result = await request("testcase/update", {
 import { request } from 'zentao-api';
 
 const result = await request("testcase/delete", {
-  "testcasID": 1
+  "caseID": 1
+});
+```
+## 删除用例模块
+
+- SDK 调用：`request("testcase/delete", params)`
+- HTTP：`DELETE /testcase/modules/{moduleID}`
+- 动作类型：`delete`
+
+### 路径参数
+
+| 参数 | 说明 |
+| --- | --- |
+| `moduleID` | 模块ID |
+
+### 查询参数
+
+无查询参数。
+
+### 请求体
+
+无请求体。
+
+### 返回值
+
+- 返回形态：`text`
+
+### SDK 示例
+
+```ts
+import { request } from 'zentao-api';
+
+const result = await request("testcase/delete", {
+  "moduleID": 1
 });
 ```

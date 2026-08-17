@@ -58,7 +58,7 @@
 | [ModuleActionResultType](type-aliases/ModuleActionResultType.md) | 模块动作结果形态。 |
 | [ModuleActionType](type-aliases/ModuleActionType.md) | 模块动作类型：基础 CRUD 或自定义动作。 |
 | [ModuleName](type-aliases/ModuleName.md) | 内置模块名称，同时允许用户扩展自定义模块名。 |
-| [RequestParamsFor](type-aliases/RequestParamsFor.md) | 根据内置请求名推导出的参数类型。 |
+| [RequestParamsFor](type-aliases/RequestParamsFor.md) | 根据内置请求名推导出的参数类型。字段细节以运行时 registry 为准，这里保持可扩展。 |
 | [RequestResultFor](type-aliases/RequestResultFor.md) | 根据内置请求名推导出的 `ResponseData.data` 类型。 |
 | [SortExpr](type-aliases/SortExpr.md) | 排序表达式；推荐 `字段:asc|desc`，兼容 `字段_asc|desc`。 |
 | [SortFn](type-aliases/SortFn.md) | 自定义排序比较函数。 |

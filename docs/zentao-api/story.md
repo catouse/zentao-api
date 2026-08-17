@@ -1,41 +1,37 @@
 # 需求 (story)
 
-需求管理，支持获取需求列表，支持获取产品/项目/执行下的需求、创建需求、获取需求详情、修改需求、删除需求、激活需求、变更需求、关闭需求
+需求管理，支持产品的需求模块树、创建需求、创建项目需求、创建产品的需求模块、获取需求详情、修改需求、修改需求模块、删除需求、删除需求模块、激活需求、变更需求、关闭需求
 
 ## 动作概览
 
 | SDK 动作 | 说明 | 方法 | 路径 |
 | --- | --- | --- | --- |
-| `list` | 获取需求列表，支持获取产品/项目/执行下的需求 | `GET` | `/{scope}/{scopeID}/stories` |
+| `list` | 产品的需求模块树 | `GET` | `/products/{productID}/story/modules` |
 | `create` | 创建需求 | `POST` | `/stories` |
+| `create` | 创建项目需求 | `POST` | `/projects/{projectID}/stories` |
+| `create` | 创建产品的需求模块 | `POST` | `/products/{productID}/story/modules` |
 | `get` | 获取需求详情 | `GET` | `/stories/{storyID}` |
 | `update` | 修改需求 | `PUT` | `/stories/{storyID}` |
+| `update` | 修改需求模块 | `PUT` | `/story/modules/{moduleID}` |
 | `delete` | 删除需求 | `DELETE` | `/stories/{storyID}` |
+| `delete` | 删除需求模块 | `DELETE` | `/story/modules/{moduleID}` |
 | `activate` | 激活需求 | `PUT` | `/stories/{storyID}/activate` |
 | `change` | 变更需求 | `PUT` | `/stories/{storyID}/change` |
 | `close` | 关闭需求 | `PUT` | `/stories/{storyID}/close` |
 
-## 获取需求列表，支持获取产品/项目/执行下的需求
+## 产品的需求模块树
 
 - SDK 调用：`request("story/list", params)`
-- HTTP：`GET /{scope}/{scopeID}/stories`
+- HTTP：`GET /products/{productID}/story/modules`
 - 动作类型：`list`
 
 ### 路径参数
 
-| 参数 | 说明 |
-| --- | --- |
-| `scope` | 需求所属范围 |
-| `scopeID` | 所属范围ID |
+无路径参数。
 
 ### 查询参数
 
-| 参数 | 类型 | 必填 | 默认值 | 说明 |
-| --- | --- | --- | --- | --- |
-| `browseType` | string | 否 | `unclosed` | 状态，默认是unclosed<br>`allstory` 全部<br>`assignedtome` 指派给我<br>`openedbyme` 我创建<br>`reviewbyme` 待我评审<br>`draftstory` 草稿 |
-| `orderBy` | string | 否 |  | 排序<br>`id_asc` ID 升序<br>`id_desc` ID 降序<br>`title_asc` 标题 升序<br>`title_desc` 标题 降序<br>`status_asc` 状态 升序<br>`status_desc` 状态 降序 |
-| `recPerPage` | number | 否 |  | 每页数量，不超过1000 |
-| `pageID` | number | 否 |  | 页码，从第1页开始 |
+无查询参数。
 
 ### 请求体
 
@@ -44,7 +40,6 @@
 ### 返回值
 
 - 返回形态：`list`
-- 结果字段：`stories`
 - 分页字段：`pager`
 
 ### SDK 示例
@@ -52,14 +47,7 @@
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("story/list", {
-  "scope": "<string>",
-  "scopeID": 1,
-  "browseType": "unclosed",
-  "orderBy": "id_asc",
-  "recPerPage": 1,
-  "pageID": 1
-});
+const result = await request("story/list");
 ```
 ## 创建需求
 
@@ -210,6 +198,167 @@ const result = await request("story/create", {
   "execution": 1
 });
 ```
+## 创建项目需求
+
+- SDK 调用：`request("story/create", params)`
+- HTTP：`POST /projects/{projectID}/stories`
+- 动作类型：`create`
+
+### 路径参数
+
+| 参数 | 说明 |
+| --- | --- |
+| `projectID` | 项目ID |
+
+### 查询参数
+
+无查询参数。
+
+### 请求体
+
+请求体必填：是
+
+Schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "productID": {
+      "type": "integer",
+      "description": "所属产品；项目型项目可不传，产品型项目必须传",
+      "format": "int32"
+    },
+    "title": {
+      "type": "string",
+      "description": "需求标题"
+    },
+    "spec": {
+      "type": "string",
+      "description": "需求描述"
+    },
+    "pri": {
+      "type": "integer",
+      "description": "优先级",
+      "format": "int32"
+    },
+    "category": {
+      "type": "string",
+      "description": "类别"
+    },
+    "reviewer": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "评审人"
+    }
+  },
+  "required": [
+    "title"
+  ]
+}
+```
+
+示例:
+
+```json
+{
+  "productID": 1,
+  "title": "<string>",
+  "spec": "<string>",
+  "pri": 1,
+  "category": "<string>",
+  "reviewer": [
+    "<string>"
+  ]
+}
+```
+
+### 返回值
+
+- 返回形态：`object`
+
+### SDK 示例
+
+```ts
+import { request } from 'zentao-api';
+
+const result = await request("story/create", {
+  "projectID": 1,
+  "productID": 1,
+  "title": "<string>",
+  "spec": "<string>",
+  "pri": 1,
+  "category": "<string>",
+  "reviewer": [
+    "<string>"
+  ]
+});
+```
+## 创建产品的需求模块
+
+- SDK 调用：`request("story/create", params)`
+- HTTP：`POST /products/{productID}/story/modules`
+- 动作类型：`create`
+
+### 路径参数
+
+| 参数 | 说明 |
+| --- | --- |
+| `productID` | 产品ID |
+
+### 查询参数
+
+无查询参数。
+
+### 请求体
+
+请求体必填：是
+
+Schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "模块名称"
+    },
+    "parentID": {
+      "type": "integer",
+      "description": "父模块",
+      "format": "int32"
+    }
+  }
+}
+```
+
+示例:
+
+```json
+{
+  "name": "<string>",
+  "parentID": 1
+}
+```
+
+### 返回值
+
+- 返回形态：`object`
+
+### SDK 示例
+
+```ts
+import { request } from 'zentao-api';
+
+const result = await request("story/create", {
+  "productID": 1,
+  "name": "<string>",
+  "parentID": 1
+});
+```
 ## 获取需求详情
 
 - SDK 调用：`request("story/get", params)`
@@ -355,6 +504,69 @@ const result = await request("story/update", {
   "plan": 1
 });
 ```
+## 修改需求模块
+
+- SDK 调用：`request("story/update", params)`
+- HTTP：`PUT /story/modules/{moduleID}`
+- 动作类型：`update`
+
+### 路径参数
+
+| 参数 | 说明 |
+| --- | --- |
+| `moduleID` | 模块ID |
+
+### 查询参数
+
+无查询参数。
+
+### 请求体
+
+请求体必填：是
+
+Schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "模块名称"
+    },
+    "parent": {
+      "type": "integer",
+      "description": "父模块",
+      "format": "int32"
+    }
+  }
+}
+```
+
+示例:
+
+```json
+{
+  "name": "<string>",
+  "parent": 1
+}
+```
+
+### 返回值
+
+- 返回形态：`object`
+
+### SDK 示例
+
+```ts
+import { request } from 'zentao-api';
+
+const result = await request("story/update", {
+  "moduleID": 1,
+  "name": "<string>",
+  "parent": 1
+});
+```
 ## 删除需求
 
 - SDK 调用：`request("story/delete", params)`
@@ -386,6 +598,39 @@ import { request } from 'zentao-api';
 
 const result = await request("story/delete", {
   "storyID": 1
+});
+```
+## 删除需求模块
+
+- SDK 调用：`request("story/delete", params)`
+- HTTP：`DELETE /story/modules/{moduleID}`
+- 动作类型：`delete`
+
+### 路径参数
+
+| 参数 | 说明 |
+| --- | --- |
+| `moduleID` | 模块ID |
+
+### 查询参数
+
+无查询参数。
+
+### 请求体
+
+无请求体。
+
+### 返回值
+
+- 返回形态：`text`
+
+### SDK 示例
+
+```ts
+import { request } from 'zentao-api';
+
+const result = await request("story/delete", {
+  "moduleID": 1
 });
 ```
 ## 激活需求

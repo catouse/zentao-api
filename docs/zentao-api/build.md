@@ -26,7 +26,14 @@
 
 ### 查询参数
 
-无查询参数。
+| 参数 | 类型 | 必填 | 默认值 | 说明 |
+| --- | --- | --- | --- | --- |
+| `browseType` | string | 否 | `all` | 状态，默认是all<br>`all` 全部<br>`active` 有效<br>`closed` 已关闭 |
+| `orderBy` | string | 否 |  | 排序<br>`id_asc` ID 升序<br>`id_desc` ID 降序<br>`name_asc` 名称 升序<br>`name_desc` 名称 降序<br>`date_asc` 日期 升序<br>`date_desc` 日期 降序 |
+| `recPerPage` | number | 否 |  | 每页数量，不超过1000 |
+| `pageID` | number | 否 |  | 页码，从第1页开始 |
+| `filters` | string | 否 |  | 搜索条件数组，每项包含 field/operator/value/join/group；field 必须是该接口支持的搜索字段，operator 使用该接口搜索配置支持的操作符。支持搜索字段：name(名称，示例：关键字)；system(所属应用，示例：all)；id(ID，示例：1)；product(所属产品，产品，示例：1)；scmPath(源代码地址，示例：关键字)；filePath(下载地址，示例：关键字)；date(打包日期，示例：2026-01-01)；builder(构建者，用户，示例：admin)；desc(描述，示例：关键字) |
+| `groupJoin` | string | 否 |  | 条件组之间的连接方式<br>`and` and<br>`or` or |
 
 ### 请求体
 
@@ -45,7 +52,13 @@ import { request } from 'zentao-api';
 
 const result = await request("build/list", {
   "scope": "<string>",
-  "scopeID": 1
+  "scopeID": 1,
+  "browseType": "all",
+  "orderBy": "id_asc",
+  "recPerPage": 1,
+  "pageID": 1,
+  "filters": "<string>",
+  "groupJoin": "and"
 });
 ```
 ## 创建版本/构建

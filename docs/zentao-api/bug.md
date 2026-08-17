@@ -1,41 +1,37 @@
 # Bug (bug)
 
-Bug管理，支持获取Bug列表，支持获取产品/项目/执行下的Bug、创建Bug、获取Bug详情、修改Bug、删除Bug、激活Bug、关闭Bug、解决Bug
+Bug管理，支持产品的Bug模块树、创建Bug、创建项目Bug、创建产品的Bug模块、获取Bug详情、修改Bug、修改Bug模块、删除Bug、删除Bug模块、激活Bug、关闭Bug、解决Bug
 
 ## 动作概览
 
 | SDK 动作 | 说明 | 方法 | 路径 |
 | --- | --- | --- | --- |
-| `list` | 获取Bug列表，支持获取产品/项目/执行下的Bug | `GET` | `/{scope}/{scopeID}/bugs` |
+| `list` | 产品的Bug模块树 | `GET` | `/products/{productID}/bug/modules` |
 | `create` | 创建Bug | `POST` | `/bugs` |
+| `create` | 创建项目Bug | `POST` | `/projects/{projectID}/bugs` |
+| `create` | 创建产品的Bug模块 | `POST` | `/products/{productID}/bug/modules` |
 | `get` | 获取Bug详情 | `GET` | `/bugs/{bugID}` |
 | `update` | 修改Bug | `PUT` | `/bugs/{bugID}` |
+| `update` | 修改Bug模块 | `PUT` | `/bug/modules/{moduleID}` |
 | `delete` | 删除Bug | `DELETE` | `/bugs/{bugID}` |
+| `delete` | 删除Bug模块 | `DELETE` | `/bug/modules/{moduleID}` |
 | `activate` | 激活Bug | `PUT` | `/bugs/{bugID}/activate` |
 | `close` | 关闭Bug | `PUT` | `/bugs/{bugID}/close` |
 | `resolve` | 解决Bug | `PUT` | `/bugs/{bugID}/resolve` |
 
-## 获取Bug列表，支持获取产品/项目/执行下的Bug
+## 产品的Bug模块树
 
 - SDK 调用：`request("bug/list", params)`
-- HTTP：`GET /{scope}/{scopeID}/bugs`
+- HTTP：`GET /products/{productID}/bug/modules`
 - 动作类型：`list`
 
 ### 路径参数
 
-| 参数 | 说明 |
-| --- | --- |
-| `scope` | Bug所属范围 |
-| `scopeID` | 所属范围ID |
+无路径参数。
 
 ### 查询参数
 
-| 参数 | 类型 | 必填 | 默认值 | 说明 |
-| --- | --- | --- | --- | --- |
-| `browseType` | string | 否 | `unclosed` | 状态，默认是unclosed<br>`all` 全部<br>`unclosed` 未关闭<br>`openedbyme` 我创建<br>`assignedbyme` 由我指派<br>`assigntome` 指派给我<br>`resolvedbyme` 由我解决 |
-| `orderBy` | string | 否 |  | 排序<br>`id_asc` ID 升序<br>`id_desc` ID 降序<br>`title_asc` 标题 升序<br>`title_desc` 标题 降序<br>`status_asc` 状态 升序<br>`status_desc` 状态 降序 |
-| `recPerPage` | number | 否 |  | 每页数量，不超过1000 |
-| `pageID` | number | 否 |  | 页码，从第1页开始 |
+无查询参数。
 
 ### 请求体
 
@@ -44,7 +40,6 @@ Bug管理，支持获取Bug列表，支持获取产品/项目/执行下的Bug、
 ### 返回值
 
 - 返回形态：`list`
-- 结果字段：`bugs`
 - 分页字段：`pager`
 
 ### SDK 示例
@@ -52,14 +47,7 @@ Bug管理，支持获取Bug列表，支持获取产品/项目/执行下的Bug、
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("bug/list", {
-  "scope": "<string>",
-  "scopeID": 1,
-  "browseType": "unclosed",
-  "orderBy": "id_asc",
-  "recPerPage": 1,
-  "pageID": 1
-});
+const result = await request("bug/list");
 ```
 ## 创建Bug
 
@@ -133,6 +121,10 @@ Schema:
       "type": "integer",
       "description": "相关需求",
       "format": "int32"
+    },
+    "assignedTo": {
+      "type": "string",
+      "description": "指派给"
     }
   },
   "required": [
@@ -158,7 +150,8 @@ Schema:
   "pri": 1,
   "type": "<string>",
   "steps": "<string>",
-  "story": 1
+  "story": 1,
+  "assignedTo": "<string>"
 }
 ```
 
@@ -183,7 +176,177 @@ const result = await request("bug/create", {
   "pri": 1,
   "type": "<string>",
   "steps": "<string>",
-  "story": 1
+  "story": 1,
+  "assignedTo": "<string>"
+});
+```
+## 创建项目Bug
+
+- SDK 调用：`request("bug/create", params)`
+- HTTP：`POST /projects/{projectID}/bugs`
+- 动作类型：`create`
+
+### 路径参数
+
+| 参数 | 说明 |
+| --- | --- |
+| `projectID` | 项目ID |
+
+### 查询参数
+
+无查询参数。
+
+### 请求体
+
+请求体必填：是
+
+Schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "productID": {
+      "type": "integer",
+      "description": "所属产品；项目型项目可不传，产品型项目必须传",
+      "format": "int32"
+    },
+    "title": {
+      "type": "string",
+      "description": "Bug标题"
+    },
+    "openedBuild": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "影响版本，主干是trunk，其他版本使用版本ID"
+    },
+    "severity": {
+      "type": "integer",
+      "description": "严重程度",
+      "format": "int32"
+    },
+    "pri": {
+      "type": "integer",
+      "description": "优先级",
+      "format": "int32"
+    },
+    "type": {
+      "type": "string",
+      "description": "Bug类型"
+    },
+    "steps": {
+      "type": "string",
+      "description": "重现步骤"
+    }
+  },
+  "required": [
+    "title",
+    "openedBuild"
+  ]
+}
+```
+
+示例:
+
+```json
+{
+  "productID": 1,
+  "title": "<string>",
+  "openedBuild": [
+    "<string>"
+  ],
+  "severity": 1,
+  "pri": 1,
+  "type": "<string>",
+  "steps": "<string>"
+}
+```
+
+### 返回值
+
+- 返回形态：`object`
+
+### SDK 示例
+
+```ts
+import { request } from 'zentao-api';
+
+const result = await request("bug/create", {
+  "projectID": 1,
+  "productID": 1,
+  "title": "<string>",
+  "openedBuild": [
+    "<string>"
+  ],
+  "severity": 1,
+  "pri": 1,
+  "type": "<string>",
+  "steps": "<string>"
+});
+```
+## 创建产品的Bug模块
+
+- SDK 调用：`request("bug/create", params)`
+- HTTP：`POST /products/{productID}/bug/modules`
+- 动作类型：`create`
+
+### 路径参数
+
+| 参数 | 说明 |
+| --- | --- |
+| `productID` | 产品ID |
+
+### 查询参数
+
+无查询参数。
+
+### 请求体
+
+请求体必填：是
+
+Schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "模块名称"
+    },
+    "parentID": {
+      "type": "integer",
+      "description": "父模块",
+      "format": "int32"
+    }
+  }
+}
+```
+
+示例:
+
+```json
+{
+  "name": "<string>",
+  "parentID": 1
+}
+```
+
+### 返回值
+
+- 返回形态：`object`
+
+### SDK 示例
+
+```ts
+import { request } from 'zentao-api';
+
+const result = await request("bug/create", {
+  "productID": 1,
+  "name": "<string>",
+  "parentID": 1
 });
 ```
 ## 获取Bug详情
@@ -289,6 +452,10 @@ Schema:
       "type": "integer",
       "description": "相关需求",
       "format": "int32"
+    },
+    "assignedTo": {
+      "type": "string",
+      "description": "指派给"
     }
   }
 }
@@ -308,7 +475,8 @@ Schema:
   "steps": "<string>",
   "project": 1,
   "execution": 1,
-  "story": 1
+  "story": 1,
+  "assignedTo": "<string>"
 }
 ```
 
@@ -333,7 +501,71 @@ const result = await request("bug/update", {
   "steps": "<string>",
   "project": 1,
   "execution": 1,
-  "story": 1
+  "story": 1,
+  "assignedTo": "<string>"
+});
+```
+## 修改Bug模块
+
+- SDK 调用：`request("bug/update", params)`
+- HTTP：`PUT /bug/modules/{moduleID}`
+- 动作类型：`update`
+
+### 路径参数
+
+| 参数 | 说明 |
+| --- | --- |
+| `moduleID` | 模块ID |
+
+### 查询参数
+
+无查询参数。
+
+### 请求体
+
+请求体必填：是
+
+Schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "模块名称"
+    },
+    "parent": {
+      "type": "integer",
+      "description": "父模块",
+      "format": "int32"
+    }
+  }
+}
+```
+
+示例:
+
+```json
+{
+  "name": "<string>",
+  "parent": 1
+}
+```
+
+### 返回值
+
+- 返回形态：`object`
+
+### SDK 示例
+
+```ts
+import { request } from 'zentao-api';
+
+const result = await request("bug/update", {
+  "moduleID": 1,
+  "name": "<string>",
+  "parent": 1
 });
 ```
 ## 删除Bug
@@ -367,6 +599,39 @@ import { request } from 'zentao-api';
 
 const result = await request("bug/delete", {
   "bugID": 1
+});
+```
+## 删除Bug模块
+
+- SDK 调用：`request("bug/delete", params)`
+- HTTP：`DELETE /bug/modules/{moduleID}`
+- 动作类型：`delete`
+
+### 路径参数
+
+| 参数 | 说明 |
+| --- | --- |
+| `moduleID` | 模块ID |
+
+### 查询参数
+
+无查询参数。
+
+### 请求体
+
+无请求体。
+
+### 返回值
+
+- 返回形态：`text`
+
+### SDK 示例
+
+```ts
+import { request } from 'zentao-api';
+
+const result = await request("bug/delete", {
+  "moduleID": 1
 });
 ```
 ## 激活Bug

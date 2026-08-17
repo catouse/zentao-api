@@ -55,6 +55,18 @@
         "link": "/zentao-api/task"
       },
       {
+        "text": "问题 (issue)",
+        "link": "/zentao-api/issue"
+      },
+      {
+        "text": "风险 (risk)",
+        "link": "/zentao-api/risk"
+      },
+      {
+        "text": "会议 (meeting)",
+        "link": "/zentao-api/meeting"
+      },
+      {
         "text": "反馈 (feedback)",
         "link": "/zentao-api/feedback"
       },
@@ -81,6 +93,22 @@
       {
         "text": "附件 (file)",
         "link": "/zentao-api/file"
+      },
+      {
+        "text": "工作流 (workflow)",
+        "link": "/zentao-api/workflow"
+      },
+      {
+        "text": "文档 (doc)",
+        "link": "/zentao-api/doc"
+      },
+      {
+        "text": "待办 (todo)",
+        "link": "/zentao-api/todo"
+      },
+      {
+        "text": "地盘 (my)",
+        "link": "/zentao-api/my"
       }
     ]
   }

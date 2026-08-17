@@ -9,8 +9,8 @@
 | `list` | 获取产品计划列表，支持获取产品下的产品计划 | `GET` | `/products/{productID}/productplans` |
 | `create` | 创建产品计划 | `POST` | `/productplans` |
 | `get` | 获取产品计划详情 | `GET` | `/productplans/{planID}` |
-| `update` | 修改产品计划 | `PUT` | `/productplans/{productplanID}` |
-| `delete` | 删除产品计划 | `DELETE` | `/productplans/{productplanID}` |
+| `update` | 修改产品计划 | `PUT` | `/productplans/{planID}` |
+| `delete` | 删除产品计划 | `DELETE` | `/productplans/{planID}` |
 
 ## 获取产品计划列表，支持获取产品下的产品计划
 
@@ -32,6 +32,8 @@
 | `orderBy` | string | 否 |  | 排序<br>`id_asc` ID 升序<br>`id_desc` ID 降序<br>`title_asc` 名称 升序<br>`title_desc` 名称 降序<br>`begin_asc` 开始日期 升序<br>`begin_desc` 开始日期 降序<br>`end_asc` 结束日期 升序<br>`end_desc` 结束日期 降序<br>`status_asc` 状态 升序 |
 | `recPerPage` | number | 否 |  | 每页数量，不超过1000 |
 | `pageID` | number | 否 |  | 页码，从第1页开始 |
+| `filters` | string | 否 |  | 搜索条件数组，每项包含 field/operator/value/join/group；field 必须是该接口支持的搜索字段，operator 使用该接口搜索配置支持的操作符。支持搜索字段：begin,branch,end,id,status,title |
+| `groupJoin` | string | 否 |  | 条件组之间的连接方式<br>`and` and<br>`or` or |
 
 ### 请求体
 
@@ -53,7 +55,9 @@ const result = await request("productplan/list", {
   "browseType": "undone",
   "orderBy": "id_asc",
   "recPerPage": 1,
-  "pageID": 1
+  "pageID": 1,
+  "filters": "<string>",
+  "groupJoin": "and"
 });
 ```
 ## 创建产品计划
@@ -189,14 +193,14 @@ const result = await request("productplan/get", {
 ## 修改产品计划
 
 - SDK 调用：`request("productplan/update", params)`
-- HTTP：`PUT /productplans/{productplanID}`
+- HTTP：`PUT /productplans/{planID}`
 - 动作类型：`update`
 
 ### 路径参数
 
 | 参数 | 说明 |
 | --- | --- |
-| `productplanID` | 产品计划ID |
+| `planID` | 产品计划ID |
 
 ### 查询参数
 
@@ -268,7 +272,7 @@ Schema:
 import { request } from 'zentao-api';
 
 const result = await request("productplan/update", {
-  "productplanID": 1,
+  "planID": 1,
   "title": "<string>",
   "parent": 1,
   "begin": "<string>",
@@ -280,14 +284,14 @@ const result = await request("productplan/update", {
 ## 删除产品计划
 
 - SDK 调用：`request("productplan/delete", params)`
-- HTTP：`DELETE /productplans/{productplanID}`
+- HTTP：`DELETE /productplans/{planID}`
 - 动作类型：`delete`
 
 ### 路径参数
 
 | 参数 | 说明 |
 | --- | --- |
-| `productplanID` | 产品计划ID |
+| `planID` | 产品计划ID |
 
 ### 查询参数
 
@@ -307,6 +311,6 @@ const result = await request("productplan/update", {
 import { request } from 'zentao-api';
 
 const result = await request("productplan/delete", {
-  "productplanID": 1
+  "planID": 1
 });
 ```

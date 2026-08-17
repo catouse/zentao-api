@@ -9,11 +9,11 @@
 | `list` | 获取业务需求列表，支持获取产品下的业务需求 | `GET` | `/products/{productID}/epics` |
 | `create` | 创建业务需求 | `POST` | `/epics` |
 | `get` | 获取业务需求详情 | `GET` | `/epics/{storyID}` |
-| `update` | 修改业务需求 | `PUT` | `/epics/{epicID}` |
-| `delete` | 删除业务需求 | `DELETE` | `/epics/{epicID}` |
-| `activate` | 激活业务需求 | `PUT` | `/epics/{epicID}/activate` |
-| `change` | 变更业务需求 | `PUT` | `/epics/{epicID}/change` |
-| `close` | 关闭业务需求 | `PUT` | `/epics/{epicID}/close` |
+| `update` | 修改业务需求 | `PUT` | `/epics/{storyID}` |
+| `delete` | 删除业务需求 | `DELETE` | `/epics/{storyID}` |
+| `activate` | 激活业务需求 | `PUT` | `/epics/{storyID}/activate` |
+| `change` | 变更业务需求 | `PUT` | `/epics/{storyID}/change` |
+| `close` | 关闭业务需求 | `PUT` | `/epics/{storyID}/close` |
 
 ## 获取业务需求列表，支持获取产品下的业务需求
 
@@ -35,6 +35,8 @@
 | `orderBy` | string | 否 |  | 排序<br>`id_asc` ID 升序<br>`id_desc` ID 降序<br>`title_asc` 标题 升序<br>`title_desc` 标题 降序<br>`status_asc` 状态 升序<br>`status_desc` 状态 降序 |
 | `recPerPage` | number | 否 |  | 每页数量，不超过1000 |
 | `pageID` | number | 否 |  | 页码，从第1页开始 |
+| `filters` | string | 否 |  | 搜索条件数组，每项包含 field/operator/value/join/group；field 必须是该接口支持的搜索字段，operator 使用该接口搜索配置支持的操作符。支持搜索字段：title(需求名称，示例：关键字)；id(编号，示例：1)；keywords(关键词，示例：关键字)；status(当前状态，枚举：draft 草稿 \| reviewing 评审中 \| active 激活 \| changing 变更中 \| closed 已关闭)；pri(优先级，枚举：1 \| 2 \| 3 \| 4)；module(所属模块，示例：all)；stage(所处阶段，枚举：wait 未开始 \| planned 已计划 \| projected 研发立项 \| designing 设计中 \| designed 设计完毕 \| developing 研发中 \| developed 研发完毕 \| testing 测试中 \| tested 测试完毕 \| verified 已验收 \| rejected 验收失败 \| delivering 交付中 \| delivered 已交付 \| released 已发布 \| closed 已关闭)；product(所属产品，示例：all)；branch(branch，示例：all)；grade(需求层级，示例：all)；plan(所属计划，示例：all)；estimate(预计小时，示例：关键字)；source(来源，枚举：customer 客户 \| user 用户 \| po 产品经理 \| market 市场 \| service 客服 \| operation 运营 \| support 技术支持 \| competitor 竞争对手 \| partner 合作伙伴 \| dev 开发人员 \| tester 测试人员 \| bug Bug \| forum 论坛 \| other 其他)；sourceNote(来源备注，示例：关键字)；fromBug(来源Bug，示例：关键字)；category(类别，枚举：feature 功能 \| interface 接口 \| performance 性能 \| safe 安全 \| experience 体验 \| improve 改进 \| other 其他)；openedBy(由谁创建，用户，示例：admin)；reviewedBy(已评审人，用户，示例：admin)；result(评审结果，枚举：pass 确认通过 \| revert 撤销变更 \| clarify 有待明确 \| reject 拒绝)；assignedTo(指派给，用户，示例：admin)；closedBy(由谁关闭，用户，示例：admin)；lastEditedBy(最后修改，用户，示例：admin)；mailto(抄送给，用户，示例：admin)；closedReason(关闭原因，枚举：done 已完成 \| subdivided 已拆分 \| duplicate 重复 \| postponed 延期 \| willnotdo 不做 \| cancel 已取消 \| bydesign 设计如此)；version(版本号，示例：关键字)；openedDate(创建日期，示例：2026-01-01)；reviewedDate(评审时间，示例：2026-01-01)；assignedDate(指派日期，示例：2026-01-01)；closedDate(关闭日期，示例：2026-01-01)；lastEditedDate(最后修改日期，示例：2026-01-01)；activatedDate(激活日期，示例：2026-01-01) |
+| `groupJoin` | string | 否 |  | 条件组之间的连接方式<br>`and` and<br>`or` or |
 
 ### 请求体
 
@@ -56,7 +58,9 @@ const result = await request("epic/list", {
   "browseType": "unclosed",
   "orderBy": "id_asc",
   "recPerPage": 1,
-  "pageID": 1
+  "pageID": 1,
+  "filters": "<string>",
+  "groupJoin": "and"
 });
 ```
 ## 创建业务需求
@@ -217,7 +221,6 @@ const result = await request("epic/create", {
 ### 返回值
 
 - 返回形态：`object`
-- 结果字段：`epic`
 
 ### SDK 示例
 
@@ -231,14 +234,14 @@ const result = await request("epic/get", {
 ## 修改业务需求
 
 - SDK 调用：`request("epic/update", params)`
-- HTTP：`PUT /epics/{epicID}`
+- HTTP：`PUT /epics/{storyID}`
 - 动作类型：`update`
 
 ### 路径参数
 
 | 参数 | 说明 |
 | --- | --- |
-| `epicID` | 业务需求ID |
+| `storyID` | 需求ID |
 
 ### 查询参数
 
@@ -323,7 +326,7 @@ Schema:
 import { request } from 'zentao-api';
 
 const result = await request("epic/update", {
-  "epicID": 1,
+  "storyID": 1,
   "title": "<string>",
   "pri": 1,
   "module": 1,
@@ -337,14 +340,14 @@ const result = await request("epic/update", {
 ## 删除业务需求
 
 - SDK 调用：`request("epic/delete", params)`
-- HTTP：`DELETE /epics/{epicID}`
+- HTTP：`DELETE /epics/{storyID}`
 - 动作类型：`delete`
 
 ### 路径参数
 
 | 参数 | 说明 |
 | --- | --- |
-| `epicID` | 业务需求ID |
+| `storyID` | 需求ID |
 
 ### 查询参数
 
@@ -364,20 +367,20 @@ const result = await request("epic/update", {
 import { request } from 'zentao-api';
 
 const result = await request("epic/delete", {
-  "epicID": 1
+  "storyID": 1
 });
 ```
 ## 激活业务需求
 
 - SDK 调用：`request("epic/activate", params)`
-- HTTP：`PUT /epics/{epicID}/activate`
+- HTTP：`PUT /epics/{storyID}/activate`
 - 动作类型：`action`
 
 ### 路径参数
 
 | 参数 | 说明 |
 | --- | --- |
-| `epicID` | 业务需求ID |
+| `storyID` | 需求ID |
 
 ### 查询参数
 
@@ -424,7 +427,7 @@ Schema:
 import { request } from 'zentao-api';
 
 const result = await request("epic/activate", {
-  "epicID": 1,
+  "storyID": 1,
   "assignedTo": "<string>",
   "comment": "<string>"
 });
@@ -432,14 +435,14 @@ const result = await request("epic/activate", {
 ## 变更业务需求
 
 - SDK 调用：`request("epic/change", params)`
-- HTTP：`PUT /epics/{epicID}/change`
+- HTTP：`PUT /epics/{storyID}/change`
 - 动作类型：`action`
 
 ### 路径参数
 
 | 参数 | 说明 |
 | --- | --- |
-| `epicID` | 业务需求ID |
+| `storyID` | 需求ID |
 
 ### 查询参数
 
@@ -504,7 +507,7 @@ Schema:
 import { request } from 'zentao-api';
 
 const result = await request("epic/change", {
-  "epicID": 1,
+  "storyID": 1,
   "title": "<string>",
   "reviewer": [
     "<string>"
@@ -516,14 +519,14 @@ const result = await request("epic/change", {
 ## 关闭业务需求
 
 - SDK 调用：`request("epic/close", params)`
-- HTTP：`PUT /epics/{epicID}/close`
+- HTTP：`PUT /epics/{storyID}/close`
 - 动作类型：`action`
 
 ### 路径参数
 
 | 参数 | 说明 |
 | --- | --- |
-| `epicID` | 业务需求ID |
+| `storyID` | 需求ID |
 
 ### 查询参数
 
@@ -573,7 +576,7 @@ Schema:
 import { request } from 'zentao-api';
 
 const result = await request("epic/close", {
-  "epicID": 1,
+  "storyID": 1,
   "closedReason": "<string>",
   "comment": "<string>"
 });
