@@ -381,6 +381,53 @@ interface ClassifiedAction {
     resultType: 'text' | 'object' | 'list';
 }
 
+const ACTION_TYPES = new Set<ClassifiedAction['type']>([
+    'list',
+    'get',
+    'create',
+    'update',
+    'delete',
+    'action',
+]);
+
+const RESULT_TYPE_BY_ACTION_TYPE: Record<ClassifiedAction['type'], ClassifiedAction['resultType']> = {
+    list: 'list',
+    get: 'object',
+    create: 'object',
+    update: 'object',
+    delete: 'text',
+    action: 'text',
+};
+
+function resolveActionType(
+    mapping: ActionMapping | undefined,
+    fallback: ClassifiedAction['type'],
+    mappingKey: string,
+): ClassifiedAction['type'] {
+    const mappedType = mapping?.type;
+    if (mappedType === undefined) return fallback;
+    if (typeof mappedType === 'string' && ACTION_TYPES.has(mappedType as ClassifiedAction['type'])) {
+        return mappedType as ClassifiedAction['type'];
+    }
+    throw new Error(`Invalid action type in action mapping "${mappingKey}".`);
+}
+
+function resolveActionResultType(
+    mapping: ActionMapping | undefined,
+    actionType: ClassifiedAction['type'],
+    fallback: ClassifiedAction['resultType'],
+    mappingKey: string,
+): ClassifiedAction['resultType'] {
+    const mappedResultType = mapping?.resultType;
+    if (mappedResultType === undefined) {
+        return mapping?.type === undefined ? fallback : RESULT_TYPE_BY_ACTION_TYPE[actionType];
+    }
+    if (mappedResultType === 'text' || mappedResultType === 'object' || mappedResultType === 'list') {
+        return mappedResultType;
+    }
+    throw new Error(`Invalid resultType in action mapping "${mappingKey}".`);
+}
+
 function classifyOperation(httpMethod: string, path: string, tag: string): ClassifiedAction {
     const method = httpMethod.toLowerCase() as ClassifiedAction['method'];
     const segments = path.split('/').filter(Boolean);
@@ -703,8 +750,15 @@ function buildRegistry(): RegistryBuildResult {
 
         for (const entry of sorted) {
             const classification = classifyOperation(entry.method, entry.path, moduleName);
-            const { type: actionType, method: actionMethod, resultType } = classification;
             const reference = operationReference(entry.method, entry.path, entry.mapping);
+            const actionType = resolveActionType(entry.mapping, classification.type, reference.mappingKey);
+            const actionMethod = classification.method;
+            const resultType = resolveActionResultType(
+                entry.mapping,
+                actionType,
+                classification.resultType,
+                reference.mappingKey,
+            );
             const actionName = entry.mapping?.name ?? classification.name;
             const summary = entry.op.summary ?? '';
 
@@ -768,14 +822,9 @@ function buildRegistry(): RegistryBuildResult {
                 propertyBlocks.set(property, formatMappedActionProperty(property, value));
             }
 
-            const mappedResultType = entry.mapping?.resultType ?? resultType;
-            if (mappedResultType !== 'text' && mappedResultType !== 'object' && mappedResultType !== 'list') {
-                throw new Error(`Invalid resultType in action mapping "${reference.mappingKey}".`);
-            }
-
             const body = [...propertyBlocks.values()].join('');
             actionBodies.push(body);
-            recordAction(actionName, mappedResultType, [reference]);
+            recordAction(actionName, resultType, [reference]);
         }
 
         actionNameConflicts.push(...findActionNameConflicts(moduleName, generatedActions));

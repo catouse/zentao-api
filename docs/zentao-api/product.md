@@ -188,7 +188,7 @@ const result = await request("product/create", {
 
 - SDK 调用：`request("product/close", params)`
 - HTTP：`POST /products/{productID}/close`
-- 动作类型：`create`
+- 动作类型：`action`
 
 ### 路径参数
 
@@ -228,7 +228,7 @@ Schema:
 
 ### 返回值
 
-- 返回形态：`object`
+- 返回形态：`text`
 
 ### SDK 示例
 

@@ -82,6 +82,17 @@ describe('module registry', () => {
     expect(getModuleAction('project', 'team')!.path).toBe('/projects/team');
     expect(getModuleAction('project', 'close')!.path).toBe('/projects/{projectID}/close');
     expect(getModuleAction('project', 'createStory')!.path).toBe('/projects/{projectID}/stories');
+
+    for (const moduleName of ['product', 'project', 'execution']) {
+      const close = getModuleAction(moduleName, 'close')!;
+      expect(close.type, `${moduleName}/close type`).toBe('action');
+      expect(close.resultType, `${moduleName}/close resultType`).toBe('text');
+    }
+
+    const getContract = getModuleAction('workflow', 'getContract')!;
+    expect(getContract.type).toBe('get');
+    expect(getContract.resultType).toBe('object');
+    expect(getContract.pagerGetter).toBeUndefined();
   });
 
   test('getObjectProps returns Chinese labels for OpenAPI object modules', () => {

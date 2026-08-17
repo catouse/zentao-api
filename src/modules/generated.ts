@@ -508,10 +508,10 @@ export const BUILTIN_MODULES = [
             }, {
                 name: 'close',
                 display: '关闭产品',
-                type: 'create',
+                type: 'action',
                 method: 'post',
                 path: '/products/{productID}/close',
-                resultType: 'object',
+                resultType: 'text',
                 pathParams: {
                     productID: '产品ID',
                 },
@@ -861,10 +861,10 @@ export const BUILTIN_MODULES = [
             }, {
                 name: 'close',
                 display: '关闭项目',
-                type: 'create',
+                type: 'action',
                 method: 'post',
                 path: '/projects/{projectID}/close',
-                resultType: 'object',
+                resultType: 'text',
                 pathParams: {
                     projectID: '项目ID',
                 },
@@ -1390,10 +1390,10 @@ export const BUILTIN_MODULES = [
             }, {
                 name: 'close',
                 display: '关闭执行',
-                type: 'create',
+                type: 'action',
                 method: 'post',
                 path: '/executions/{executionID}/close',
-                resultType: 'object',
+                resultType: 'text',
                 pathParams: {
                     executionID: '执行ID',
                 },
@@ -6127,11 +6127,10 @@ export const BUILTIN_MODULES = [
             }, {
                 name: 'getContract',
                 display: '获取工作流数据详情(以合同为例)',
-                type: 'list',
+                type: 'get',
                 method: 'get',
                 path: '/workflow/contract/1',
-                resultType: 'list',
-                pagerGetter: 'pager',
+                resultType: 'object',
             }, {
                 name: 'create',
                 display: '创建工作流数据(以合同为例)',
@@ -8080,7 +8079,7 @@ export type BuiltinActionMeta = {
     product: {
         list: { resultType: 'list' };
         create: { resultType: 'object' };
-        close: { resultType: 'object' };
+        close: { resultType: 'text' };
         createStoryModule: { resultType: 'object' };
         createBugModule: { resultType: 'object' };
         createTestcaseModule: { resultType: 'object' };
@@ -8092,7 +8091,7 @@ export type BuiltinActionMeta = {
         list: { resultType: 'list' };
         team: { resultType: 'list' };
         create: { resultType: 'object' };
-        close: { resultType: 'object' };
+        close: { resultType: 'text' };
         createStory: { resultType: 'object' };
         createBug: { resultType: 'object' };
         createTask: { resultType: 'object' };
@@ -8104,7 +8103,7 @@ export type BuiltinActionMeta = {
         list: { resultType: 'list' };
         team: { resultType: 'list' };
         create: { resultType: 'object' };
-        close: { resultType: 'object' };
+        close: { resultType: 'text' };
         createTaskModule: { resultType: 'object' };
         get: { resultType: 'object' };
         update: { resultType: 'object' };
@@ -8258,7 +8257,7 @@ export type BuiltinActionMeta = {
     };
     workflow: {
         list: { resultType: 'list' };
-        getContract: { resultType: 'list' };
+        getContract: { resultType: 'object' };
         create: { resultType: 'object' };
         update: { resultType: 'object' };
         delete: { resultType: 'text' };

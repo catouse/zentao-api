@@ -46,7 +46,7 @@ const result = await request("workflow/list");
 
 - SDK 调用：`request("workflow/getContract", params)`
 - HTTP：`GET /workflow/contract/1`
-- 动作类型：`list`
+- 动作类型：`get`
 
 ### 路径参数
 
@@ -62,8 +62,7 @@ const result = await request("workflow/list");
 
 ### 返回值
 
-- 返回形态：`list`
-- 分页字段：`pager`
+- 返回形态：`object`
 
 ### SDK 示例
 
