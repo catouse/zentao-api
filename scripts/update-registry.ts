@@ -655,14 +655,17 @@ function buildRegistry(): RegistryBuildResult {
 
         for (const entry of ops) {
             const classification = classifyOperation(entry.method, entry.path, moduleName);
+            const mappingKey = actionMapKey(entry.method, entry.path);
+            const actionType = resolveActionType(entry.mapping, classification.type, mappingKey);
 
-            if (classification.type === 'list') {
+            if (actionType === 'list') {
                 const scoped = parseScopedListPath(entry.path);
                 if (scoped && !entry.mapping) {
                     scoped.operation = entry.op;
                     scopedLists.push(scoped);
                 } else {
-                    if (!scoped) topLevelListOp = entry;
+                    const actionName = entry.mapping?.name ?? classification.name;
+                    if (!scoped && actionName.toLowerCase() === 'list') topLevelListOp = entry;
                     directOps.push(entry);
                 }
             } else {

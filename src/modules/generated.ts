@@ -1817,16 +1817,90 @@ export const BUILTIN_MODULES = [
     {
         name: 'story',
         display: '需求',
-        description: '需求管理，支持产品的需求模块树、创建需求、获取需求详情、修改需求、修改需求模块、删除需求、删除需求模块、激活需求、变更需求、关闭需求',
+        description: '需求管理，支持获取需求列表，支持获取项目/产品/执行下的需求、产品的需求模块树、创建需求、获取需求详情、修改需求、修改需求模块、删除需求、删除需求模块、激活需求、变更需求、关闭需求',
         actions: [
             {
                 name: 'list',
+                display: '获取需求列表，支持获取项目/产品/执行下的需求',
+                type: 'list',
+                method: 'get',
+                path: '/{scope}/{scopeID}/stories',
+                resultType: 'list',
+                pagerGetter: 'pager',
+                resultGetter: 'stories',
+                pathParams: {
+                    scope: {description: '需求所属范围', options: [{value: 'projects', label: '项目'}, {value: 'products', label: '产品'}, {value: 'executions', label: '执行'}]},
+                    scopeID: '所属范围ID',
+                },
+                params: [
+                    {
+                        name: 'browseType',
+                        required: false,
+                        type: 'string',
+                        description: '状态，默认是allstory',
+                        defaultValue: 'allstory',
+                        options: [
+                            { value: 'allstory', label: '全部' },
+                            { value: 'assignedtome', label: '指派给我' },
+                            { value: 'openedbyme', label: '我创建' },
+                            { value: 'reviewbyme', label: '待我评审' },
+                            { value: 'draftstory', label: '草稿' },
+                        ],
+                    },
+                    {
+                        name: 'orderBy',
+                        required: false,
+                        type: 'string',
+                        description: '排序',
+                        options: [
+                            { value: 'id_asc', label: 'ID 升序' },
+                            { value: 'id_desc', label: 'ID 降序' },
+                            { value: 'title_asc', label: '标题 升序' },
+                            { value: 'title_desc', label: '标题 降序' },
+                            { value: 'status_asc', label: '状态 升序' },
+                            { value: 'status_desc', label: '状态 降序' },
+                        ],
+                    },
+                    {
+                        name: 'recPerPage',
+                        required: false,
+                        type: 'number',
+                        description: '每页数量，不超过1000',
+                    },
+                    {
+                        name: 'pageID',
+                        required: false,
+                        type: 'number',
+                        description: '页码，从第1页开始',
+                    },
+                    {
+                        name: 'filters',
+                        required: false,
+                        type: 'string',
+                        description: '搜索条件数组，每项包含 field/operator/value/join/group；field 必须是该接口支持的搜索字段，operator 使用该接口搜索配置支持的操作符。支持搜索字段：title(需求名称，示例：关键字)；id(编号，示例：1)；keywords(关键词，示例：关键字)；status(当前状态，枚举：draft 草稿 | reviewing 评审中 | active 激活 | changing 变更中 | closed 已关闭)；pri(优先级，枚举：1 | 2 | 3 | 4)；module(所属模块，示例：all)；stage(所处阶段，枚举：wait 未开始 | planned 已计划 | projected 研发立项 | designing 设计中 | designed 设计完毕 | developing 研发中 | developed 研发完毕 | testing 测试中 | tested 测试完毕 | verified 已验收 | rejected 验收失败 | delivering 交付中 | delivered 已交付 | released 已发布 | closed 已关闭)；product(所属产品，示例：all)；branch(branch，示例：all)；grade(需求层级，示例：all)；plan(所属计划，示例：all)；estimate(预计小时，示例：关键字)；source(来源，枚举：customer 客户 | user 用户 | po 产品经理 | market 市场 | service 客服 | operation 运营 | support 技术支持 | competitor 竞争对手 | partner 合作伙伴 | dev 开发人员 | tester 测试人员 | bug Bug | forum 论坛 | other 其他)；sourceNote(来源备注，示例：关键字)；fromBug(来源Bug，示例：关键字)；category(类别，枚举：feature 功能 | interface 接口 | performance 性能 | safe 安全 | experience 体验 | improve 改进 | other 其他)；openedBy(由谁创建，用户，示例：admin)；reviewedBy(已评审人，用户，示例：admin)；result(评审结果，枚举：pass 确认通过 | revert 撤销变更 | clarify 有待明确 | reject 拒绝)；assignedTo(指派给，用户，示例：admin)；closedBy(由谁关闭，用户，示例：admin)；lastEditedBy(最后修改，用户，示例：admin)；mailto(抄送给，用户，示例：admin)；closedReason(关闭原因，枚举：done 已完成 | subdivided 已拆分 | duplicate 重复 | postponed 延期 | willnotdo 不做 | cancel 已取消 | bydesign 设计如此)；version(版本号，示例：关键字)；openedDate(创建日期，示例：2026-01-01)；reviewedDate(评审时间，示例：2026-01-01)；assignedDate(指派日期，示例：2026-01-01)；closedDate(关闭日期，示例：2026-01-01)；lastEditedDate(最后修改日期，示例：2026-01-01)；activatedDate(激活日期，示例：2026-01-01)',
+                    },
+                    {
+                        name: 'groupJoin',
+                        required: false,
+                        type: 'string',
+                        description: '条件组之间的连接方式',
+                        options: [
+                            { value: 'and', label: 'and' },
+                            { value: 'or', label: 'or' },
+                        ],
+                    },
+                ],
+            }, {
+                name: 'modules',
                 display: '产品的需求模块树',
                 type: 'list',
                 method: 'get',
                 path: '/products/{productID}/story/modules',
                 resultType: 'list',
                 pagerGetter: 'pager',
+                pathParams: {
+                    productID: '产品ID',
+                },
             }, {
                 name: 'create',
                 display: '创建需求',
@@ -2791,16 +2865,87 @@ export const BUILTIN_MODULES = [
     {
         name: 'bug',
         display: 'Bug',
-        description: 'Bug管理，支持产品的Bug模块树、创建Bug、获取Bug详情、修改Bug、修改Bug模块、删除Bug、删除Bug模块、激活Bug、关闭Bug、解决Bug',
+        description: 'Bug管理，支持获取Bug列表，支持获取项目/产品/执行下的Bug、产品的Bug模块树、创建Bug、获取Bug详情、修改Bug、修改Bug模块、删除Bug、删除Bug模块、激活Bug、关闭Bug、解决Bug',
         actions: [
             {
                 name: 'list',
+                display: '获取Bug列表，支持获取项目/产品/执行下的Bug',
+                type: 'list',
+                method: 'get',
+                path: '/{scope}/{scopeID}/bugs',
+                resultType: 'list',
+                pagerGetter: 'pager',
+                resultGetter: 'bugs',
+                pathParams: {
+                    scope: {description: 'Bug所属范围', options: [{value: 'projects', label: '项目'}, {value: 'products', label: '产品'}, {value: 'executions', label: '执行'}]},
+                    scopeID: '所属范围ID',
+                },
+                params: [
+                    {
+                        name: 'browseType',
+                        required: false,
+                        type: 'string',
+                        description: '状态，默认是all',
+                        defaultValue: 'all',
+                        options: [
+                            { value: 'all', label: '全部' },
+                            { value: 'unresolved', label: '未关闭' },
+                        ],
+                    },
+                    {
+                        name: 'orderBy',
+                        required: false,
+                        type: 'string',
+                        description: '排序',
+                        options: [
+                            { value: 'id_asc', label: 'ID 升序' },
+                            { value: 'id_desc', label: 'ID 降序' },
+                            { value: 'title_asc', label: '标题 升序' },
+                            { value: 'title_desc', label: '标题 降序' },
+                            { value: 'status_asc', label: '状态 升序' },
+                            { value: 'status_desc', label: '状态 降序' },
+                        ],
+                    },
+                    {
+                        name: 'recPerPage',
+                        required: false,
+                        type: 'number',
+                        description: '每页数量，不超过1000',
+                    },
+                    {
+                        name: 'pageID',
+                        required: false,
+                        type: 'number',
+                        description: '页码，从第1页开始',
+                    },
+                    {
+                        name: 'filters',
+                        required: false,
+                        type: 'string',
+                        description: '搜索条件数组，每项包含 field/operator/value/join/group；field 必须是该接口支持的搜索字段，operator 使用该接口搜索配置支持的操作符。支持搜索字段：title(Bug标题，示例：关键字)；module(所属模块，模块，示例：0)；keywords(关键词，示例：关键字)；steps(重现步骤，示例：关键字)；assignedTo(指派给，用户，示例：admin)；resolvedBy(解决者，用户，示例：admin)；status(Bug状态，枚举：active 激活 | resolved 已解决 | closed 已关闭)；confirmed(是否确认，枚举：1 已确认 | 0 未确认)；story(相关需求，示例：关键字)；project(所属项目，示例：all)；product(所属产品，示例：all)；branch(branch，示例：all)；plan(所属计划，示例：all)；id(Bug编号，示例：1)；execution(所属执行，执行，示例：3)；severity(严重程度，枚举：1 | 2 | 3 | 4)；pri(优先级，枚举：1 | 2 | 3 | 4)；type(Bug类型，枚举：codeerror 代码错误 | config 配置相关 | install 安装部署 | security 安全相关 | performance 性能问题 | standard 标准规范 | automation 测试脚本 | designdefect 设计缺陷 | codeimprovement 代码改进 | others 其他)；os(操作系统，枚举：all 全部 | windows Windows | win11 Windows 11 | win10 Windows 10 | win8 Windows 8 | win7 Windows 7 | winxp Windows XP | osx Mac OS | android Android | ios IOS | linux Linux | ubuntu Ubuntu | chromeos Chrome OS | fedora Fedora | unix Unix | others 其他)；browser(浏览器，枚举：all 全部 | chrome Chrome | edge Edge | ie IE系列 | ie11 IE11 | ie10 IE10 | ie9 IE9 | ie8 IE8 | firefox firefox系列 | opera Opera系列 | safari | 360 360浏览器 | qq QQ浏览器 | other 其他)；resolution(解决方案，枚举：bydesign 设计如此 | duplicate 重复Bug | external 外部原因 | fixed 已解决 | notrepro 无法重现 | postponed 延期处理 | willnotfix 不予解决 | tostory 转为用户故事)；activatedCount(激活次数，示例：关键字)；toTask(转任务，示例：关键字)；toStory(转用户故事，示例：关键字)；openedBy(由谁创建，用户，示例：admin)；closedBy(由谁关闭，用户，示例：admin)；lastEditedBy(修改者，用户，示例：admin)；mailto(抄送给，用户，示例：admin)；openedBuild(影响版本，示例：builds)；resolvedBuild(解决版本，示例：builds)；openedDate(创建日期，示例：2026-01-01)；assignedDate(指派日期，示例：2026-01-01)；resolvedDate(解决日期，示例：2026-01-01)；closedDate(关闭日期，示例：2026-01-01)；lastEditedDate(修改日期，示例：2026-01-01)；deadline(截止日期，示例：2026-01-01)；activatedDate(激活时间，示例：2026-01-01)',
+                    },
+                    {
+                        name: 'groupJoin',
+                        required: false,
+                        type: 'string',
+                        description: '条件组之间的连接方式',
+                        options: [
+                            { value: 'and', label: 'and' },
+                            { value: 'or', label: 'or' },
+                        ],
+                    },
+                ],
+            }, {
+                name: 'modules',
                 display: '产品的Bug模块树',
                 type: 'list',
                 method: 'get',
                 path: '/products/{productID}/bug/modules',
                 resultType: 'list',
                 pagerGetter: 'pager',
+                pathParams: {
+                    productID: '产品ID',
+                },
             }, {
                 name: 'create',
                 display: '创建Bug',
@@ -3108,16 +3253,88 @@ export const BUILTIN_MODULES = [
     {
         name: 'testcase',
         display: '测试用例',
-        description: '测试用例管理，支持产品的用例模块树、创建测试用例、获取测试用例详情、修改测试用例、修改用例模块、删除测试用例、删除用例模块',
+        description: '测试用例管理，支持获取测试用例列表，支持获取产品/项目/执行下的测试用例、产品的用例模块树、创建测试用例、获取测试用例详情、修改测试用例、修改用例模块、删除测试用例、删除用例模块',
         actions: [
             {
                 name: 'list',
+                display: '获取测试用例列表，支持获取产品/项目/执行下的测试用例',
+                type: 'list',
+                method: 'get',
+                path: '/{scope}/{scopeID}/testcases',
+                resultType: 'list',
+                pagerGetter: 'pager',
+                resultGetter: 'testcases',
+                pathParams: {
+                    scope: {description: '测试用例所属范围', options: [{value: 'products', label: '产品'}, {value: 'projects', label: '项目'}, {value: 'executions', label: '执行'}]},
+                    scopeID: '所属范围ID',
+                },
+                params: [
+                    {
+                        name: 'browseType',
+                        required: false,
+                        type: 'string',
+                        description: '状态，默认是all',
+                        defaultValue: 'all',
+                        options: [
+                            { value: 'all', label: '全部' },
+                            { value: 'wait', label: '未关闭' },
+                            { value: 'needconfirm', label: '需求变动' },
+                        ],
+                    },
+                    {
+                        name: 'orderBy',
+                        required: false,
+                        type: 'string',
+                        description: '排序',
+                        options: [
+                            { value: 'id_asc', label: 'ID 升序' },
+                            { value: 'id_desc', label: 'ID 降序' },
+                            { value: 'title_asc', label: '标题 升序' },
+                            { value: 'title_desc', label: '标题 降序' },
+                            { value: 'status_asc', label: '状态 升序' },
+                            { value: 'status_desc', label: '状态 降序' },
+                        ],
+                    },
+                    {
+                        name: 'recPerPage',
+                        required: false,
+                        type: 'number',
+                        description: '每页数量，不超过1000',
+                    },
+                    {
+                        name: 'pageID',
+                        required: false,
+                        type: 'number',
+                        description: '页码，从第1页开始',
+                    },
+                    {
+                        name: 'filters',
+                        required: false,
+                        type: 'string',
+                        description: '搜索条件数组，每项包含 field/operator/value/join/group；field 必须是该接口支持的搜索字段，operator 使用该接口搜索配置支持的操作符。支持搜索字段：title(用例名称，示例：关键字)；story(关联需求，示例：all)；id(用例编号，示例：1)；keywords(关键词，示例：关键字)；lastEditedBy(修改者，用户，示例：admin)；type(用例类型，枚举：unit 单元测试 | interface 接口测试 | feature 功能测试 | install 安装部署 | config 配置相关 | performance 性能测试 | security 安全相关 | other 其他)；auto(自动化，枚举：auto 是 | no 否)；openedBy(由谁创建，用户，示例：admin)；status(用例状态，枚举：wait 待评审 | normal 正常 | blocked 被阻塞 | investigate 研究中)；product(所属产品，示例：all)；branch(branch，示例：all)；stage(适用环节，枚举：unittest 单元测试环节 | feature 功能测试环节 | intergrate 集成测试环节 | system 系统测试环节 | smoke 冒烟测试环节 | bvt 版本验证环节)；module(所属模块，模块，示例：0)；pri(优先级，枚举：3 | 1 | 2 | 4)；lib(所属库，示例：all)；lastRunner(执行人，用户，示例：admin)；lastRunResult(结果，枚举：pass 通过 | fail 失败 | blocked 阻塞 | null 未执行)；lastRunDate(执行时间，示例：2026-01-01)；openedDate(创建日期，示例：2026-01-01)；lastEditedDate(修改日期，示例：2026-01-01)；scene(所属场景，示例：all)',
+                    },
+                    {
+                        name: 'groupJoin',
+                        required: false,
+                        type: 'string',
+                        description: '条件组之间的连接方式',
+                        options: [
+                            { value: 'and', label: 'and' },
+                            { value: 'or', label: 'or' },
+                        ],
+                    },
+                ],
+            }, {
+                name: 'modules',
                 display: '产品的用例模块树',
                 type: 'list',
                 method: 'get',
                 path: '/products/{productID}/testcase/modules',
                 resultType: 'list',
                 pagerGetter: 'pager',
+                pathParams: {
+                    productID: '产品ID',
+                },
             }, {
                 name: 'create',
                 display: '创建测试用例',
@@ -3338,16 +3555,74 @@ export const BUILTIN_MODULES = [
     {
         name: 'task',
         display: '任务',
-        description: '任务管理，支持执行的任务模块树、创建任务、获取任务详情、修改任务、修改任务模块、删除任务、删除任务模块、激活任务、关闭任务、完成任务、启动任务',
+        description: '任务管理，支持获取任务列表，支持获取执行下的任务、执行的任务模块树、创建任务、获取任务详情、修改任务、修改任务模块、删除任务、删除任务模块、激活任务、关闭任务、完成任务、启动任务',
         actions: [
             {
                 name: 'list',
+                display: '获取任务列表，支持获取执行下的任务',
+                type: 'list',
+                method: 'get',
+                path: '/executions/{executionID}/tasks',
+                resultType: 'list',
+                pagerGetter: 'pager',
+                resultGetter: 'tasks',
+                pathParams: {
+                    executionID: '所属执行ID',
+                },
+                params: [
+                    {
+                        name: 'browseType',
+                        required: false,
+                        type: 'string',
+                        description: '状态，默认是unclosed',
+                        defaultValue: 'unclosed',
+                        options: [
+                            { value: 'all', label: '全部' },
+                            { value: 'unclosed', label: '未关闭' },
+                            { value: 'assignedtome', label: '指派给我' },
+                            { value: 'assignedtome', label: '指派给我' },
+                            { value: 'myinvolved', label: '由我参与' },
+                            { value: 'assignedbyme', label: '由我指派' },
+                        ],
+                    },
+                    {
+                        name: 'orderBy',
+                        required: false,
+                        type: 'string',
+                        description: '排序',
+                        options: [
+                            { value: 'id_asc', label: 'ID 升序' },
+                            { value: 'id_desc', label: 'ID 降序' },
+                            { value: 'name_asc', label: '名称 升序' },
+                            { value: 'name_desc', label: '名称 降序' },
+                            { value: 'status_asc', label: '状态 升序' },
+                            { value: 'status_desc', label: '状态 降序' },
+                        ],
+                    },
+                    {
+                        name: 'recPerPage',
+                        required: false,
+                        type: 'number',
+                        description: '每页数量，不超过1000',
+                    },
+                    {
+                        name: 'pageID',
+                        required: false,
+                        type: 'number',
+                        description: '页码，从第1页开始',
+                    },
+                ],
+            }, {
+                name: 'modules',
                 display: '执行的任务模块树',
                 type: 'list',
                 method: 'get',
                 path: '/executions/{executionID}/task/modules',
                 resultType: 'list',
                 pagerGetter: 'pager',
+                pathParams: {
+                    executionID: '执行ID',
+                },
             }, {
                 name: 'create',
                 display: '创建任务',
@@ -8119,6 +8394,7 @@ export type BuiltinActionMeta = {
     };
     story: {
         list: { resultType: 'list' };
+        modules: { resultType: 'list' };
         create: { resultType: 'object' };
         get: { resultType: 'object' };
         update: { resultType: 'object' };
@@ -8151,6 +8427,7 @@ export type BuiltinActionMeta = {
     };
     bug: {
         list: { resultType: 'list' };
+        modules: { resultType: 'list' };
         create: { resultType: 'object' };
         get: { resultType: 'object' };
         update: { resultType: 'object' };
@@ -8163,6 +8440,7 @@ export type BuiltinActionMeta = {
     };
     testcase: {
         list: { resultType: 'list' };
+        modules: { resultType: 'list' };
         create: { resultType: 'object' };
         get: { resultType: 'object' };
         update: { resultType: 'object' };
@@ -8172,6 +8450,7 @@ export type BuiltinActionMeta = {
     };
     task: {
         list: { resultType: 'list' };
+        modules: { resultType: 'list' };
         create: { resultType: 'object' };
         get: { resultType: 'object' };
         update: { resultType: 'object' };

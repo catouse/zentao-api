@@ -93,6 +93,22 @@ describe('module registry', () => {
     expect(getContract.type).toBe('get');
     expect(getContract.resultType).toBe('object');
     expect(getContract.pagerGetter).toBeUndefined();
+
+    const moduleTreeActions = [
+      ['story', '/{scope}/{scopeID}/stories', '/products/{productID}/story/modules', 'productID', '产品ID'],
+      ['bug', '/{scope}/{scopeID}/bugs', '/products/{productID}/bug/modules', 'productID', '产品ID'],
+      ['testcase', '/{scope}/{scopeID}/testcases', '/products/{productID}/testcase/modules', 'productID', '产品ID'],
+      ['task', '/executions/{executionID}/tasks', '/executions/{executionID}/task/modules', 'executionID', '执行ID'],
+    ] as const;
+
+    for (const [moduleName, listPath, modulesPath, pathParam, pathParamDescription] of moduleTreeActions) {
+      const module = getModule(moduleName)!;
+      expect(new Set(module.actions.map(action => action.name)).size, moduleName).toBe(module.actions.length);
+      expect(getModuleAction(moduleName, 'list')!.path, `${moduleName}/list`).toBe(listPath);
+      const modules = getModuleAction(moduleName, 'modules')!;
+      expect(modules.path, `${moduleName}/modules`).toBe(modulesPath);
+      expect(modules.pathParams?.[pathParam], `${moduleName}/modules ${pathParam}`).toBe(pathParamDescription);
+    }
   });
 
   test('getObjectProps returns Chinese labels for OpenAPI object modules', () => {
