@@ -40,6 +40,18 @@ describe('module registry', () => {
     expect(getModuleAction('product', 'list')!.path).toBe('/products');
   });
 
+  test('uses mapped names for conflicting generated actions', () => {
+    const my = getModule('my')!;
+    expect(new Set(my.actions.map(action => action.name)).size).toBe(my.actions.length);
+    expect(getModuleAction('my', 'my-todos')!.path).toBe('/my/todos');
+    expect(getModuleAction('my', 'my-tasks')!.path).toBe('/my/tasks');
+
+    const project = getModule('project')!;
+    expect(new Set(project.actions.map(action => action.name)).size).toBe(project.actions.length);
+    expect(getModuleAction('project', 'project-team')!.path).toBe('/projects/team');
+    expect(getModuleAction('project', 'project-close')!.path).toBe('/projects/{projectID}/close');
+  });
+
   test('getObjectProps returns Chinese labels for OpenAPI object modules', () => {
     const objectModules = [
       'user', 'program', 'product', 'project', 'execution', 'productplan',

@@ -54,6 +54,26 @@ interface OpenAPIDoc {
     paths: Record<string, Record<string, OpenAPIOperation>>;
 }
 
+type ActionNameMap = Record<string, string>;
+
+interface OperationReference {
+    method: string;
+    path: string;
+    mappingKey: string;
+    mappedName?: string;
+}
+
+interface GeneratedActionRecord {
+    name: string;
+    operations: OperationReference[];
+}
+
+interface ActionNameConflict {
+    moduleName: string;
+    actionName: string;
+    actions: GeneratedActionRecord[];
+}
+
 // ---------------------------------------------------------------------------
 // Chinese display name mapping for tags
 // ---------------------------------------------------------------------------
@@ -112,6 +132,72 @@ function colonToBrace(path: string): string {
 function extractColonParams(path: string): string[] {
     const matches = path.matchAll(/:(\w+)/g);
     return [...matches].map(m => m[1]);
+}
+
+/** Build the canonical key used by scripts/zentao-api-map.json. */
+function actionNameMapKey(method: string, path: string): string {
+    return `${method.toLowerCase()} ${colonToBrace(braceToColon(path))}`;
+}
+
+function loadActionNameMap(path: string): ActionNameMap {
+    const parsed: unknown = JSON.parse(readFileSync(path, 'utf-8'));
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        throw new Error(`${path} must contain a JSON object.`);
+    }
+
+    const result: ActionNameMap = {};
+    for (const [rawKey, rawName] of Object.entries(parsed)) {
+        if (typeof rawName !== 'string' || rawName.trim() === '') {
+            throw new Error(`Invalid action name mapping for "${rawKey}" in ${path}.`);
+        }
+
+        const separator = rawKey.indexOf(' ');
+        if (separator <= 0 || separator === rawKey.length - 1) {
+            throw new Error(`Invalid API mapping key "${rawKey}" in ${path}; expected "method /path".`);
+        }
+
+        const method = rawKey.slice(0, separator).trim();
+        const apiPath = rawKey.slice(separator + 1).trim();
+        if (!apiPath.startsWith('/')) {
+            throw new Error(`Invalid API mapping path "${apiPath}" in ${path}.`);
+        }
+
+        result[actionNameMapKey(method, apiPath)] = rawName.trim();
+    }
+    return result;
+}
+
+function operationReference(method: string, path: string, actionNameMap: ActionNameMap): OperationReference {
+    const mappingKey = actionNameMapKey(method, path);
+    const mappedName = actionNameMap[mappingKey];
+    return {
+        method: method.toLowerCase(),
+        path: colonToBrace(path),
+        mappingKey,
+        ...(mappedName ? { mappedName } : {}),
+    };
+}
+
+function findActionNameConflicts(moduleName: string, actions: GeneratedActionRecord[]): ActionNameConflict[] {
+    const actionsByName = new Map<string, GeneratedActionRecord[]>();
+    for (const action of actions) {
+        const normalizedName = action.name.toLowerCase();
+        const matches = actionsByName.get(normalizedName) ?? [];
+        matches.push(action);
+        actionsByName.set(normalizedName, matches);
+    }
+
+    const conflicts: ActionNameConflict[] = [];
+    for (const matches of actionsByName.values()) {
+        if (matches.length > 1) {
+            conflicts.push({
+                moduleName,
+                actionName: matches[0].name,
+                actions: matches,
+            });
+        }
+    }
+    return conflicts;
 }
 
 /** Determine the "resource name" (last non-param segment) for a path */
@@ -446,6 +532,8 @@ function parseScopedListPath(path: string): ScopedListInfo | null {
 interface RegistryBuildResult {
     output: string;
     outputPath: string;
+    actionNameMapPath: string;
+    actionNameConflicts: ActionNameConflict[];
     moduleCount: number;
     operationCount: number;
 }
@@ -453,8 +541,10 @@ interface RegistryBuildResult {
 function buildRegistry(): RegistryBuildResult {
     const openapiPath = resolve(ROOT, 'data/zentao-openapi.json');
     const outputPath = resolve(ROOT, 'src/modules/generated.ts');
+    const actionNameMapPath = resolve(ROOT, 'scripts/zentao-api-map.json');
 
     const doc: OpenAPIDoc = JSON.parse(readFileSync(openapiPath, 'utf-8'));
+    const actionNameMap = loadActionNameMap(actionNameMapPath);
 
     // Group operations by tag
     type OpEntry = { path: string; method: string; op: OpenAPIOperation };
@@ -478,6 +568,7 @@ function buildRegistry(): RegistryBuildResult {
 
     const modules: string[] = [];
     const actionMetaByModule: Array<{ name: string; actions: Map<string, ClassifiedAction['resultType']> }> = [];
+    const actionNameConflicts: ActionNameConflict[] = [];
 
     for (const tagName of tagOrder) {
         const ops = tagOps.get(tagName)!;
@@ -509,8 +600,14 @@ function buildRegistry(): RegistryBuildResult {
         const actionBodies: string[] = [];
         const actionDisplayNames: string[] = [];
         const actionMeta = new Map<string, ClassifiedAction['resultType']>();
+        const generatedActions: GeneratedActionRecord[] = [];
 
-        const recordActionMeta = (name: string, resultType: ClassifiedAction['resultType']) => {
+        const recordAction = (
+            name: string,
+            resultType: ClassifiedAction['resultType'],
+            operations: OperationReference[],
+        ) => {
+            generatedActions.push({ name, operations });
             if (!actionMeta.has(name)) actionMeta.set(name, resultType);
         };
 
@@ -560,7 +657,9 @@ function buildRegistry(): RegistryBuildResult {
                 body += `                ],\n`;
             }
             actionBodies.push(body);
-            recordActionMeta('list', 'list');
+            recordAction('list', 'list', scopedLists.map(scoped =>
+                operationReference('get', scoped.originalPath, actionNameMap),
+            ));
         }
 
         // Process direct operations (including top-level list)
@@ -577,7 +676,9 @@ function buildRegistry(): RegistryBuildResult {
 
         for (const entry of sorted) {
             const classification = classifyOperation(entry.method, entry.path, tagName);
-            const { name: actionName, type: actionType, method: actionMethod, resultType } = classification;
+            const { type: actionType, method: actionMethod, resultType } = classification;
+            const reference = operationReference(entry.method, entry.path, actionNameMap);
+            const actionName = reference.mappedName ?? classification.name;
             const summary = entry.op.summary ?? '';
 
             actionDisplayNames.push(summary);
@@ -633,8 +734,10 @@ function buildRegistry(): RegistryBuildResult {
             }
 
             actionBodies.push(body);
-            recordActionMeta(actionName, resultType);
+            recordAction(actionName, resultType, [reference]);
         }
+
+        actionNameConflicts.push(...findActionNameConflicts(tagName, generatedActions));
 
         // Compose module description
         const moduleDesc = `${display}管理，支持${actionDisplayNames.join('、')}`;
@@ -676,9 +779,9 @@ function buildRegistry(): RegistryBuildResult {
     output += `/** 内置模块动作的精简类型索引，供 request() 名称/返回值推导使用。 */\n`;
     output += `export type BuiltinActionMeta = {\n`;
     for (const module of actionMetaByModule) {
-        output += `    ${module.name}: {\n`;
+        output += `    ${formatTypePropertyName(module.name)}: {\n`;
         for (const [actionName, resultType] of module.actions) {
-            output += `        ${actionName}: { resultType: '${resultType}' };\n`;
+            output += `        ${formatTypePropertyName(actionName)}: { resultType: '${resultType}' };\n`;
         }
         output += `    };\n`;
     }
@@ -688,6 +791,8 @@ function buildRegistry(): RegistryBuildResult {
     return {
         output,
         outputPath,
+        actionNameMapPath,
+        actionNameConflicts,
         moduleCount: tagOrder.length,
         operationCount: tagOrder.map(t => tagOps.get(t)!.length).reduce((a, b) => a + b, 0),
     };
@@ -721,11 +826,35 @@ function escapeStr(s: string): string {
     return s.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 
+function formatTypePropertyName(name: string): string {
+    return /^[$A-Z_a-z][$\w]*$/.test(name) ? name : `'${escapeStr(name)}'`;
+}
+
 function indentJson(obj: unknown, baseIndent: number): string {
     const json = JSON.stringify(obj, null, 4);
     const indent = ' '.repeat(baseIndent);
     const lines = json.split('\n');
     return lines.map((line, i) => i === 0 ? line : indent + line).join('\n');
+}
+
+function reportActionNameConflicts(result: RegistryBuildResult): void {
+    const { actionNameConflicts: conflicts } = result;
+    if (conflicts.length === 0) return;
+
+    console.warn('');
+    console.warn(`⚠️ Found ${conflicts.length} unresolved action name conflict group(s):`);
+    for (const conflict of conflicts) {
+        console.warn(`   ${conflict.moduleName}/${conflict.actionName}`);
+        for (const action of conflict.actions) {
+            for (const operation of action.operations) {
+                const mappingStatus = operation.mappedName
+                    ? ` -> ${operation.mappedName}`
+                    : ' (no mapping)';
+                console.warn(`     - ${operation.mappingKey}${mappingStatus}`);
+            }
+        }
+    }
+    console.warn(`Add or update mappings in ${result.actionNameMapPath} so action names are unique within each module.`);
 }
 
 function main() {
@@ -736,16 +865,20 @@ function main() {
         if (current !== result.output) {
             console.error('Generated module registry is out of date.');
             console.error('Run: bun run scripts/update-registry.ts');
-            process.exit(1);
+            reportActionNameConflicts(result);
+            process.exitCode = 1;
+            return;
         }
         console.log(`✅ Registry is up to date: ${result.outputPath}`);
         console.log(`   ${result.moduleCount} modules, ${result.operationCount} operations`);
+        reportActionNameConflicts(result);
         return;
     }
 
     writeFileSync(result.outputPath, result.output, 'utf-8');
     console.log(`✅ Generated ${result.outputPath}`);
     console.log(`   ${result.moduleCount} modules, ${result.operationCount} operations`);
+    reportActionNameConflicts(result);
 }
 
 main();
