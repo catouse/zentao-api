@@ -6,24 +6,24 @@
 
 | SDK 动作 | 说明 | 方法 | 路径 |
 | --- | --- | --- | --- |
-| `list` | 我的待办 | `GET` | `/my/todos` |
-| `list` | 指派给我的任务 | `GET` | `/my/tasks` |
-| `list` | 指派给我的Bug | `GET` | `/my/bugs` |
-| `list` | 指派给我的研发需求 | `GET` | `/my/stories` |
-| `list` | 指派给我的业务需求 | `GET` | `/my/epics` |
-| `list` | 指派给我的用户需求 | `GET` | `/my/requirements` |
-| `list` | 我负责的的测试单 | `GET` | `/my/testtasks` |
-| `list` | 我参与的项目 | `GET` | `/my/projects` |
-| `list` | 指派给我的反馈 | `GET` | `/my/feedbacks` |
-| `list` | 指派给我的工单 | `GET` | `/my/tickets` |
-| `list` | 指派给我的用例 | `GET` | `/my/testcases` |
-| `list` | 我的会议 | `GET` | `/my/meetings` |
-| `list` | 指派给我的问题 | `GET` | `/my/issues` |
-| `list` | 指派给我的风险 | `GET` | `/my/risks` |
+| `my-todos` | 我的待办 | `GET` | `/my/todos` |
+| `my-tasks` | 指派给我的任务 | `GET` | `/my/tasks` |
+| `my-bugs` | 指派给我的Bug | `GET` | `/my/bugs` |
+| `my-stories` | 指派给我的研发需求 | `GET` | `/my/stories` |
+| `my-epics` | 指派给我的业务需求 | `GET` | `/my/epics` |
+| `my-requirements` | 指派给我的用户需求 | `GET` | `/my/requirements` |
+| `my-testtasks` | 我负责的的测试单 | `GET` | `/my/testtasks` |
+| `my-projects` | 我参与的项目 | `GET` | `/my/projects` |
+| `my-feedbacks` | 指派给我的反馈 | `GET` | `/my/feedbacks` |
+| `my-tickets` | 指派给我的工单 | `GET` | `/my/tickets` |
+| `my-testcases` | 指派给我的用例 | `GET` | `/my/testcases` |
+| `my-meetings` | 我的会议 | `GET` | `/my/meetings` |
+| `my-issues` | 指派给我的问题 | `GET` | `/my/issues` |
+| `my-risks` | 指派给我的风险 | `GET` | `/my/risks` |
 
 ## 我的待办
 
-- SDK 调用：`request("my/list", params)`
+- SDK 调用：`request("my/my-todos", params)`
 - HTTP：`GET /my/todos`
 - 动作类型：`list`
 
@@ -55,7 +55,7 @@
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/list", {
+const result = await request("my/my-todos", {
   "browseType": "all",
   "orderBy": "<string>",
   "recPerPage": 1,
@@ -64,7 +64,7 @@ const result = await request("my/list", {
 ```
 ## 指派给我的任务
 
-- SDK 调用：`request("my/list", params)`
+- SDK 调用：`request("my/my-tasks", params)`
 - HTTP：`GET /my/tasks`
 - 动作类型：`list`
 
@@ -98,7 +98,7 @@ const result = await request("my/list", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/list", {
+const result = await request("my/my-tasks", {
   "browseType": "all",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -109,7 +109,7 @@ const result = await request("my/list", {
 ```
 ## 指派给我的Bug
 
-- SDK 调用：`request("my/list", params)`
+- SDK 调用：`request("my/my-bugs", params)`
 - HTTP：`GET /my/bugs`
 - 动作类型：`list`
 
@@ -143,7 +143,7 @@ const result = await request("my/list", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/list", {
+const result = await request("my/my-bugs", {
   "browseType": "all",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -154,7 +154,7 @@ const result = await request("my/list", {
 ```
 ## 指派给我的研发需求
 
-- SDK 调用：`request("my/list", params)`
+- SDK 调用：`request("my/my-stories", params)`
 - HTTP：`GET /my/stories`
 - 动作类型：`list`
 
@@ -188,7 +188,7 @@ const result = await request("my/list", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/list", {
+const result = await request("my/my-stories", {
   "browseType": "allstory",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -199,7 +199,7 @@ const result = await request("my/list", {
 ```
 ## 指派给我的业务需求
 
-- SDK 调用：`request("my/list", params)`
+- SDK 调用：`request("my/my-epics", params)`
 - HTTP：`GET /my/epics`
 - 动作类型：`list`
 
@@ -233,7 +233,7 @@ const result = await request("my/list", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/list", {
+const result = await request("my/my-epics", {
   "browseType": "allstory",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -244,7 +244,7 @@ const result = await request("my/list", {
 ```
 ## 指派给我的用户需求
 
-- SDK 调用：`request("my/list", params)`
+- SDK 调用：`request("my/my-requirements", params)`
 - HTTP：`GET /my/requirements`
 - 动作类型：`list`
 
@@ -278,7 +278,7 @@ const result = await request("my/list", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/list", {
+const result = await request("my/my-requirements", {
   "browseType": "allstory",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -289,7 +289,7 @@ const result = await request("my/list", {
 ```
 ## 我负责的的测试单
 
-- SDK 调用：`request("my/list", params)`
+- SDK 调用：`request("my/my-testtasks", params)`
 - HTTP：`GET /my/testtasks`
 - 动作类型：`list`
 
@@ -321,7 +321,7 @@ const result = await request("my/list", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/list", {
+const result = await request("my/my-testtasks", {
   "browseType": "all",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -330,7 +330,7 @@ const result = await request("my/list", {
 ```
 ## 我参与的项目
 
-- SDK 调用：`request("my/list", params)`
+- SDK 调用：`request("my/my-projects", params)`
 - HTTP：`GET /my/projects`
 - 动作类型：`list`
 
@@ -362,7 +362,7 @@ const result = await request("my/list", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/list", {
+const result = await request("my/my-projects", {
   "browseType": "all",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -371,7 +371,7 @@ const result = await request("my/list", {
 ```
 ## 指派给我的反馈
 
-- SDK 调用：`request("my/list", params)`
+- SDK 调用：`request("my/my-feedbacks", params)`
 - HTTP：`GET /my/feedbacks`
 - 动作类型：`list`
 
@@ -405,7 +405,7 @@ const result = await request("my/list", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/list", {
+const result = await request("my/my-feedbacks", {
   "browseType": "all",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -416,7 +416,7 @@ const result = await request("my/list", {
 ```
 ## 指派给我的工单
 
-- SDK 调用：`request("my/list", params)`
+- SDK 调用：`request("my/my-tickets", params)`
 - HTTP：`GET /my/tickets`
 - 动作类型：`list`
 
@@ -450,7 +450,7 @@ const result = await request("my/list", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/list", {
+const result = await request("my/my-tickets", {
   "browseType": "all",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -461,7 +461,7 @@ const result = await request("my/list", {
 ```
 ## 指派给我的用例
 
-- SDK 调用：`request("my/list", params)`
+- SDK 调用：`request("my/my-testcases", params)`
 - HTTP：`GET /my/testcases`
 - 动作类型：`list`
 
@@ -495,7 +495,7 @@ const result = await request("my/list", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/list", {
+const result = await request("my/my-testcases", {
   "browseType": "all",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -506,7 +506,7 @@ const result = await request("my/list", {
 ```
 ## 我的会议
 
-- SDK 调用：`request("my/list", params)`
+- SDK 调用：`request("my/my-meetings", params)`
 - HTTP：`GET /my/meetings`
 - 动作类型：`list`
 
@@ -537,7 +537,7 @@ const result = await request("my/list", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/list", {
+const result = await request("my/my-meetings", {
   "browseType": "all",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -546,7 +546,7 @@ const result = await request("my/list", {
 ```
 ## 指派给我的问题
 
-- SDK 调用：`request("my/list", params)`
+- SDK 调用：`request("my/my-issues", params)`
 - HTTP：`GET /my/issues`
 - 动作类型：`list`
 
@@ -577,7 +577,7 @@ const result = await request("my/list", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/list", {
+const result = await request("my/my-issues", {
   "browseType": "all",
   "orderBy": "id_asc",
   "recPerPage": 1,
@@ -586,7 +586,7 @@ const result = await request("my/list", {
 ```
 ## 指派给我的风险
 
-- SDK 调用：`request("my/list", params)`
+- SDK 调用：`request("my/my-risks", params)`
 - HTTP：`GET /my/risks`
 - 动作类型：`list`
 
@@ -619,7 +619,7 @@ const result = await request("my/list", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("my/list", {
+const result = await request("my/my-risks", {
   "browseType": "all",
   "orderBy": "id_asc",
   "recPerPage": 1,

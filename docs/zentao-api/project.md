@@ -7,9 +7,9 @@
 | SDK 动作 | 说明 | 方法 | 路径 |
 | --- | --- | --- | --- |
 | `list` | 获取项目列表 | `GET` | `/projects` |
-| `list` | 获取项目团队列表 | `GET` | `/projects/team` |
+| `project-team` | 获取项目团队列表 | `GET` | `/projects/team` |
 | `create` | 创建项目 | `POST` | `/projects` |
-| `create` | 关闭项目 | `POST` | `/projects/{projectID}/close` |
+| `project-close` | 关闭项目 | `POST` | `/projects/{projectID}/close` |
 | `update` | 修改项目 | `PUT` | `/projects/{projectID}` |
 | `delete` | 删除项目 | `DELETE` | `/projects/{projectID}` |
 | `members` | 维护项目成员 | `PUT` | `/projects/{projectID}/members` |
@@ -61,7 +61,7 @@ const result = await request("project/list", {
 ```
 ## 获取项目团队列表
 
-- SDK 调用：`request("project/list", params)`
+- SDK 调用：`request("project/project-team", params)`
 - HTTP：`GET /projects/team`
 - 动作类型：`list`
 
@@ -90,7 +90,7 @@ const result = await request("project/list", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("project/list", {
+const result = await request("project/project-team", {
   "projectID": "<string>"
 });
 ```
@@ -207,7 +207,7 @@ const result = await request("project/create", {
 ```
 ## 关闭项目
 
-- SDK 调用：`request("project/create", params)`
+- SDK 调用：`request("project/project-close", params)`
 - HTTP：`POST /projects/{projectID}/close`
 - 动作类型：`create`
 
@@ -264,7 +264,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("project/create", {
+const result = await request("project/project-close", {
   "projectID": 1,
   "realEnd": "<string>",
   "comment": "<string>"

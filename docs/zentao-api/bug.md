@@ -8,13 +8,13 @@ Bug管理，支持产品的Bug模块树、创建Bug、创建项目Bug、创建�
 | --- | --- | --- | --- |
 | `list` | 产品的Bug模块树 | `GET` | `/products/{productID}/bug/modules` |
 | `create` | 创建Bug | `POST` | `/bugs` |
-| `create` | 创建项目Bug | `POST` | `/projects/{projectID}/bugs` |
-| `create` | 创建产品的Bug模块 | `POST` | `/products/{productID}/bug/modules` |
+| `project-createBug` | 创建项目Bug | `POST` | `/projects/{projectID}/bugs` |
+| `product-createBugModule` | 创建产品的Bug模块 | `POST` | `/products/{productID}/bug/modules` |
 | `get` | 获取Bug详情 | `GET` | `/bugs/{bugID}` |
 | `update` | 修改Bug | `PUT` | `/bugs/{bugID}` |
-| `update` | 修改Bug模块 | `PUT` | `/bug/modules/{moduleID}` |
+| `bug-updateModule` | 修改Bug模块 | `PUT` | `/bug/modules/{moduleID}` |
 | `delete` | 删除Bug | `DELETE` | `/bugs/{bugID}` |
-| `delete` | 删除Bug模块 | `DELETE` | `/bug/modules/{moduleID}` |
+| `bug-deleteModule` | 删除Bug模块 | `DELETE` | `/bug/modules/{moduleID}` |
 | `activate` | 激活Bug | `PUT` | `/bugs/{bugID}/activate` |
 | `close` | 关闭Bug | `PUT` | `/bugs/{bugID}/close` |
 | `resolve` | 解决Bug | `PUT` | `/bugs/{bugID}/resolve` |
@@ -182,7 +182,7 @@ const result = await request("bug/create", {
 ```
 ## 创建项目Bug
 
-- SDK 调用：`request("bug/create", params)`
+- SDK 调用：`request("bug/project-createBug", params)`
 - HTTP：`POST /projects/{projectID}/bugs`
 - 动作类型：`create`
 
@@ -273,7 +273,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("bug/create", {
+const result = await request("bug/project-createBug", {
   "projectID": 1,
   "productID": 1,
   "title": "<string>",
@@ -288,7 +288,7 @@ const result = await request("bug/create", {
 ```
 ## 创建产品的Bug模块
 
-- SDK 调用：`request("bug/create", params)`
+- SDK 调用：`request("bug/product-createBugModule", params)`
 - HTTP：`POST /products/{productID}/bug/modules`
 - 动作类型：`create`
 
@@ -343,7 +343,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("bug/create", {
+const result = await request("bug/product-createBugModule", {
   "productID": 1,
   "name": "<string>",
   "parentID": 1
@@ -507,7 +507,7 @@ const result = await request("bug/update", {
 ```
 ## 修改Bug模块
 
-- SDK 调用：`request("bug/update", params)`
+- SDK 调用：`request("bug/bug-updateModule", params)`
 - HTTP：`PUT /bug/modules/{moduleID}`
 - 动作类型：`update`
 
@@ -562,7 +562,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("bug/update", {
+const result = await request("bug/bug-updateModule", {
   "moduleID": 1,
   "name": "<string>",
   "parent": 1
@@ -603,7 +603,7 @@ const result = await request("bug/delete", {
 ```
 ## 删除Bug模块
 
-- SDK 调用：`request("bug/delete", params)`
+- SDK 调用：`request("bug/bug-deleteModule", params)`
 - HTTP：`DELETE /bug/modules/{moduleID}`
 - 动作类型：`delete`
 
@@ -630,7 +630,7 @@ const result = await request("bug/delete", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("bug/delete", {
+const result = await request("bug/bug-deleteModule", {
   "moduleID": 1
 });
 ```

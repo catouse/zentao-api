@@ -8,12 +8,12 @@
 | --- | --- | --- | --- |
 | `list` | 产品的用例模块树 | `GET` | `/products/{productID}/testcase/modules` |
 | `create` | 创建测试用例 | `POST` | `/testcases` |
-| `create` | 创建产品的用例模块 | `POST` | `/products/{productID}/testcase/modules` |
+| `product-createTestcaseModule` | 创建产品的用例模块 | `POST` | `/products/{productID}/testcase/modules` |
 | `get` | 获取测试用例详情 | `GET` | `/testcases/{caseID}` |
 | `update` | 修改测试用例 | `PUT` | `/testcases/{caseID}` |
-| `update` | 修改用例模块 | `PUT` | `/testcase/modules/{moduleID}` |
+| `testcase-updateModule` | 修改用例模块 | `PUT` | `/testcase/modules/{moduleID}` |
 | `delete` | 删除测试用例 | `DELETE` | `/testcases/{caseID}` |
-| `delete` | 删除用例模块 | `DELETE` | `/testcase/modules/{moduleID}` |
+| `testcase-deleteModule` | 删除用例模块 | `DELETE` | `/testcase/modules/{moduleID}` |
 
 ## 产品的用例模块树
 
@@ -197,7 +197,7 @@ const result = await request("testcase/create", {
 ```
 ## 创建产品的用例模块
 
-- SDK 调用：`request("testcase/create", params)`
+- SDK 调用：`request("testcase/product-createTestcaseModule", params)`
 - HTTP：`POST /products/{productID}/testcase/modules`
 - 动作类型：`create`
 
@@ -252,7 +252,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("testcase/create", {
+const result = await request("testcase/product-createTestcaseModule", {
   "productID": 1,
   "name": "<string>",
   "parentID": 1
@@ -425,7 +425,7 @@ const result = await request("testcase/update", {
 ```
 ## 修改用例模块
 
-- SDK 调用：`request("testcase/update", params)`
+- SDK 调用：`request("testcase/testcase-updateModule", params)`
 - HTTP：`PUT /testcase/modules/{moduleID}`
 - 动作类型：`update`
 
@@ -480,7 +480,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("testcase/update", {
+const result = await request("testcase/testcase-updateModule", {
   "moduleID": 1,
   "name": "<string>",
   "parent": 1
@@ -521,7 +521,7 @@ const result = await request("testcase/delete", {
 ```
 ## 删除用例模块
 
-- SDK 调用：`request("testcase/delete", params)`
+- SDK 调用：`request("testcase/testcase-deleteModule", params)`
 - HTTP：`DELETE /testcase/modules/{moduleID}`
 - 动作类型：`delete`
 
@@ -548,7 +548,7 @@ const result = await request("testcase/delete", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("testcase/delete", {
+const result = await request("testcase/testcase-deleteModule", {
   "moduleID": 1
 });
 ```

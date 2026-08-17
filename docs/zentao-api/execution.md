@@ -7,9 +7,9 @@
 | SDK 动作 | 说明 | 方法 | 路径 |
 | --- | --- | --- | --- |
 | `list` | 获取执行列表 | `GET` | `/executions` |
-| `list` | 获取执行团队列表 | `GET` | `/executions/team` |
+| `execution-team` | 获取执行团队列表 | `GET` | `/executions/team` |
 | `create` | 创建执行（迭代/阶段/看板） | `POST` | `/executions` |
-| `create` | 关闭执行 | `POST` | `/executions/{executionID}/close` |
+| `execution-close` | 关闭执行 | `POST` | `/executions/{executionID}/close` |
 | `get` | 获取执行详情 | `GET` | `/executions/{executionID}` |
 | `update` | 修改执行 | `PUT` | `/executions/{executionID}` |
 | `delete` | 删除执行 | `DELETE` | `/executions/{executionID}` |
@@ -62,7 +62,7 @@ const result = await request("execution/list", {
 ```
 ## 获取执行团队列表
 
-- SDK 调用：`request("execution/list", params)`
+- SDK 调用：`request("execution/execution-team", params)`
 - HTTP：`GET /executions/team`
 - 动作类型：`list`
 
@@ -91,7 +91,7 @@ const result = await request("execution/list", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("execution/list", {
+const result = await request("execution/execution-team", {
   "executionID": "<string>"
 });
 ```
@@ -272,7 +272,7 @@ const result = await request("execution/create", {
 ```
 ## 关闭执行
 
-- SDK 调用：`request("execution/create", params)`
+- SDK 调用：`request("execution/execution-close", params)`
 - HTTP：`POST /executions/{executionID}/close`
 - 动作类型：`create`
 
@@ -329,7 +329,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("execution/create", {
+const result = await request("execution/execution-close", {
   "executionID": 1,
   "realEnd": "<string>",
   "comment": "<string>"

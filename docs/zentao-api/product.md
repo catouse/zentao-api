@@ -8,7 +8,7 @@
 | --- | --- | --- | --- |
 | `list` | 获取产品列表 | `GET` | `/products` |
 | `create` | 创建产品 | `POST` | `/products` |
-| `create` | 关闭产品 | `POST` | `/products/{productID}/close` |
+| `product-close` | 关闭产品 | `POST` | `/products/{productID}/close` |
 | `get` | 获取产品详情 | `GET` | `/products/{productID}` |
 | `update` | 修改产品 | `PUT` | `/products/{productID}` |
 | `delete` | 删除产品 | `DELETE` | `/products/{productID}` |
@@ -183,7 +183,7 @@ const result = await request("product/create", {
 ```
 ## 关闭产品
 
-- SDK 调用：`request("product/create", params)`
+- SDK 调用：`request("product/product-close", params)`
 - HTTP：`POST /products/{productID}/close`
 - 动作类型：`create`
 
@@ -232,7 +232,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("product/create", {
+const result = await request("product/product-close", {
   "productID": 1,
   "comment": "<string>"
 });

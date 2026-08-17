@@ -6,51 +6,51 @@
 
 | SDK 动作 | 说明 | 方法 | 路径 |
 | --- | --- | --- | --- |
-| `list` | 获取我的文档空间列表 | `GET` | `/doc/my/spaces` |
-| `list` | 获取团队文档空间列表 | `GET` | `/doc/team/spaces` |
-| `list` | 获取产品文档空间列表 | `GET` | `/doc/product/spaces` |
-| `list` | 获取项目文档空间列表 | `GET` | `/doc/project/spaces` |
-| `list` | 获取我的文档库列表 | `GET` | `/doc/my/spaces/{spaceID}/libs` |
-| `list` | 获取团队文档库列表 | `GET` | `/doc/team/spaces/{spaceID}/libs` |
-| `list` | 获取产品文档库列表 | `GET` | `/doc/product/spaces/{productID}/libs` |
-| `list` | 获取项目文档库列表 | `GET` | `/doc/project/spaces/{projectID}/libs` |
-| `list` | 获取我的文档列表 | `GET` | `/doc/my/spaces/{spaceID}/libs/{libID}/docs` |
-| `list` | 获取团队文档列表 | `GET` | `/doc/team/spaces/{spaceID}/libs/{libID}/docs` |
-| `list` | 获取产品文档列表 | `GET` | `/doc/product/spaces/{productID}/libs/{libID}/docs` |
-| `list` | 获取项目文档列表 | `GET` | `/doc/project/spaces/{projectID}/libs/{libID}/docs` |
-| `list` | 获取我的文档库目录列表 | `GET` | `/doc/my/spaces/{spaceID}/libs/{libID}/modules` |
-| `list` | 获取团队文档库目录列表 | `GET` | `/doc/team/spaces/{spaceID}/libs/{libID}/modules` |
-| `list` | 获取产品文档库目录列表 | `GET` | `/doc/product/spaces/{productID}/libs/{libID}/modules` |
-| `list` | 获取项目文档库目录列表 | `GET` | `/doc/project/spaces/{projectID}/libs/{libID}/modules` |
-| `create` | 创建我的文档空间 | `POST` | `/doc/my/spaces` |
-| `create` | 创建团队文档空间 | `POST` | `/doc/team/spaces` |
-| `create` | 创建我的文档库 | `POST` | `/doc/my/spaces/{spaceID}/libs` |
-| `create` | 创建团队文档库 | `POST` | `/doc/team/spaces/{spaceID}/libs` |
-| `create` | 创建产品文档库 | `POST` | `/doc/product/spaces/{productID}/libs` |
-| `create` | 创建项目文档库 | `POST` | `/doc/project/spaces/{projectID}/libs` |
-| `create` | 创建我的文档 | `POST` | `/doc/my/spaces/{spaceID}/libs/{libID}/docs` |
-| `create` | 创建团队文档 | `POST` | `/doc/team/spaces/{spaceID}/libs/{libID}/docs` |
-| `create` | 创建产品文档 | `POST` | `/doc/product/spaces/{productID}/libs/{libID}/docs` |
-| `create` | 创建项目文档 | `POST` | `/doc/project/spaces/{projectID}/libs/{libID}/docs` |
-| `create` | 创建我的文档库目录 | `POST` | `/doc/my/spaces/{spaceID}/libs/{libID}/modules` |
-| `create` | 创建团队文档库目录 | `POST` | `/doc/team/spaces/{spaceID}/libs/{libID}/modules` |
-| `create` | 创建产品文档库目录 | `POST` | `/doc/product/spaces/{productID}/libs/{libID}/modules` |
-| `create` | 创建项目文档库目录 | `POST` | `/doc/project/spaces/{projectID}/libs/{libID}/modules` |
-| `get` | 获取文档空间详情 | `GET` | `/doc/spaces/{spaceID}` |
-| `get` | 获取文档库详情 | `GET` | `/doc/libs/{libID}` |
+| `doc-mySpaces` | 获取我的文档空间列表 | `GET` | `/doc/my/spaces` |
+| `doc-teamSpaces` | 获取团队文档空间列表 | `GET` | `/doc/team/spaces` |
+| `doc-productSpaces` | 获取产品文档空间列表 | `GET` | `/doc/product/spaces` |
+| `doc-projectSpaces` | 获取项目文档空间列表 | `GET` | `/doc/project/spaces` |
+| `doc-myLibs` | 获取我的文档库列表 | `GET` | `/doc/my/spaces/{spaceID}/libs` |
+| `doc-teamLibs` | 获取团队文档库列表 | `GET` | `/doc/team/spaces/{spaceID}/libs` |
+| `doc-productLibs` | 获取产品文档库列表 | `GET` | `/doc/product/spaces/{productID}/libs` |
+| `doc-projectLibs` | 获取项目文档库列表 | `GET` | `/doc/project/spaces/{projectID}/libs` |
+| `doc-myDocs` | 获取我的文档列表 | `GET` | `/doc/my/spaces/{spaceID}/libs/{libID}/docs` |
+| `doc-teamDocs` | 获取团队文档列表 | `GET` | `/doc/team/spaces/{spaceID}/libs/{libID}/docs` |
+| `doc-productDocs` | 获取产品文档列表 | `GET` | `/doc/product/spaces/{productID}/libs/{libID}/docs` |
+| `doc-projectDocs` | 获取项目文档列表 | `GET` | `/doc/project/spaces/{projectID}/libs/{libID}/docs` |
+| `doc-myModules` | 获取我的文档库目录列表 | `GET` | `/doc/my/spaces/{spaceID}/libs/{libID}/modules` |
+| `doc-teamModules` | 获取团队文档库目录列表 | `GET` | `/doc/team/spaces/{spaceID}/libs/{libID}/modules` |
+| `doc-productModules` | 获取产品文档库目录列表 | `GET` | `/doc/product/spaces/{productID}/libs/{libID}/modules` |
+| `doc-projectModules` | 获取项目文档库目录列表 | `GET` | `/doc/project/spaces/{projectID}/libs/{libID}/modules` |
+| `doc-createMySpace` | 创建我的文档空间 | `POST` | `/doc/my/spaces` |
+| `doc-createTeamSpace` | 创建团队文档空间 | `POST` | `/doc/team/spaces` |
+| `doc-createMyLib` | 创建我的文档库 | `POST` | `/doc/my/spaces/{spaceID}/libs` |
+| `doc-createTeamLib` | 创建团队文档库 | `POST` | `/doc/team/spaces/{spaceID}/libs` |
+| `doc-createProductLib` | 创建产品文档库 | `POST` | `/doc/product/spaces/{productID}/libs` |
+| `doc-createProjectLib` | 创建项目文档库 | `POST` | `/doc/project/spaces/{projectID}/libs` |
+| `doc-createMyDoc` | 创建我的文档 | `POST` | `/doc/my/spaces/{spaceID}/libs/{libID}/docs` |
+| `doc-createTeamDoc` | 创建团队文档 | `POST` | `/doc/team/spaces/{spaceID}/libs/{libID}/docs` |
+| `doc-createProductDoc` | 创建产品文档 | `POST` | `/doc/product/spaces/{productID}/libs/{libID}/docs` |
+| `doc-createProjectDoc` | 创建项目文档 | `POST` | `/doc/project/spaces/{projectID}/libs/{libID}/docs` |
+| `doc-createMyModule` | 创建我的文档库目录 | `POST` | `/doc/my/spaces/{spaceID}/libs/{libID}/modules` |
+| `doc-createTeamModule` | 创建团队文档库目录 | `POST` | `/doc/team/spaces/{spaceID}/libs/{libID}/modules` |
+| `doc-createProductModule` | 创建产品文档库目录 | `POST` | `/doc/product/spaces/{productID}/libs/{libID}/modules` |
+| `doc-createProjectModule` | 创建项目文档库目录 | `POST` | `/doc/project/spaces/{projectID}/libs/{libID}/modules` |
+| `doc-getSpace` | 获取文档空间详情 | `GET` | `/doc/spaces/{spaceID}` |
+| `doc-getLib` | 获取文档库详情 | `GET` | `/doc/libs/{libID}` |
 | `get` | 获取文档详情 | `GET` | `/doc/docs/{docID}` |
-| `update` | 修改文档空间 | `PUT` | `/doc/spaces/{spaceID}` |
-| `update` | 修改文档库 | `PUT` | `/doc/libs/{libID}` |
+| `doc-updateSpace` | 修改文档空间 | `PUT` | `/doc/spaces/{spaceID}` |
+| `doc-updateLib` | 修改文档库 | `PUT` | `/doc/libs/{libID}` |
 | `update` | 修改文档 | `PUT` | `/doc/docs/{docID}` |
-| `update` | 修改文档库目录 | `PUT` | `/doc/modules/{moduleID}` |
-| `delete` | 删除文档空间 | `DELETE` | `/doc/spaces/{spaceID}` |
-| `delete` | 删除文档库 | `DELETE` | `/doc/libs/{libID}` |
+| `doc-updateModule` | 修改文档库目录 | `PUT` | `/doc/modules/{moduleID}` |
+| `doc-deleteSpace` | 删除文档空间 | `DELETE` | `/doc/spaces/{spaceID}` |
+| `doc-deleteLib` | 删除文档库 | `DELETE` | `/doc/libs/{libID}` |
 | `delete` | 删除文档 | `DELETE` | `/doc/docs/{docID}` |
-| `delete` | 删除文档库目录 | `DELETE` | `/doc/modules/{moduleID}` |
+| `doc-deleteModule` | 删除文档库目录 | `DELETE` | `/doc/modules/{moduleID}` |
 
 ## 获取我的文档空间列表
 
-- SDK 调用：`request("doc/list", params)`
+- SDK 调用：`request("doc/doc-mySpaces", params)`
 - HTTP：`GET /doc/my/spaces`
 - 动作类型：`list`
 
@@ -77,11 +77,11 @@
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/list");
+const result = await request("doc/doc-mySpaces");
 ```
 ## 获取团队文档空间列表
 
-- SDK 调用：`request("doc/list", params)`
+- SDK 调用：`request("doc/doc-teamSpaces", params)`
 - HTTP：`GET /doc/team/spaces`
 - 动作类型：`list`
 
@@ -108,11 +108,11 @@ const result = await request("doc/list");
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/list");
+const result = await request("doc/doc-teamSpaces");
 ```
 ## 获取产品文档空间列表
 
-- SDK 调用：`request("doc/list", params)`
+- SDK 调用：`request("doc/doc-productSpaces", params)`
 - HTTP：`GET /doc/product/spaces`
 - 动作类型：`list`
 
@@ -139,11 +139,11 @@ const result = await request("doc/list");
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/list");
+const result = await request("doc/doc-productSpaces");
 ```
 ## 获取项目文档空间列表
 
-- SDK 调用：`request("doc/list", params)`
+- SDK 调用：`request("doc/doc-projectSpaces", params)`
 - HTTP：`GET /doc/project/spaces`
 - 动作类型：`list`
 
@@ -170,11 +170,11 @@ const result = await request("doc/list");
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/list");
+const result = await request("doc/doc-projectSpaces");
 ```
 ## 获取我的文档库列表
 
-- SDK 调用：`request("doc/list", params)`
+- SDK 调用：`request("doc/doc-myLibs", params)`
 - HTTP：`GET /doc/my/spaces/{spaceID}/libs`
 - 动作类型：`list`
 
@@ -201,11 +201,11 @@ const result = await request("doc/list");
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/list");
+const result = await request("doc/doc-myLibs");
 ```
 ## 获取团队文档库列表
 
-- SDK 调用：`request("doc/list", params)`
+- SDK 调用：`request("doc/doc-teamLibs", params)`
 - HTTP：`GET /doc/team/spaces/{spaceID}/libs`
 - 动作类型：`list`
 
@@ -232,11 +232,11 @@ const result = await request("doc/list");
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/list");
+const result = await request("doc/doc-teamLibs");
 ```
 ## 获取产品文档库列表
 
-- SDK 调用：`request("doc/list", params)`
+- SDK 调用：`request("doc/doc-productLibs", params)`
 - HTTP：`GET /doc/product/spaces/{productID}/libs`
 - 动作类型：`list`
 
@@ -263,11 +263,11 @@ const result = await request("doc/list");
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/list");
+const result = await request("doc/doc-productLibs");
 ```
 ## 获取项目文档库列表
 
-- SDK 调用：`request("doc/list", params)`
+- SDK 调用：`request("doc/doc-projectLibs", params)`
 - HTTP：`GET /doc/project/spaces/{projectID}/libs`
 - 动作类型：`list`
 
@@ -294,11 +294,11 @@ const result = await request("doc/list");
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/list");
+const result = await request("doc/doc-projectLibs");
 ```
 ## 获取我的文档列表
 
-- SDK 调用：`request("doc/list", params)`
+- SDK 调用：`request("doc/doc-myDocs", params)`
 - HTTP：`GET /doc/my/spaces/{spaceID}/libs/{libID}/docs`
 - 动作类型：`list`
 
@@ -324,11 +324,11 @@ const result = await request("doc/list");
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/list");
+const result = await request("doc/doc-myDocs");
 ```
 ## 获取团队文档列表
 
-- SDK 调用：`request("doc/list", params)`
+- SDK 调用：`request("doc/doc-teamDocs", params)`
 - HTTP：`GET /doc/team/spaces/{spaceID}/libs/{libID}/docs`
 - 动作类型：`list`
 
@@ -354,11 +354,11 @@ const result = await request("doc/list");
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/list");
+const result = await request("doc/doc-teamDocs");
 ```
 ## 获取产品文档列表
 
-- SDK 调用：`request("doc/list", params)`
+- SDK 调用：`request("doc/doc-productDocs", params)`
 - HTTP：`GET /doc/product/spaces/{productID}/libs/{libID}/docs`
 - 动作类型：`list`
 
@@ -384,11 +384,11 @@ const result = await request("doc/list");
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/list");
+const result = await request("doc/doc-productDocs");
 ```
 ## 获取项目文档列表
 
-- SDK 调用：`request("doc/list", params)`
+- SDK 调用：`request("doc/doc-projectDocs", params)`
 - HTTP：`GET /doc/project/spaces/{projectID}/libs/{libID}/docs`
 - 动作类型：`list`
 
@@ -414,11 +414,11 @@ const result = await request("doc/list");
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/list");
+const result = await request("doc/doc-projectDocs");
 ```
 ## 获取我的文档库目录列表
 
-- SDK 调用：`request("doc/list", params)`
+- SDK 调用：`request("doc/doc-myModules", params)`
 - HTTP：`GET /doc/my/spaces/{spaceID}/libs/{libID}/modules`
 - 动作类型：`list`
 
@@ -445,11 +445,11 @@ const result = await request("doc/list");
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/list");
+const result = await request("doc/doc-myModules");
 ```
 ## 获取团队文档库目录列表
 
-- SDK 调用：`request("doc/list", params)`
+- SDK 调用：`request("doc/doc-teamModules", params)`
 - HTTP：`GET /doc/team/spaces/{spaceID}/libs/{libID}/modules`
 - 动作类型：`list`
 
@@ -476,11 +476,11 @@ const result = await request("doc/list");
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/list");
+const result = await request("doc/doc-teamModules");
 ```
 ## 获取产品文档库目录列表
 
-- SDK 调用：`request("doc/list", params)`
+- SDK 调用：`request("doc/doc-productModules", params)`
 - HTTP：`GET /doc/product/spaces/{productID}/libs/{libID}/modules`
 - 动作类型：`list`
 
@@ -507,11 +507,11 @@ const result = await request("doc/list");
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/list");
+const result = await request("doc/doc-productModules");
 ```
 ## 获取项目文档库目录列表
 
-- SDK 调用：`request("doc/list", params)`
+- SDK 调用：`request("doc/doc-projectModules", params)`
 - HTTP：`GET /doc/project/spaces/{projectID}/libs/{libID}/modules`
 - 动作类型：`list`
 
@@ -538,11 +538,11 @@ const result = await request("doc/list");
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/list");
+const result = await request("doc/doc-projectModules");
 ```
 ## 创建我的文档空间
 
-- SDK 调用：`request("doc/create", params)`
+- SDK 调用：`request("doc/doc-createMySpace", params)`
 - HTTP：`POST /doc/my/spaces`
 - 动作类型：`create`
 
@@ -592,13 +592,13 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/create", {
+const result = await request("doc/doc-createMySpace", {
   "name": "<string>"
 });
 ```
 ## 创建团队文档空间
 
-- SDK 调用：`request("doc/create", params)`
+- SDK 调用：`request("doc/doc-createTeamSpace", params)`
 - HTTP：`POST /doc/team/spaces`
 - 动作类型：`create`
 
@@ -648,13 +648,13 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/create", {
+const result = await request("doc/doc-createTeamSpace", {
   "name": "<string>"
 });
 ```
 ## 创建我的文档库
 
-- SDK 调用：`request("doc/create", params)`
+- SDK 调用：`request("doc/doc-createMyLib", params)`
 - HTTP：`POST /doc/my/spaces/{spaceID}/libs`
 - 动作类型：`create`
 
@@ -706,14 +706,14 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/create", {
+const result = await request("doc/doc-createMyLib", {
   "spaceID": 1,
   "name": "<string>"
 });
 ```
 ## 创建团队文档库
 
-- SDK 调用：`request("doc/create", params)`
+- SDK 调用：`request("doc/doc-createTeamLib", params)`
 - HTTP：`POST /doc/team/spaces/{spaceID}/libs`
 - 动作类型：`create`
 
@@ -790,7 +790,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/create", {
+const result = await request("doc/doc-createTeamLib", {
   "spaceID": 1,
   "name": "<string>",
   "acl": "<string>",
@@ -804,7 +804,7 @@ const result = await request("doc/create", {
 ```
 ## 创建产品文档库
 
-- SDK 调用：`request("doc/create", params)`
+- SDK 调用：`request("doc/doc-createProductLib", params)`
 - HTTP：`POST /doc/product/spaces/{productID}/libs`
 - 动作类型：`create`
 
@@ -881,7 +881,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/create", {
+const result = await request("doc/doc-createProductLib", {
   "productID": 1,
   "name": "<string>",
   "acl": "<string>",
@@ -895,7 +895,7 @@ const result = await request("doc/create", {
 ```
 ## 创建项目文档库
 
-- SDK 调用：`request("doc/create", params)`
+- SDK 调用：`request("doc/doc-createProjectLib", params)`
 - HTTP：`POST /doc/project/spaces/{projectID}/libs`
 - 动作类型：`create`
 
@@ -972,7 +972,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/create", {
+const result = await request("doc/doc-createProjectLib", {
   "projectID": 1,
   "name": "<string>",
   "acl": "<string>",
@@ -986,7 +986,7 @@ const result = await request("doc/create", {
 ```
 ## 创建我的文档
 
-- SDK 调用：`request("doc/create", params)`
+- SDK 调用：`request("doc/doc-createMyDoc", params)`
 - HTTP：`POST /doc/my/spaces/{spaceID}/libs/{libID}/docs`
 - 动作类型：`create`
 
@@ -1051,7 +1051,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/create", {
+const result = await request("doc/doc-createMyDoc", {
   "spaceID": 1,
   "libID": 1,
   "moduleID": 1,
@@ -1061,7 +1061,7 @@ const result = await request("doc/create", {
 ```
 ## 创建团队文档
 
-- SDK 调用：`request("doc/create", params)`
+- SDK 调用：`request("doc/doc-createTeamDoc", params)`
 - HTTP：`POST /doc/team/spaces/{spaceID}/libs/{libID}/docs`
 - 动作类型：`create`
 
@@ -1126,7 +1126,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/create", {
+const result = await request("doc/doc-createTeamDoc", {
   "spaceID": 1,
   "libID": 1,
   "moduleID": 1,
@@ -1136,7 +1136,7 @@ const result = await request("doc/create", {
 ```
 ## 创建产品文档
 
-- SDK 调用：`request("doc/create", params)`
+- SDK 调用：`request("doc/doc-createProductDoc", params)`
 - HTTP：`POST /doc/product/spaces/{productID}/libs/{libID}/docs`
 - 动作类型：`create`
 
@@ -1201,7 +1201,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/create", {
+const result = await request("doc/doc-createProductDoc", {
   "productID": 1,
   "libID": 1,
   "moduleID": 1,
@@ -1211,7 +1211,7 @@ const result = await request("doc/create", {
 ```
 ## 创建项目文档
 
-- SDK 调用：`request("doc/create", params)`
+- SDK 调用：`request("doc/doc-createProjectDoc", params)`
 - HTTP：`POST /doc/project/spaces/{projectID}/libs/{libID}/docs`
 - 动作类型：`create`
 
@@ -1276,7 +1276,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/create", {
+const result = await request("doc/doc-createProjectDoc", {
   "projectID": 1,
   "libID": 1,
   "moduleID": 1,
@@ -1286,7 +1286,7 @@ const result = await request("doc/create", {
 ```
 ## 创建我的文档库目录
 
-- SDK 调用：`request("doc/create", params)`
+- SDK 调用：`request("doc/doc-createMyModule", params)`
 - HTTP：`POST /doc/my/spaces/{spaceID}/libs/{libID}/modules`
 - 动作类型：`create`
 
@@ -1345,7 +1345,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/create", {
+const result = await request("doc/doc-createMyModule", {
   "spaceID": 1,
   "libID": 1,
   "name": "<string>",
@@ -1354,7 +1354,7 @@ const result = await request("doc/create", {
 ```
 ## 创建团队文档库目录
 
-- SDK 调用：`request("doc/create", params)`
+- SDK 调用：`request("doc/doc-createTeamModule", params)`
 - HTTP：`POST /doc/team/spaces/{spaceID}/libs/{libID}/modules`
 - 动作类型：`create`
 
@@ -1413,7 +1413,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/create", {
+const result = await request("doc/doc-createTeamModule", {
   "spaceID": 1,
   "libID": 1,
   "name": "<string>",
@@ -1422,7 +1422,7 @@ const result = await request("doc/create", {
 ```
 ## 创建产品文档库目录
 
-- SDK 调用：`request("doc/create", params)`
+- SDK 调用：`request("doc/doc-createProductModule", params)`
 - HTTP：`POST /doc/product/spaces/{productID}/libs/{libID}/modules`
 - 动作类型：`create`
 
@@ -1481,7 +1481,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/create", {
+const result = await request("doc/doc-createProductModule", {
   "productID": 1,
   "libID": 1,
   "name": "<string>",
@@ -1490,7 +1490,7 @@ const result = await request("doc/create", {
 ```
 ## 创建项目文档库目录
 
-- SDK 调用：`request("doc/create", params)`
+- SDK 调用：`request("doc/doc-createProjectModule", params)`
 - HTTP：`POST /doc/project/spaces/{projectID}/libs/{libID}/modules`
 - 动作类型：`create`
 
@@ -1549,7 +1549,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/create", {
+const result = await request("doc/doc-createProjectModule", {
   "projectID": 1,
   "libID": 1,
   "name": "<string>",
@@ -1558,7 +1558,7 @@ const result = await request("doc/create", {
 ```
 ## 获取文档空间详情
 
-- SDK 调用：`request("doc/get", params)`
+- SDK 调用：`request("doc/doc-getSpace", params)`
 - HTTP：`GET /doc/spaces/{spaceID}`
 - 动作类型：`get`
 
@@ -1586,13 +1586,13 @@ const result = await request("doc/create", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/get", {
+const result = await request("doc/doc-getSpace", {
   "spaceID": 1
 });
 ```
 ## 获取文档库详情
 
-- SDK 调用：`request("doc/get", params)`
+- SDK 调用：`request("doc/doc-getLib", params)`
 - HTTP：`GET /doc/libs/{libID}`
 - 动作类型：`get`
 
@@ -1620,7 +1620,7 @@ const result = await request("doc/get", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/get", {
+const result = await request("doc/doc-getLib", {
   "libID": 1
 });
 ```
@@ -1660,7 +1660,7 @@ const result = await request("doc/get", {
 ```
 ## 修改文档空间
 
-- SDK 调用：`request("doc/update", params)`
+- SDK 调用：`request("doc/doc-updateSpace", params)`
 - HTTP：`PUT /doc/spaces/{spaceID}`
 - 动作类型：`update`
 
@@ -1712,14 +1712,14 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/update", {
+const result = await request("doc/doc-updateSpace", {
   "spaceID": 1,
   "name": "<string>"
 });
 ```
 ## 修改文档库
 
-- SDK 调用：`request("doc/update", params)`
+- SDK 调用：`request("doc/doc-updateLib", params)`
 - HTTP：`PUT /doc/libs/{libID}`
 - 动作类型：`update`
 
@@ -1796,7 +1796,7 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/update", {
+const result = await request("doc/doc-updateLib", {
   "libID": 1,
   "name": "<string>",
   "acl": "<string>",
@@ -1883,7 +1883,7 @@ const result = await request("doc/update", {
 ```
 ## 修改文档库目录
 
-- SDK 调用：`request("doc/update", params)`
+- SDK 调用：`request("doc/doc-updateModule", params)`
 - HTTP：`PUT /doc/modules/{moduleID}`
 - 动作类型：`update`
 
@@ -1935,14 +1935,14 @@ Schema:
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/update", {
+const result = await request("doc/doc-updateModule", {
   "moduleID": 1,
   "name": "<string>"
 });
 ```
 ## 删除文档空间
 
-- SDK 调用：`request("doc/delete", params)`
+- SDK 调用：`request("doc/doc-deleteSpace", params)`
 - HTTP：`DELETE /doc/spaces/{spaceID}`
 - 动作类型：`delete`
 
@@ -1969,13 +1969,13 @@ const result = await request("doc/update", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/delete", {
+const result = await request("doc/doc-deleteSpace", {
   "spaceID": 1
 });
 ```
 ## 删除文档库
 
-- SDK 调用：`request("doc/delete", params)`
+- SDK 调用：`request("doc/doc-deleteLib", params)`
 - HTTP：`DELETE /doc/libs/{libID}`
 - 动作类型：`delete`
 
@@ -2002,7 +2002,7 @@ const result = await request("doc/delete", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/delete", {
+const result = await request("doc/doc-deleteLib", {
   "libID": 1
 });
 ```
@@ -2041,7 +2041,7 @@ const result = await request("doc/delete", {
 ```
 ## 删除文档库目录
 
-- SDK 调用：`request("doc/delete", params)`
+- SDK 调用：`request("doc/doc-deleteModule", params)`
 - HTTP：`DELETE /doc/modules/{moduleID}`
 - 动作类型：`delete`
 
@@ -2068,7 +2068,7 @@ const result = await request("doc/delete", {
 ```ts
 import { request } from 'zentao-api';
 
-const result = await request("doc/delete", {
+const result = await request("doc/doc-deleteModule", {
   "moduleID": 1
 });
 ```
