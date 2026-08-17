@@ -78,6 +78,13 @@ const TAG_DISPLAY: Record<string, string> = {
     testtask: '测试单',
     release: '发布',
     file: '附件',
+    issue: '问题',
+    risk: '风险',
+    meeting: '会议',
+    workflow: '工作流',
+    doc: '文档',
+    todo: '待办',
+    my: '地盘',
 };
 
 const SCOPE_LABELS: Record<string, string> = {
@@ -90,6 +97,11 @@ const SCOPE_LABELS: Record<string, string> = {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+/** Convert `{paramName}` to `:paramName` so OpenAPI brace paths reuse colon-style helpers */
+function braceToColon(path: string): string {
+    return path.replace(/\{(\w+)\}/g, ':$1');
+}
 
 /** Convert `:paramName` to `{paramName}` */
 function colonToBrace(path: string): string {
@@ -132,7 +144,17 @@ const PARAM_DESCRIPTION: Record<string, string> = {
     buildID: '版本ID',
     testtaskID: '测试单ID',
     releasID: '发布ID',
+    releaseID: '发布ID',
     fileID: '附件ID',
+    issueID: '问题ID',
+    riskID: '风险ID',
+    meetingID: '会议ID',
+    docID: '文档ID',
+    todoID: '待办ID',
+    libID: '文档库ID',
+    spaceID: '空间ID',
+    moduleID: '模块ID',
+    contractID: '合同ID',
 };
 
 /** Get a Chinese description from a param name */
@@ -438,7 +460,8 @@ function buildRegistry(): RegistryBuildResult {
     type OpEntry = { path: string; method: string; op: OpenAPIOperation };
     const tagOps = new Map<string, OpEntry[]>();
 
-    for (const [path, methods] of Object.entries(doc.paths)) {
+    for (const [rawPath, methods] of Object.entries(doc.paths)) {
+        const path = braceToColon(rawPath);
         for (const [method, op] of Object.entries(methods)) {
             const tag = op.tags?.[0];
             if (!tag || tag === 'Token') continue;
@@ -454,6 +477,7 @@ function buildRegistry(): RegistryBuildResult {
         .filter(t => t !== 'token' && tagOps.has(t));
 
     const modules: string[] = [];
+    const actionMetaByModule: Array<{ name: string; actions: Map<string, ClassifiedAction['resultType']> }> = [];
 
     for (const tagName of tagOrder) {
         const ops = tagOps.get(tagName)!;
@@ -484,6 +508,11 @@ function buildRegistry(): RegistryBuildResult {
         // Build actions - each entry is the lines BETWEEN { and } (not including the braces)
         const actionBodies: string[] = [];
         const actionDisplayNames: string[] = [];
+        const actionMeta = new Map<string, ClassifiedAction['resultType']>();
+
+        const recordActionMeta = (name: string, resultType: ClassifiedAction['resultType']) => {
+            if (!actionMeta.has(name)) actionMeta.set(name, resultType);
+        };
 
         // If there are scoped lists and NO top-level list, merge them into one
         if (scopedLists.length > 0 && !topLevelListOp) {
@@ -531,6 +560,7 @@ function buildRegistry(): RegistryBuildResult {
                 body += `                ],\n`;
             }
             actionBodies.push(body);
+            recordActionMeta('list', 'list');
         }
 
         // Process direct operations (including top-level list)
@@ -603,6 +633,7 @@ function buildRegistry(): RegistryBuildResult {
             }
 
             actionBodies.push(body);
+            recordActionMeta(actionName, resultType);
         }
 
         // Compose module description
@@ -628,6 +659,7 @@ function buildRegistry(): RegistryBuildResult {
         moduleStr += `        ],\n`;
         moduleStr += `    }`;
         modules.push(moduleStr);
+        actionMetaByModule.push({ name: tagName, actions: actionMeta });
     }
 
     // Assemble final output
@@ -640,7 +672,18 @@ function buildRegistry(): RegistryBuildResult {
     output += ` */\n`;
     output += `export const BUILTIN_MODULES = [\n`;
     output += modules.join(',\n\n');
-    output += `\n] as const satisfies readonly ModuleDefinition[];\n`;
+    output += `\n] satisfies readonly ModuleDefinition[];\n\n`;
+    output += `/** 内置模块动作的精简类型索引，供 request() 名称/返回值推导使用。 */\n`;
+    output += `export type BuiltinActionMeta = {\n`;
+    for (const module of actionMetaByModule) {
+        output += `    ${module.name}: {\n`;
+        for (const [actionName, resultType] of module.actions) {
+            output += `        ${actionName}: { resultType: '${resultType}' };\n`;
+        }
+        output += `    };\n`;
+    }
+    output += `};\n`;
+    output += `export type BuiltinModuleName = keyof BuiltinActionMeta;\n`;
 
     return {
         output,

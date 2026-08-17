@@ -39,6 +39,23 @@ describe('module registry', () => {
     expect(getModuleAction('product', 'list')!.path).toBe('/products');
   });
 
+  test('classifies OpenAPI brace-style detail paths as get', () => {
+    const action = getModuleAction('product', 'get');
+    expect(action).toBeDefined();
+    expect(action!.type).toBe('get');
+    expect(action!.path).toBe('/products/{productID}');
+    expect(action!.pathParams?.productID).toBe('产品ID');
+  });
+
+  test('classifies OpenAPI brace-style verb paths as named actions', () => {
+    const action = getModuleAction('story', 'activate');
+    expect(action).toBeDefined();
+    expect(action!.type).toBe('action');
+    expect(action!.method).toBe('put');
+    expect(action!.path).toBe('/stories/{storyID}/activate');
+    expect(action!.pathParams?.storyID).toBe('需求ID');
+  });
+
   test('defineModules merges same-name generated modules by default', () => {
     const extension: ModuleDefinition = {
       name: 'product',

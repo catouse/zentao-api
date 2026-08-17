@@ -15,10 +15,7 @@
     "BuiltinListRequestName",
     "BuiltinNamedRequestName",
     "BuiltinIdRequestName",
-    "PathParams",
-    "ActionOfRequest",
-    "QueryParams",
-    "BodyParams"
+    "ActionMetaOf"
   ],
   "externalSymbolLinkMappings": {
     "typescript": {

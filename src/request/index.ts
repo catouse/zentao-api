@@ -2,16 +2,13 @@ import { ZentaoError } from '../misc/errors.js';
 import { getGlobalOptions } from '../misc/global-options.js';
 import type { DataRecord, HttpMethod, ModuleAction, ModuleDefinition, ProcessListOptions, RequestOptions, ResponseData } from '../types/index.js';
 import { getModule, getModuleAction } from '../modules/registry.js';
-import type { BUILTIN_MODULES } from '../modules/generated.js';
+import type { BuiltinActionMeta, BuiltinModuleName } from '../modules/generated.js';
 import { extractPager, extractResult, resolveActionRequest } from '../modules/resolve.js';
 import { isRecord, processData } from '../utils/index.js';
 
 type RequestProcessOptions = ProcessListOptions & Pick<RequestOptions, 'convertSingle'>;
 
-type BuiltinModuleDefinition = (typeof BUILTIN_MODULES)[number];
-type BuiltinModuleName = BuiltinModuleDefinition['name'];
-type BuiltinAction<M extends BuiltinModuleName> = Extract<BuiltinModuleDefinition, { name: M }>['actions'][number];
-type BuiltinActionName<M extends BuiltinModuleName> = BuiltinAction<M>['name'] & string;
+type BuiltinActionName<M extends BuiltinModuleName> = Extract<keyof BuiltinActionMeta[M], string>;
 type BuiltinListRequestName = BuiltinModuleName;
 type BuiltinNamedRequestName = {
   [M in BuiltinModuleName]: `${M}/${BuiltinActionName<M>}`;
@@ -25,71 +22,21 @@ type ModuleNameOf<Name extends BuiltinRequestName> = Name extends `${infer M}/${
 type ActionNameOf<Name extends BuiltinRequestName> = Name extends `${string}/${infer A}`
   ? A extends `${number}` ? 'get' : A
   : 'list';
-type ActionOfRequest<Name extends BuiltinRequestName> = Extract<
-  BuiltinAction<ModuleNameOf<Name>>,
-  { name: ActionNameOf<Name> }
->;
+type ActionMetaOf<Name extends BuiltinRequestName> =
+  ModuleNameOf<Name> extends infer M extends BuiltinModuleName
+    ? ActionNameOf<Name> extends infer A
+      ? A extends keyof BuiltinActionMeta[M]
+        ? BuiltinActionMeta[M][A]
+        : { resultType: 'object' }
+      : never
+    : never;
 
-type UnionToIntersection<T> = (T extends unknown ? (value: T) => void : never) extends (value: infer R) => void ? R : never;
-type NumericInput = number | `${number}`;
-type BooleanInput = boolean | 0 | 1 | 'true' | 'false' | '1' | '0' | 'yes' | 'no' | 'on' | 'off';
-type OptionValue<T> = T extends readonly (infer Option)[] ? Option extends { value: infer Value } ? Value : never : never;
-type ParamInput<T> =
-  (T extends { options: infer Options } ? OptionValue<Options> : never) |
-  (T extends { type: 'number' | 'integer' } ? NumericInput :
-    T extends { type: 'boolean' } ? BooleanInput :
-      string);
-type QueryParams<A> = A extends { params: readonly (infer Param)[] }
-  ? UnionToIntersection<Param extends { name: infer Name extends string } ? { [K in Name]?: ParamInput<Param> } : unknown>
-  : {};
-
-type SchemaProperties<S> = S extends { properties: infer Properties } ? Properties : {};
-type SchemaRequiredKeys<S> = S extends { required: readonly (infer Key)[] }
-  ? Extract<Key, keyof SchemaProperties<S> & string>
-  : never;
-type SchemaValue<S> = S extends { type: 'integer' | 'number' }
-  ? NumericInput
-  : S extends { type: 'boolean' }
-    ? BooleanInput
-    : S extends { type: 'array'; items?: infer Items }
-      ? Array<SchemaValue<Items>> | readonly SchemaValue<Items>[] | string | Record<string, unknown>
-      : S extends { type: 'object' }
-        ? Record<string, unknown>
-        : string;
-type BodyParams<A> = A extends { requestBody: { schema: infer Schema } }
-  ? {
-    [K in SchemaRequiredKeys<Schema>]: SchemaValue<SchemaProperties<Schema>[K]>;
-  } & {
-    [K in Exclude<keyof SchemaProperties<Schema> & string, SchemaRequiredKeys<Schema>>]?: SchemaValue<SchemaProperties<Schema>[K]>;
-  } & {
-    data?: string | Partial<{ [K in keyof SchemaProperties<Schema> & string]: SchemaValue<SchemaProperties<Schema>[K]> }>;
-  }
-  : { data?: string | Record<string, unknown> };
-type ScopedParams<PathParams> = 'scope' extends keyof PathParams ? {
-  scope?: 'products' | 'projects' | 'executions' | (string & {});
-  scopeID?: string | number;
-  product?: string | number;
-  productID?: string | number;
-  project?: string | number;
-  projectID?: string | number;
-  execution?: string | number;
-  executionID?: string | number;
-} : {};
-type PathParams<A> = A extends { pathParams: infer Params }
-  ? {
-    [K in Exclude<keyof Params & string, 'scope' | 'scopeID'>]?: string | number;
-  } & ScopedParams<Params> & { id?: string | number }
-  : { id?: string | number };
-/** 根据内置请求名推导出的参数类型。 */
-export type RequestParamsFor<Name extends BuiltinRequestName> = PathParams<ActionOfRequest<Name>>
-  & QueryParams<ActionOfRequest<Name>>
-  & BodyParams<ActionOfRequest<Name>>
-  & { page?: string | number; recPerPage?: string | number }
-  & Record<string, unknown>;
+/** 根据内置请求名推导出的参数类型。字段细节以运行时 registry 为准，这里保持可扩展。 */
+export type RequestParamsFor<Name extends BuiltinRequestName> = Record<string, unknown>;
 /** 根据内置请求名推导出的 `ResponseData.data` 类型。 */
-export type RequestResultFor<Name extends BuiltinRequestName> = ActionOfRequest<Name> extends { resultType: 'list' }
+export type RequestResultFor<Name extends BuiltinRequestName> = ActionMetaOf<Name> extends { resultType: 'list' }
   ? DataRecord[]
-  : ActionOfRequest<Name> extends { resultType: 'object' }
+  : ActionMetaOf<Name> extends { resultType: 'object' }
     ? DataRecord
     : unknown;
 
