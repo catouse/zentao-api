@@ -86,6 +86,7 @@ const result = await request("task/list", {
 ### 返回值
 
 - 返回形态：`list`
+- 结果字段：`tree`
 - 分页字段：`pager`
 
 ### SDK 示例
@@ -249,6 +250,7 @@ const result = await request("task/create", {
 ### 返回值
 
 - 返回形态：`object`
+- 结果字段：`task`
 
 ### SDK 示例
 

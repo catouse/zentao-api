@@ -221,6 +221,7 @@ const result = await request("epic/create", {
 ### 返回值
 
 - 返回形态：`object`
+- 结果字段：`epic`
 
 ### SDK 示例
 

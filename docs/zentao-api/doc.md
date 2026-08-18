@@ -336,6 +336,7 @@ const result = await request("doc/projectLibs", {
 ### 返回值
 
 - 返回形态：`list`
+- 结果字段：`docs`
 - 分页字段：`pager`
 
 ### SDK 示例
@@ -372,6 +373,7 @@ const result = await request("doc/myDocs", {
 ### 返回值
 
 - 返回形态：`list`
+- 结果字段：`docs`
 - 分页字段：`pager`
 
 ### SDK 示例
@@ -408,6 +410,7 @@ const result = await request("doc/teamDocs", {
 ### 返回值
 
 - 返回形态：`list`
+- 结果字段：`docs`
 - 分页字段：`pager`
 
 ### SDK 示例
@@ -444,6 +447,7 @@ const result = await request("doc/productDocs", {
 ### 返回值
 
 - 返回形态：`list`
+- 结果字段：`docs`
 - 分页字段：`pager`
 
 ### SDK 示例

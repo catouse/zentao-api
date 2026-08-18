@@ -56,8 +56,8 @@ interface OpenAPIDoc {
 }
 
 interface ActionMapping {
-    module: string;
-    name: string;
+    module?: string;
+    name?: string;
     [property: string]: unknown;
 }
 
@@ -156,12 +156,16 @@ function loadActionMap(path: string): ActionMap {
             throw new Error(`Invalid action mapping for "${rawKey}" in ${path}; expected an object.`);
         }
 
-        const { module, name, ...actionProperties } = rawMapping as Record<string, unknown>;
-        if (typeof module !== 'string' || module.trim() === '') {
+        const mapping = rawMapping as Record<string, unknown>;
+        const { module, name, ...actionProperties } = mapping;
+        if ('module' in mapping && (typeof module !== 'string' || module.trim() === '')) {
             throw new Error(`Invalid module mapping for "${rawKey}" in ${path}.`);
         }
-        if (typeof name !== 'string' || name.trim() === '') {
+        if ('name' in mapping && (typeof name !== 'string' || name.trim() === '')) {
             throw new Error(`Invalid action name mapping for "${rawKey}" in ${path}.`);
+        }
+        if (!('module' in mapping) && !('name' in mapping) && Object.keys(actionProperties).length === 0) {
+            throw new Error(`Empty action mapping for "${rawKey}" in ${path}.`);
         }
 
         const separator = rawKey.indexOf(' ');
@@ -180,8 +184,8 @@ function loadActionMap(path: string): ActionMap {
             throw new Error(`Duplicate API mapping key "${mappingKey}" in ${path}.`);
         }
         result[mappingKey] = {
-            module: module.trim().toLowerCase(),
-            name: name.trim(),
+            ...(typeof module === 'string' ? { module: module.trim().toLowerCase() } : {}),
+            ...(typeof name === 'string' ? { name: name.trim() } : {}),
             ...actionProperties,
         };
     }
@@ -575,6 +579,7 @@ interface ScopedListInfo {
     childResource: string;  // e.g. 'bugs'
     originalPath: string;
     operation: OpenAPIOperation;
+    mapping?: ActionMapping;
 }
 
 function parseScopedListPath(path: string): ScopedListInfo | null {
@@ -660,8 +665,9 @@ function buildRegistry(): RegistryBuildResult {
 
             if (actionType === 'list') {
                 const scoped = parseScopedListPath(entry.path);
-                if (scoped && !entry.mapping) {
+                if (scoped && !entry.mapping?.name) {
                     scoped.operation = entry.op;
+                    scoped.mapping = entry.mapping;
                     scopedLists.push(scoped);
                 } else {
                     const actionName = entry.mapping?.name ?? classification.name;
@@ -698,6 +704,26 @@ function buildRegistry(): RegistryBuildResult {
             const resultGetter = inferResultGetter(first.operation, 'list');
             const params = buildParams(first.operation.parameters);
             const summary = first.operation.summary ?? `获取${display}列表`;
+            const mappedProperties = new Map<string, unknown>();
+            for (const scoped of scopedLists) {
+                for (const [property, value] of Object.entries(scoped.mapping ?? {})) {
+                    if (property === 'module' || property === 'name') continue;
+                    if (mappedProperties.has(property)
+                        && JSON.stringify(mappedProperties.get(property)) !== JSON.stringify(value)) {
+                        throw new Error(
+                            `Conflicting mapped property "${property}" for merged ${moduleName}/list action.`,
+                        );
+                    }
+                    mappedProperties.set(property, value);
+                }
+            }
+            const mergedMapping = Object.fromEntries(mappedProperties) as ActionMapping;
+            const resultType = resolveActionResultType(
+                mergedMapping,
+                'list',
+                'list',
+                actionMapKey('get', first.originalPath),
+            );
 
             const scopeDisplayParts = scopeOptions.map(o => o.label).join('/');
             const listDisplay = `获取${display}列表，支持获取${scopeDisplayParts}下的${display}`;
@@ -705,37 +731,45 @@ function buildRegistry(): RegistryBuildResult {
 
             actionDisplayNames.push(listDisplay);
 
-            let body = ``;
-            body += `                name: 'list',\n`;
-            body += `                display: '${escapeStr(listDisplay)}',\n`;
-            body += `                type: 'list',\n`;
-            body += `                method: 'get',\n`;
+            const propertyBlocks = new Map<string, string>();
+            propertyBlocks.set('name', `                name: 'list',\n`);
+            propertyBlocks.set('display', `                display: '${escapeStr(listDisplay)}',\n`);
+            propertyBlocks.set('type', `                type: 'list',\n`);
+            propertyBlocks.set('method', `                method: 'get',\n`);
             // Single scope: use concrete path/params; multiple: abstract scope/scopeID
             if (singleScope) {
-                body += `                path: '${escapeStr(`/${first.parentResource}/{${first.parentParam}}/${first.childResource}`)}',\n`;
+                propertyBlocks.set('path', `                path: '${escapeStr(`/${first.parentResource}/{${first.parentParam}}/${first.childResource}`)}',\n`);
             } else {
-                body += `                path: '${escapeStr(`/{scope}/{scopeID}/${first.childResource}`)}',\n`;
+                propertyBlocks.set('path', `                path: '${escapeStr(`/{scope}/{scopeID}/${first.childResource}`)}',\n`);
             }
-            body += `                resultType: 'list',\n`;
-            body += `                pagerGetter: 'pager',\n`;
-            if (resultGetter) body += `                resultGetter: '${escapeStr(resultGetter)}',\n`;
-            body += `                pathParams: {\n`;
+            propertyBlocks.set('resultType', `                resultType: '${resultType}',\n`);
+            propertyBlocks.set('pagerGetter', `                pagerGetter: 'pager',\n`);
+            if (resultGetter) {
+                propertyBlocks.set('resultGetter', `                resultGetter: '${escapeStr(resultGetter)}',\n`);
+            }
+            let pathParamsBlock = `                pathParams: {\n`;
             if (singleScope) {
                 const scopeLabel = scopeOptions[0].label;
-                body += `                    ${first.parentParam}: '${escapeStr(`所属${scopeLabel}ID`)}',\n`;
+                pathParamsBlock += `                    ${first.parentParam}: '${escapeStr(`所属${scopeLabel}ID`)}',\n`;
             } else {
-                body += `                    scope: {description: '${escapeStr(`${display}所属范围`)}', options: [${scopeOptions.map(o => `{value: '${escapeStr(o.value)}', label: '${escapeStr(o.label)}'}`).join(', ')}]},\n`;
-                body += `                    scopeID: '所属范围ID',\n`;
+                pathParamsBlock += `                    scope: {description: '${escapeStr(`${display}所属范围`)}', options: [${scopeOptions.map(o => `{value: '${escapeStr(o.value)}', label: '${escapeStr(o.label)}'}`).join(', ')}]},\n`;
+                pathParamsBlock += `                    scopeID: '所属范围ID',\n`;
             }
-            body += `                },\n`;
+            pathParamsBlock += `                },\n`;
+            propertyBlocks.set('pathParams', pathParamsBlock);
             if (params) {
-                body += `                params: [\n`;
-                body += params.map(p => formatParam(p)).join('');
-                body += `                ],\n`;
+                let paramsBlock = `                params: [\n`;
+                paramsBlock += params.map(p => formatParam(p)).join('');
+                paramsBlock += `                ],\n`;
+                propertyBlocks.set('params', paramsBlock);
             }
+            for (const [property, value] of mappedProperties) {
+                propertyBlocks.set(property, formatMappedActionProperty(property, value));
+            }
+            const body = [...propertyBlocks.values()].join('');
             actionBodies.push(body);
-            recordAction('list', 'list', scopedLists.map(scoped =>
-                operationReference('get', scoped.originalPath),
+            recordAction('list', resultType, scopedLists.map(scoped =>
+                operationReference('get', scoped.originalPath, scoped.mapping),
             ));
         }
 

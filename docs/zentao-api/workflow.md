@@ -33,6 +33,7 @@
 ### 返回值
 
 - 返回形态：`list`
+- 结果字段：`dataList`
 - 分页字段：`pager`
 
 ### SDK 示例
@@ -63,6 +64,7 @@ const result = await request("workflow/list");
 ### 返回值
 
 - 返回形态：`object`
+- 结果字段：`data`
 
 ### SDK 示例
 

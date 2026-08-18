@@ -7,6 +7,7 @@ import {
   extendModuleAction,
   getModule,
   getModuleAction,
+  getModuleNames,
   getObjectProps,
   request,
   setGlobalOptions,
@@ -16,8 +17,8 @@ import {
 import { resetModuleDefinitions } from '../src/modules/registry';
 
 interface ApiActionMapping {
-  module: string;
-  name: string;
+  module?: string;
+  name?: string;
   [property: string]: unknown;
 }
 
@@ -56,17 +57,25 @@ describe('module registry', () => {
       const separator = api.indexOf(' ');
       const sourceMethod = api.slice(0, separator);
       const sourcePath = api.slice(separator + 1);
-      const action = getModuleAction(mapping.module, mapping.name);
       const expectedPath = typeof mapping.path === 'string' ? mapping.path : sourcePath;
       const expectedMethod = typeof mapping.method === 'string' ? mapping.method : sourceMethod;
+      const candidates = getModuleNames().flatMap(moduleName =>
+        getModule(moduleName)!.actions
+          .filter(action => action.path === expectedPath && action.method?.toLowerCase() === expectedMethod.toLowerCase())
+          .map(action => ({ moduleName, action })),
+      ).filter(candidate => !mapping.module || candidate.moduleName === mapping.module);
+      const candidate = candidates.find(({ action }) => !mapping.name || action.name === mapping.name);
+      const action = candidate?.action;
 
       expect(action, api).toBeDefined();
+      if (mapping.module) expect(candidate!.moduleName, `${api} module`).toBe(mapping.module);
+      if (mapping.name) expect(action!.name, `${api} name`).toBe(mapping.name);
       expect(action!.path, api).toBe(expectedPath);
       expect(action!.method?.toLowerCase(), api).toBe(
         expectedMethod.toLowerCase(),
       );
 
-      const { module: _module, ...actionProperties } = mapping;
+      const { module: _module, name: _name, ...actionProperties } = mapping;
       for (const [property, value] of Object.entries(actionProperties)) {
         expect((action as unknown as Record<string, unknown>)[property], `${api} ${property}`).toEqual(value);
       }
@@ -108,6 +117,17 @@ describe('module registry', () => {
       const modules = getModuleAction(moduleName, 'modules')!;
       expect(modules.path, `${moduleName}/modules`).toBe(modulesPath);
       expect(modules.pathParams?.[pathParam], `${moduleName}/modules ${pathParam}`).toBe(pathParamDescription);
+    }
+  });
+
+  test('defines resultGetter for every generated GET action', () => {
+    for (const moduleName of getModuleNames()) {
+      const module = getModule(moduleName)!;
+      for (const action of module.actions) {
+        if (action.method?.toLowerCase() !== 'get') continue;
+        expect(action.resultGetter, `${moduleName}/${action.name}`).toBeDefined();
+        expect(action.resultGetter!.length, `${moduleName}/${action.name}`).toBeGreaterThan(0);
+      }
     }
   });
 

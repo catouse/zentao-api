@@ -1901,6 +1901,7 @@ export const BUILTIN_MODULES = [
                 pathParams: {
                     productID: '产品ID',
                 },
+                resultGetter: 'tree',
             }, {
                 name: 'create',
                 display: '创建需求',
@@ -2368,6 +2369,7 @@ export const BUILTIN_MODULES = [
                 pathParams: {
                     storyID: '需求ID',
                 },
+                resultGetter: 'epic',
             }, {
                 name: 'update',
                 display: '修改业务需求',
@@ -2701,6 +2703,7 @@ export const BUILTIN_MODULES = [
                 pathParams: {
                     storyID: '需求ID',
                 },
+                resultGetter: 'requirement',
             }, {
                 name: 'update',
                 display: '修改用户需求',
@@ -2946,6 +2949,7 @@ export const BUILTIN_MODULES = [
                 pathParams: {
                     productID: '产品ID',
                 },
+                resultGetter: 'tree',
             }, {
                 name: 'create',
                 display: '创建Bug',
@@ -3335,6 +3339,7 @@ export const BUILTIN_MODULES = [
                 pathParams: {
                     productID: '产品ID',
                 },
+                resultGetter: 'tree',
             }, {
                 name: 'create',
                 display: '创建测试用例',
@@ -3623,6 +3628,7 @@ export const BUILTIN_MODULES = [
                 pathParams: {
                     executionID: '执行ID',
                 },
+                resultGetter: 'tree',
             }, {
                 name: 'create',
                 display: '创建任务',
@@ -3702,6 +3708,7 @@ export const BUILTIN_MODULES = [
                 pathParams: {
                     taskID: '任务ID',
                 },
+                resultGetter: 'task',
             }, {
                 name: 'update',
                 display: '修改任务',
@@ -5587,6 +5594,7 @@ export const BUILTIN_MODULES = [
                         description: '页码，从第1页开始',
                     },
                 ],
+                resultGetter: 'systems',
             }, {
                 name: 'create',
                 display: '创建应用',
@@ -6399,6 +6407,7 @@ export const BUILTIN_MODULES = [
                 path: '/workflow/contract',
                 resultType: 'list',
                 pagerGetter: 'pager',
+                resultGetter: 'dataList',
             }, {
                 name: 'getContract',
                 display: '获取工作流数据详情(以合同为例)',
@@ -6406,6 +6415,7 @@ export const BUILTIN_MODULES = [
                 method: 'get',
                 path: '/workflow/contract/1',
                 resultType: 'object',
+                resultGetter: 'data',
             }, {
                 name: 'create',
                 display: '创建工作流数据(以合同为例)',
@@ -6571,6 +6581,7 @@ export const BUILTIN_MODULES = [
                     spaceID: '空间ID',
                     libID: '文档库ID',
                 },
+                resultGetter: 'docs',
             }, {
                 name: 'teamDocs',
                 display: '获取团队文档列表',
@@ -6583,6 +6594,7 @@ export const BUILTIN_MODULES = [
                     spaceID: '空间ID',
                     libID: '文档库ID',
                 },
+                resultGetter: 'docs',
             }, {
                 name: 'productDocs',
                 display: '获取产品文档列表',
@@ -6595,6 +6607,7 @@ export const BUILTIN_MODULES = [
                     productID: '产品ID',
                     libID: '文档库ID',
                 },
+                resultGetter: 'docs',
             }, {
                 name: 'projectDocs',
                 display: '获取项目文档列表',
@@ -6607,6 +6620,7 @@ export const BUILTIN_MODULES = [
                     projectID: '项目ID',
                     libID: '文档库ID',
                 },
+                resultGetter: 'docs',
             }, {
                 name: 'myModules',
                 display: '获取我的文档库目录列表',
@@ -8206,6 +8220,7 @@ export const BUILTIN_MODULES = [
                         description: '页码，从第1页开始',
                     },
                 ],
+                resultGetter: 'meetings',
             }, {
                 name: 'issues',
                 display: '指派给我的问题',
@@ -8260,6 +8275,7 @@ export const BUILTIN_MODULES = [
                         description: '页码，从第1页开始',
                     },
                 ],
+                resultGetter: 'issues',
             }, {
                 name: 'risks',
                 display: '指派给我的风险',
@@ -8330,6 +8346,7 @@ export const BUILTIN_MODULES = [
                         ],
                     },
                 ],
+                resultGetter: 'risks',
             }
         ],
     }
